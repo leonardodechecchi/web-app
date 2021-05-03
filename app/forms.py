@@ -5,7 +5,6 @@ from wtforms.validators import DataRequired, Length, EqualTo, Email
 # DataRequired() : makes sure that the field won't be empty
 # Lenght() : sets a minimum and maximum lenght for the username
 # EqualTo() : verifies that 'password' is equalto 'confirm_password'
-# http://thesvalvolati.altervista.org/index.php?req=codice-fiscale-random
 
 class RegistrationForm(FlaskForm):
     name = StringField('Name', validators=[DataRequired(), Length(min=2, max=20)])
