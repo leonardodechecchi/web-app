@@ -24,7 +24,7 @@
                 {% endif %}
             </div>
 
-            <!-- Username -->
+            <!-- Surname -->
             <div class="form-group">
                 {{ form.surname.label(class="form-control-label") }}
                 {% if form.surname.errors %}
@@ -36,6 +36,21 @@
                     </div>
                 {% else %}
                     {{ form.surname(class="form-control form-control-lg") }}
+                {% endif %}
+            </div>
+
+            <!-- Social Number Security -->
+            <div class="form-group">
+                {{ form.social_number.label(class="form-control-label") }}
+                {% if form.social_number.errors %}
+                    {{ form.social_number(class="form-control form-control-lg is-invalid") }}
+                    <div class="invalid-feedback">
+                        {% for error in form.social_number.errors %}
+                            <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    {{ form.social_number(class="form-control form-control-lg") }}
                 {% endif %}
             </div>
 
