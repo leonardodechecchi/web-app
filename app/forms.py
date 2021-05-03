@@ -7,8 +7,8 @@ from wtforms.validators import DataRequired, Length, EqualTo, Email
 # EqualTo() : verifies that 'password' is equalto 'confirm_password'
 
 class RegistrationForm(FlaskForm):
-    username = StringField('Username', validators=[
-                           DataRequired(), Length(min=2, max=20)])  # list of validators
+    name = StringField('Name', validators=[DataRequired(), Length(min=2, max=20)])
+    surname = StringField('Surname', validators=[DataRequired(), Length(min=2, max=20)])
     email = StringField('Email', validators=[DataRequired(), Email()])
     password = PasswordField('Password', validators=[DataRequired()])
     confirm_password = PasswordField('Confirm Password', validators=[
