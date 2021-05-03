@@ -2,7 +2,7 @@ from flask import render_template, url_for, flash, redirect
 from app import app, db, bcrypt
 from app.forms import RegistrationForm, LoginForm
 from app.models import User
-from flask_login import login_user
+from flask_login import login_user, current_user, logout_user, login_required
 
 
 @app.route('/')
@@ -18,11 +18,14 @@ def about():
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
+    if current_user.is_authenticated:
+        flash('You must logout to make a new registration', 'info')
+        return redirect(url_for('home'))
     form = RegistrationForm()
     if form.validate_on_submit():
         hashed_pw = bcrypt.generate_password_hash(
             form.password.data).decode('utf-8')  # hashing password
-        # creating new user with the form data and hashed pw
+        # creating new user with the given data and hashed pw
         user = User(social_number=form.social_number.data, name=form.name.data,
                     surname=form.surname.data, email=form.email.data, password=hashed_pw) 
         db.session.add(user)  # adding user in the db
@@ -34,6 +37,9 @@ def register():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    if current_user.is_authenticated:
+        flash('You are already logged-in', 'info')
+        return redirect(url_for('home'))
     form = LoginForm()
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()  # querying user by email
@@ -43,3 +49,15 @@ def login():
         else:
             flash(f'Login Unsuccessful, please retry', 'danger')
     return render_template('public/login.html', title='Login', form=form)
+
+
+@app.route('/logout')
+def logout():
+    logout_user()
+    return redirect(url_for('home'))
+
+
+@app.route('/profile')
+@login_required
+def profile():
+        return render_template('public/profile.html', title='Profile')
