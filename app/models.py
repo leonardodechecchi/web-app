@@ -9,6 +9,8 @@ def load_user(user_id):
 
 
 class User(db.Model, UserMixin):
+    __tablename__ = "User"
+    __table_args__ = {'extend_existing': True}
     social_number = db.Column(db.String(16), primary_key=True)
     name = db.Column(db.String(20), nullable=False)
     surname = db.Column(db.String(20), nullable=False)
@@ -21,3 +23,7 @@ class User(db.Model, UserMixin):
     # overriding get_id() : social_number it's our primary key 
     def get_id(self):
         return self.social_number
+
+
+if __name__ == '__main__':
+    db.create_all()
