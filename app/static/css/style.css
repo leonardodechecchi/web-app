@@ -769,11 +769,11 @@ ul, ol {
 /*---------------------
   Register Section
 -----------------------*/
-
 .register-section {
 	background: #f5f4f4;
 	padding-top: 90px;
-	margin-top: 0px;
+	padding-bottom: 90px;
+	padding-right: 0px;
 }
 .register-section.classes-page {
 	background: #ffffff;
@@ -786,10 +786,10 @@ ul, ol {
 	box-shadow: 0px 12px 21px rgba(0, 0, 0, 0.15);
 }
 .register-section .section-title {
-	margin-bottom: 32px;
+	margin-bottom: 0;
 }
 .register-section .section-title h2 {
-	margin-bottom: 20px;
+	margin-bottom: 0;
 }
 .register-text {
 	padding: 50px 70px 60px 70px;
@@ -799,7 +799,7 @@ ul, ol {
 .register-text .register-form label {
 	font-size: 14px;
 	color: #9b9b9b;
-	margin-bottom: 11px;
+	margin-top: 15px;
 }
 .register-text .register-form input {
 	width: 100%;
@@ -808,7 +808,7 @@ ul, ol {
 	padding-left: 20px;
 	font-size: 14px;
 	color: #9b9b9b;
-	margin-bottom: 18px;
+	margin-bottom: 0;
 }
 .register-text .register-form .register-btn {
 	font-size: 16px;

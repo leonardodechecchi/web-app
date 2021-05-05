@@ -25,6 +25,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/magnific-popup.css') }}" type="text/css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/slicknav.min.css') }}" type="text/css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" type="text/css">
+
 </head>
 
 <body>
@@ -46,16 +47,16 @@
                     <ul>
                         <li><a href="{{ url_for('home') }}">Home</a></li>
                         {% if current_user.is_authenticated %}
-                            <li><a href="{{ url_for('logout') }}">Logout</a></li>
+                        <li><a href="{{ url_for('logout') }}">Logout</a></li>
                         {% else %}
-                            <li><a href="{{ url_for('login') }}">Login</a></li>
+                        <li><a href="{{ url_for('login') }}">Login</a></li>
                         {% endif %}
                     </ul>
                 </nav>
                 {% if current_user.is_authenticated %}
-                    <a href="#" class="primary-btn signup-btn">Profile</a>
+                <a href="#" class="primary-btn signup-btn">Profile</a>
                 {% else %}
-                    <a href="{{ url_for('register') }}" class="primary-btn signup-btn">Register Now</a>
+                <a href="{{ url_for('register') }}" class="primary-btn signup-btn">Register Now</a>
                 {% endif %}
             </div>
             <div id="mobile-menu-wrap"></div>
@@ -66,13 +67,13 @@
     <!-- enable flash messages -->
     <!-- with_categories=true allow us to select categories (e.g. 'success-danger' etc.) -->
     {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            {% for category, message in messages %}
-                <div class="alert alert-{{ category }}">
-                    {{ message }}
-                </div>
-            {% endfor %}
-        {% endif %}
+    {% if messages %}
+    {% for category, message in messages %}
+    <div class="alert alert-{{ category }}">
+        {{ message }}
+    </div>
+    {% endfor %}
+    {% endif %}
     {% endwith %}
 
     {% block content %}
