@@ -77,32 +77,50 @@
                         {% endif %}
                     </div>
 
+                    <!-- Email -->
+                    <div class="register-form">
+                        {{ form.email.label }}
+                        {% if form.email.errors %}
+                        {{ form.email(class="is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.email.errors %}
+                            <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        {{ form.email }}
+                        {% endif %}
+                    </div>
 
                     <!-- Password -->
-                    {{ form.password.label }}
-                    {% if form.password.errors %}
-                    {{ form.password(class="is-invalid") }}
-                    <div class="invalid-feedback">
-                        {% for error in form.password.errors %}
-                        <span>{{ error }}</span>
-                        {% endfor %}
+                    <div class="register-form">
+                        {{ form.password.label }}
+                        {% if form.password.errors %}
+                        {{ form.password(class="is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.password.errors %}
+                            <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        {{ form.password }}
+                        {% endif %}
                     </div>
-                    {% else %}
-                    {{ form.password }}
-                    {% endif %}
 
                     <!-- Conferma Password -->
-                    {{ form.confirm_password.label }}
-                    {% if form.confirm_password.errors %}
-                    {{ form.confirm_password(class="is-invalid") }}
-                    <div class="invalid-feedback">
-                        {% for error in form.confirm_password.errors %}
-                        <span>{{ error }}</span>
-                        {% endfor %}
+                    <div class="register-form">
+                        {{ form.confirm_password.label }}
+                        {% if form.confirm_password.errors %}
+                        {{ form.confirm_password(class="is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.confirm_password.errors %}
+                            <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        {{ form.confirm_password }}
+                        {% endif %}
                     </div>
-                    {% else %}
-                    {{ form.confirm_password }}
-                    {% endif %}
 
                 </fieldset>
 

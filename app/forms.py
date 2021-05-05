@@ -3,6 +3,7 @@ from wtforms import StringField, PasswordField, SubmitField, BooleanField
 from wtforms.validators import DataRequired, Length, EqualTo, Email, ValidationError
 from app.models import User
 
+
 # DataRequired() : makes sure that the field won't be empty
 # Lenght() : sets a minimum and maximum lenght for the username
 # EqualTo() : verifies that 'password' is equalto 'confirm_password'
@@ -14,7 +15,7 @@ class RegistrationForm(FlaskForm):
     email = StringField('Email', validators=[DataRequired(), Email()])
     password = PasswordField('Password', validators=[DataRequired()])
     confirm_password = PasswordField('Conferma Password', validators=[
-                                     DataRequired(), EqualTo('password')])
+        DataRequired(), EqualTo('password')])
     submit = SubmitField('Registrati')
 
     # constraints
@@ -24,7 +25,7 @@ class RegistrationForm(FlaskForm):
             raise ValidationError('That email is taken. Please choose another one')
 
     def validate_social_number(self, social_number):
-        user = User.query.filter_by(social_number=social_number)
+        user = User.query.filter_by(social_number=social_number.data).first()
         if user:
             raise ValidationError('That social number security already exists. You are already registered')
 

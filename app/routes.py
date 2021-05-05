@@ -8,7 +8,10 @@ from flask_login import login_user, current_user, logout_user, login_required
 @app.route('/')
 @app.route('/home')
 def home():
-    return render_template('gutim-master/home.html', title='Home Page')
+    if current_user.is_authenticated:
+        return render_template('gutim-master/home_auth.html', title='Home Page')
+    else:
+        return render_template('gutim-master/home.html', title='Home Page')
 
 
 @app.route('/about')
@@ -27,7 +30,7 @@ def register():
             form.password.data).decode('utf-8')  # hashing password
         # creating new user with the given data and hashed pw
         user = User(social_number=form.social_number.data, name=form.name.data,
-                    surname=form.surname.data, email=form.email.data, password=hashed_pw) 
+                    surname=form.surname.data, email=form.email.data, password=hashed_pw)
         db.session.add(user)  # adding user in the db
         db.session.commit()  # pushing changes
         flash('Your account has been created! Now you are able to log in', 'success')
@@ -43,7 +46,8 @@ def login():
     form = LoginForm()
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()  # querying user by email
-        if user and bcrypt.check_password_hash(user.password, form.password.data):  # if user exists and password is valid
+        if user and bcrypt.check_password_hash(user.password,
+                                               form.password.data):  # if user exists and password is valid
             login_user(user, remember=form.remember.data)
             return redirect(url_for('home'))
         else:
@@ -60,4 +64,4 @@ def logout():
 @app.route('/profile')
 @login_required
 def profile():
-        return render_template('public/profile.html', title='Profile')
+    return render_template('gutim-master/profile.html', user=current_user)

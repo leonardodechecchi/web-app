@@ -17,6 +17,13 @@ class User(db.Model, UserMixin):
     email = db.Column(db.String(120), nullable=False, unique=True)
     password = db.Column(db.String(60), nullable=False)
 
+    def __init__(self, social_number, name, surname, email, password):
+        self.surname = surname
+        self.email = email
+        self.name = name
+        self.social_number = social_number
+        self.password = password
+
     def __repr__(self):
         return f"User('{self.social_number}', '{self.name}', '{self.surname}', '{self.email}')"
 
@@ -27,3 +34,7 @@ class User(db.Model, UserMixin):
 
 if __name__ == '__main__':
     db.create_all()
+    for namen, surnamen, codicefiscalen, emailn, passwordn in db.session.query(User.name, User.surname,
+                                                                               User.social_number,
+                                                                               User.email, User.password):
+        print(namen, surnamen, codicefiscalen, emailn, passwordn)
