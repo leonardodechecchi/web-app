@@ -8,10 +8,7 @@ from flask_login import login_user, current_user, logout_user, login_required
 @app.route('/')
 @app.route('/home')
 def home():
-    if current_user.is_authenticated:
-        return render_template('gutim-master/home_auth.html', title='Home Page')
-    else:
-        return render_template('gutim-master/home.html', title='Home Page')
+    return render_template('gutim-master/home.html', title='Home Page')
 
 
 @app.route('/about')
@@ -52,7 +49,7 @@ def login():
             return redirect(url_for('home'))
         else:
             flash(f'Login Unsuccessful, please retry', 'danger')
-    return render_template('public/login.html', title='Login', form=form)
+    return render_template('gutim-master/login.html', title='Login', form=form)
 
 
 @app.route('/logout')

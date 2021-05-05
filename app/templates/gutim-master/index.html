@@ -45,10 +45,18 @@
                 <nav class="mainmenu mobile-menu">
                     <ul>
                         <li><a href="{{ url_for('home') }}">Home</a></li>
-                        <li><a href="{{ url_for('login') }}">Accedi</a></li>
+                        {% if current_user.is_authenticated %}
+                            <li><a href="{{ url_for('logout') }}">Logout</a></li>
+                        {% else %}
+                            <li><a href="{{ url_for('login') }}">Login</a></li>
+                        {% endif %}
                     </ul>
                 </nav>
-                <a href="{{ url_for('register') }}" class="primary-btn signup-btn">Registrati Oggi</a>
+                {% if current_user.is_authenticated %}
+                    <a href="#" class="primary-btn signup-btn">Profile</a>
+                {% else %}
+                    <a href="{{ url_for('register') }}" class="primary-btn signup-btn">Register Now</a>
+                {% endif %}
             </div>
             <div id="mobile-menu-wrap"></div>
         </div>
@@ -76,13 +84,13 @@
             <div class="row">
                 <div class="col-md-4">
                     <div class="contact-option">
-                        <span>Telefono</span>
+                        <span>Contacts</span>
                         <p>(123) 118 9999 - (123) 118 9999</p>
                     </div>
                 </div>
                 <div class="col-md-4">
                     <div class="contact-option">
-                        <span>Indirizzo</span>
+                        <span>Address</span>
                         <p>Via Torino, 155, 30170 Mestre, Venezia VE</p>
                     </div>
                 </div>
