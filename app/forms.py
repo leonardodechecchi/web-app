@@ -8,14 +8,14 @@ from app.models import User
 # EqualTo() : verifies that 'password' is equalto 'confirm_password'
 
 class RegistrationForm(FlaskForm):
-    name = StringField('Name', validators=[DataRequired(), Length(min=2, max=20)])
-    surname = StringField('Surname', validators=[DataRequired(), Length(min=2, max=20)])
-    social_number = StringField('Social Security Number', validators=[DataRequired(), Length(min=16, max=16)])
+    name = StringField('Nome', validators=[DataRequired(), Length(min=2, max=20)])
+    surname = StringField('Cognome', validators=[DataRequired(), Length(min=2, max=20)])
+    social_number = StringField('Codice Fiscale', validators=[DataRequired(), Length(min=16, max=16)])
     email = StringField('Email', validators=[DataRequired(), Email()])
     password = PasswordField('Password', validators=[DataRequired()])
-    confirm_password = PasswordField('Confirm Password', validators=[
+    confirm_password = PasswordField('Conferma Password', validators=[
                                      DataRequired(), EqualTo('password')])
-    submit = SubmitField('Sign Up')
+    submit = SubmitField('Registrati')
 
     # constraints
     def validate_email(self, email):

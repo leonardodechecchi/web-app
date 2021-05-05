@@ -8,12 +8,12 @@ from flask_login import login_user, current_user, logout_user, login_required
 @app.route('/')
 @app.route('/home')
 def home():
-    return render_template('public/home.html', title='Home Page')
+    return render_template('gutim-master/home.html', title='Home Page')
 
 
 @app.route('/about')
 def about():
-    return render_template('public/about.html', title='About')
+    return render_template('gutim-master/about-us.html', title='About Us')
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -32,7 +32,7 @@ def register():
         db.session.commit()  # pushing changes
         flash('Your account has been created! Now you are able to log in', 'success')
         return redirect(url_for('login'))
-    return render_template('public/register.html', title='Register', form=form)
+    return render_template('gutim-master/register.html', title='Register', form=form)
 
 
 @app.route('/login', methods=['GET', 'POST'])
