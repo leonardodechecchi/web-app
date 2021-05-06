@@ -46,6 +46,7 @@
                 <nav class="mainmenu mobile-menu">
                     <ul>
                         <li><a href="{{ url_for('home') }}">Home</a></li>
+                        <li><a href="{{ url_for('about') }}">About</a></li>
                         {% if current_user.is_authenticated %}
                         <li><a href="{{ url_for('logout') }}">Logout</a></li>
                         {% else %}
@@ -54,7 +55,7 @@
                     </ul>
                 </nav>
                 {% if current_user.is_authenticated %}
-                <a href="#" class="primary-btn signup-btn">Profile</a>
+                <a href="{{ url_for('profile') }}" class="primary-btn signup-btn">Profile</a>
                 {% else %}
                 <a href="{{ url_for('register') }}" class="primary-btn signup-btn">Register Now</a>
                 {% endif %}
