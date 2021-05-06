@@ -1,6 +1,6 @@
 from flask import render_template, url_for, flash, redirect
 from app import app, db, bcrypt
-from app.forms import RegistrationForm, LoginForm
+from app.forms import RegistrationForm, LoginForm, EditProfileForm
 from app.models import User
 from flask_login import login_user, current_user, logout_user, login_required
 
@@ -58,7 +58,29 @@ def logout():
     return redirect(url_for('home'))
 
 
-@app.route('/profile')
+@app.route('/profile', methods=['GET', 'POST'])
 @login_required
 def profile():
-    return render_template('gutim-master/profile.html', user=current_user)
+    form = EditProfileForm(obj=current_user)
+    if form.validate_on_submit():
+        user = User.query.filter_by(social_number=current_user.social_number).first()
+        if form.name.data:
+            user.name = form.name.data
+        if form.surname.data:
+            user.surname = form.surname.data
+        if form.email.data:
+            user.email = form.email.data
+        if form.social_number.data:
+            user.social_number = form.social_number.data
+        if form.password.data:
+            hashed_pw = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
+            user.password = hashed_pw
+        db.session.commit()
+        return redirect(url_for('home'))
+    return render_template('gutim-master/profile.html', user=current_user, form=form)
+
+
+@app.route('/calendar')
+@login_required
+def calendar():
+    return render_template('gutim-master/calendar.html')

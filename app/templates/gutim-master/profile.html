@@ -21,4 +21,130 @@
 </section>
 <!-- Breadcrumb Section End -->
 
+<!-- Register Section Begin -->
+<section class="register-section spad">
+    <div class="container">
+        <div class="register-text">
+            <div class="section-title">
+                <h2>UPDATE PROFILE {{ user.name }}</h2>
+            </div>
+            <form action="" method="POST" class="">
+                {{ form.hidden_tag() }}
+                <fieldset>
+
+                    <!-- Nome -->
+                    <div class="register-form">
+                        {{ form.name.label }}
+                        {% if form.name.errors %}
+                        {{ form.name(class="is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.name.errors %}
+                            <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        {{ form.name }}
+                        {% endif %}
+                    </div>
+
+                    <!-- Cognome -->
+                    <div class="register-form">
+                        {{ form.surname.label }}
+                        {% if form.surname.errors %}
+                        {{ form.surname(class="is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.surname.errors %}
+                            <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        {{ form.surname }}
+                        {% endif %}
+                    </div>
+
+                    <!-- Codice Fiscale -->
+                    <div class="register-form">
+                        {{ form.social_number.label }}
+                        {% if form.social_number.errors %}
+                        {{ form.social_number(class="is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.social_number.errors %}
+                            <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        {{ form.social_number }}
+                        {% endif %}
+                    </div>
+
+                    <!-- Email -->
+                    <div class="register-form">
+                        {{ form.email.label }}
+                        {% if form.email.errors %}
+                        {{ form.email(class="is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.email.errors %}
+                            <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        {{ form.email }}
+                        {% endif %}
+                    </div>
+
+                    <!-- Password -->
+                    <div class="register-form">
+                        {{ form.password.label }}
+                        {% if form.password.errors %}
+                        {{ form.password(class="is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.password.errors %}
+                            <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        {{ form.password }}
+                        {% endif %}
+                    </div>
+
+                    <!-- Conferma Password -->
+                    <div class="register-form">
+                        {{ form.confirm_password.label }}
+                        {% if form.confirm_password.errors %}
+                        {{ form.confirm_password(class="is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.confirm_password.errors %}
+                            <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        {{ form.confirm_password }}
+                        {% endif %}
+                    </div>
+
+                    <!-- Old Password -->
+                    <div class="register-form">
+                        {{ form.oldpassword.label }}
+                        {% if form.oldpassword.errors %}
+                        {{ form.oldpassword(class="is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.oldpassword.errors %}
+                            <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        {{ form.oldpassword }}
+                        {% endif %}
+                    </div>
+
+                    <div class="register-form">
+                        {{ form.submit(class="register-btn") }}
+                    </div>
+                </fieldset>
+            </form>
+        </div>
+    </div>
+</section>
+<!-- Register Section End -->
+
 {% endblock %}
