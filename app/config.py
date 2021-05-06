@@ -1,1 +1,0 @@
-DATABASE_URI = 'postgresql://postgres:dragonball12@localhost:5432/gym'
