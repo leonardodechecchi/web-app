@@ -30,11 +30,3 @@ class User(db.Model, UserMixin):
     # overriding get_id() : social_number it's our primary key 
     def get_id(self):
         return self.social_number
-
-
-if __name__ == '__main__':
-    db.create_all()
-    for namen, surnamen, codicefiscalen, emailn, passwordn in db.session.query(User.name, User.surname,
-                                                                               User.social_number,
-                                                                               User.email, User.password):
-        print(namen, surnamen, codicefiscalen, emailn, passwordn)

@@ -21,12 +21,25 @@
 </section>
 <!-- Breadcrumb Section End -->
 
+<!-- flash messages -->
+<div class="alert-section">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert-{{ category }}">
+                    {{ message }}
+                </div>
+                {% endfor %}
+        {% endif %}
+    {% endwith %}
+</div>
+
 <!-- Register Section Begin -->
 <section class="register-section spad">
     <div class="container">
         <div class="register-text">
             <div class="section-title">
-                <h2>UPDATE PROFILE {{ user.name }}</h2>
+                <h2>UPDATE PROFILE - {{ user.name }}</h2>
             </div>
             <form action="" method="POST" class="">
                 {{ form.hidden_tag() }}
