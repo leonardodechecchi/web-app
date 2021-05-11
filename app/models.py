@@ -9,6 +9,7 @@ def load_member(member_social_number):
 
 class Persons(db.Model, UserMixin):
     __tablename__ = "Persons"
+    __table_args__ = {'extend_existing': True}
     social_number = db.Column(db.String(16), primary_key=True)
     type = db.Column(db.String(50))  # discriminator
     name = db.Column(db.String(30), nullable=False)
