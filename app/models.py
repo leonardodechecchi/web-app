@@ -24,13 +24,16 @@ class Persons(db.Model, UserMixin):
         self.name = name
         self.surname = surname
 
+    def get_id(self):
+        return self.social_number
+
 
 class Members(Persons):
     __tablename__ = "Members"
     social_number = db.Column(db.String(16), db.ForeignKey('Persons.social_number'), primary_key=True)
     email = db.Column(db.String(120), nullable=False, unique=True)
     password = db.Column(db.String(60), nullable=False)
-    trainer_id = db.Column(db.Integer, db.ForeignKey('Trainers.id'))
+    trainer_id = db.Column(db.String(16), db.ForeignKey('Trainers.id'))
 
     __mapper_args__ = {
         'polymorphic_identity': 'Members'
@@ -45,13 +48,10 @@ class Members(Persons):
     def __repr__(self):
         return f"Member('{self.social_number}', '{self.name}', '{self.surname}', '{self.email}')"
 
-    def get_id(self):
-        return self.social_number
-
 
 class Staff(Persons):
     __tablename__ = "Staff"
-    id = db.Column(db.Integer, db.ForeignKey('Persons.id'), primary_key=True)
+    social_number = db.Column(db.String(16), db.ForeignKey('Persons.social_number'), primary_key=True)
     role = db.Column(db.String(30))
 
     def __init__(self, name, surname, role):
@@ -63,10 +63,9 @@ class Staff(Persons):
     }
 
 
-# Personal Trainer
 class Trainers(Staff):
     __tablename__ = "Trainers"
-    id = db.Column(db.Integer, db.ForeignKey('Staff.id'), primary_key=True)
+    social_number = db.Column(db.String(16), db.ForeignKey('Staff.social_number'), primary_key=True)
     members = db.relationship('Members', backref='trainer', lazy=True)
 
     __mapper_args__ = {
@@ -76,17 +75,16 @@ class Trainers(Staff):
 
 class Managers(Staff):
     __tablename__ = "Managers"
-    id = db.Column(db.Integer, db.ForeignKey('Staff.id'), primary_key=True)
+    social_number = db.Column(db.String(16), db.ForeignKey('Staff.social_number'), primary_key=True)
 
     __mapper_args__ = {
         'polymorphic_identity': 'Managers'
     }
 
 
-# Courses
 class Instructors(Staff):
     __tablename__ = "Instructors"
-    id = db.Column(db.Integer, db.ForeignKey('Staff.id'), primary_key=True)
+    social_number = db.Column(db.String(16), db.ForeignKey('Staff.social_number'), primary_key=True)
     courses = db.relationship('Courses', backref='instructor', lazy=True)
 
     __mapper_args__ = {
@@ -96,6 +94,7 @@ class Instructors(Staff):
 
 class Courses(db.Model):
     __tablename__ = "Courses"
+    __table_args__ = {'extend_existing': True}
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(20))
     max_members = db.Column(db.Integer)
