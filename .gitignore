@@ -1,5 +1,2 @@
 /app/config.py
 app/config.py
-env/*
-/app/__pycache__
-/venv/
