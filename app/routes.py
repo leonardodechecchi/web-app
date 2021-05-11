@@ -1,7 +1,7 @@
 from flask import render_template, url_for, flash, redirect
 from app import app, db, bcrypt
 from app.forms import RegistrationForm, LoginForm, EditProfileForm
-from app.models import User
+from app.models import Members
 from flask_login import login_user, current_user, logout_user, login_required
 
 
@@ -25,10 +25,10 @@ def register():
     if form.validate_on_submit():
         hashed_pw = bcrypt.generate_password_hash(
             form.password.data).decode('utf-8')  # hashing password
-        # creating new user with the given data and hashed pw
-        user = User(social_number=form.social_number.data, name=form.name.data,
-                    surname=form.surname.data, email=form.email.data, password=hashed_pw)
-        db.session.add(user)  # adding user in the db
+        # creating new member with the given data and hashed pw
+        member = Members(social_number=form.social_number.data, name=form.name.data,
+                         surname=form.surname.data, email=form.email.data, password=hashed_pw)
+        db.session.add(member)  # adding member in the db
         db.session.commit()  # pushing changes
         flash('Your account has been created! Now you are able to log in', 'success')
         return redirect(url_for('login'))
@@ -42,10 +42,10 @@ def login():
         return redirect(url_for('home'))
     form = LoginForm()
     if form.validate_on_submit():
-        user = User.query.filter_by(email=form.email.data).first()  # querying user by email
-        if user and bcrypt.check_password_hash(user.password,
-                                               form.password.data):  # if user exists and password is valid
-            login_user(user, remember=form.remember.data)
+        member = Members.query.filter_by(email=form.email.data).first()  # querying member by email
+        if member and bcrypt.check_password_hash(member.password,
+                                                 form.password.data):  # if member exists and password is valid
+            login_user(member, remember=form.remember.data)
             return redirect(url_for('home'))
         else:
             flash(f'Login Unsuccessful, please retry', 'danger')
@@ -63,18 +63,18 @@ def logout():
 def profile():
     form = EditProfileForm(obj=current_user)
     if form.validate_on_submit():
-        user = User.query.filter_by(social_number=current_user.social_number).first()
+        member = Members.query.filter_by(social_number=current_user.social_number).first()
         if form.name.data:
-            user.name = form.name.data
+            member.name = form.name.data
         if form.surname.data:
-            user.surname = form.surname.data
+            member.surname = form.surname.data
         if form.email.data:
-            user.email = form.email.data
+            member.email = form.email.data
         if form.social_number.data:
-            user.social_number = form.social_number.data
+            member.social_number = form.social_number.data
         if form.password.data:
             hashed_pw = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
-            user.password = hashed_pw
+            member.password = hashed_pw
         db.session.commit()
         return redirect(url_for('home'))
     return render_template('gutim-master/profile.html', user=current_user, form=form)

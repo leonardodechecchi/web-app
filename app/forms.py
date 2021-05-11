@@ -4,12 +4,12 @@ from wtforms import StringField, PasswordField, SubmitField, BooleanField
 from wtforms.validators import DataRequired, Length, EqualTo, Email, ValidationError
 
 from app import bcrypt
-from app.models import User
+from app.models import Members
 
 
 # DataRequired() : makes sure that the field won't be empty
-# Lenght() : sets a minimum and maximum lenght for the username
-# EqualTo() : verifies that 'password' is equalto 'confirm_password'
+# Length() : sets a minimum and maximum length for the username
+# EqualTo() : verifies that 'password' is equal to 'confirm_password'
 
 class RegistrationForm(FlaskForm):
     name = StringField('Name', validators=[DataRequired(), Length(min=2, max=20)])
@@ -23,13 +23,13 @@ class RegistrationForm(FlaskForm):
 
     # constraints
     def validate_email(self, email):
-        user = User.query.filter_by(email=email.data).first()
-        if user:
+        member = Members.query.filter_by(email=email.data).first()
+        if member:
             raise ValidationError('That email is taken. Please choose another one')
 
     def validate_social_number(self, social_number):
-        user = User.query.filter_by(social_number=social_number.data).first()
-        if user:
+        member = Members.query.filter_by(social_number=social_number.data).first()
+        if member:
             raise ValidationError('That social number security already exists. You are already registered')
 
 
@@ -53,17 +53,18 @@ class EditProfileForm(FlaskForm):
     # constraints
     def validate_email(self, email):
         if email:
-            user = User.query.filter(User.email == email.data, User.email != current_user.email).first()
-            if user:
+            member = Members.query.filter(Members.email == email.data, Members.email != current_user.email).first()
+            if member:
                 raise ValidationError('That email is taken. Please choose another one')
 
     def validate_social_number(self, social_number):
         if social_number:
-            user = User.query.filter(User.social_number == social_number.data, User.social_number != current_user.social_number).first()
-            if user:
+            member = Members.query.filter(Members.social_number == social_number.data,
+                                          Members.social_number != current_user.social_number).first()
+            if member:
                 raise ValidationError('That social number security already exists. You are already registered')
 
     def validate_oldpassword(self, oldpassword):
-        user = User.query.filter_by(social_number=current_user.social_number).first()
-        if not bcrypt.check_password_hash(user.password, oldpassword.data):
+        member = Members.query.filter_by(social_number=current_user.social_number).first()
+        if not bcrypt.check_password_hash(member.password, oldpassword.data):
             raise ValidationError('Wrong password')
