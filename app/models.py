@@ -3,13 +3,13 @@ from flask_login import UserMixin
 
 
 @login_manager.user_loader
-def load_member(member_id):
-    return Members.query.get(member_id)
+def load_member(member_social_number):
+    return Members.query.get(member_social_number)
 
 
-class Persons(db.Model):
+class Persons(db.Model, UserMixin):
     __tablename__ = "Persons"
-    id = db.Column(db.Integer, primary_key=True)
+    social_number = db.Column(db.String(16), primary_key=True)
     type = db.Column(db.String(50))  # discriminator
     name = db.Column(db.String(30), nullable=False)
     surname = db.Column(db.String(30), nullable=False)
@@ -24,12 +24,11 @@ class Persons(db.Model):
         self.surname = surname
 
 
-class Members(Persons, UserMixin):
+class Members(Persons):
     __tablename__ = "Members"
-    social_number = db.Column(db.String(16), primary_key=True)
+    social_number = db.Column(db.String(16), db.ForeignKey('Persons.social_number'), primary_key=True)
     email = db.Column(db.String(120), nullable=False, unique=True)
     password = db.Column(db.String(60), nullable=False)
-    persons = db.Column(db.Integer, db.ForeignKey('Persons.id'))  # Member is a Person
     trainer_id = db.Column(db.Integer, db.ForeignKey('Trainers.id'))
 
     __mapper_args__ = {
@@ -106,8 +105,7 @@ class Courses(db.Model):
         self.max_members = max_members
 
 
-"""
-
+""""
 # Many to Many adds an association table between two classes. The association table is indicated by the
 # relationship.secondary argument to relationship(). Usually, the Table uses the MetaData object associated with the
 # declarative base class, so that the ForeignKey directives can locate the remote tables with which to link
