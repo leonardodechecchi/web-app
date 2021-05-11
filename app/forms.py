@@ -68,3 +68,14 @@ class EditProfileForm(FlaskForm):
         member = Members.query.filter_by(social_number=current_user.social_number).first()
         if not bcrypt.check_password_hash(member.password, oldpassword.data):
             raise ValidationError('Wrong password')
+
+
+class Prenotazioni(FlaskForm):
+    # query che seleziona tutti i corsi in calendario
+    corsi = ["yoga", "crossfit", "cardio", "body", "gym"]
+    i = 0
+    # gli array non funzionano, trovare un modo per generare le giuste checkbox
+    checkboxes = [BooleanField(), BooleanField()]
+    checkboxes[0] = BooleanField()
+    checkboxes[1] = BooleanField()
+    submit = SubmitField('Conferma')

@@ -1,7 +1,7 @@
 from flask import render_template, url_for, flash, redirect
 from app import app, db, bcrypt
-from app.forms import RegistrationForm, LoginForm, EditProfileForm
-from app.models import Members
+from app.forms import RegistrationForm, LoginForm, EditProfileForm, Prenotazioni
+from app.models import Members, Courses
 from flask_login import login_user, current_user, logout_user, login_required
 
 
@@ -80,7 +80,13 @@ def profile():
     return render_template('profile.html', user=current_user, form=form)
 
 
-@app.route('/calendar')
+@app.route('/calendar', methods=['GET', 'POST'])
 @login_required
 def calendar():
-    return render_template('calendar.html')
+    form = Prenotazioni()
+    # courses = Courses.query(Courses.name)
+    courses = ["yoga", "crossfit", "cardio", "body", "gym"]
+    if form.is_submitted():
+        for box in form.checkboxes:
+            print(box)
+    return render_template('calendar.html', courses=courses, form=form)
