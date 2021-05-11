@@ -30,10 +30,11 @@ class Persons(db.Model, UserMixin):
 
 class Members(Persons):
     __tablename__ = "Members"
+    __table_args__ = {'extend_existing': True}
     social_number = db.Column(db.String(16), db.ForeignKey('Persons.social_number'), primary_key=True)
     email = db.Column(db.String(120), nullable=False, unique=True)
     password = db.Column(db.String(60), nullable=False)
-    trainer_id = db.Column(db.String(16), db.ForeignKey('Trainers.id'))
+    trainer_id = db.Column(db.String(16), db.ForeignKey('Trainers.social_number'))
 
     __mapper_args__ = {
         'polymorphic_identity': 'Members'
@@ -51,6 +52,7 @@ class Members(Persons):
 
 class Staff(Persons):
     __tablename__ = "Staff"
+    __table_args__ = {'extend_existing': True}
     social_number = db.Column(db.String(16), db.ForeignKey('Persons.social_number'), primary_key=True)
     role = db.Column(db.String(30))
 
@@ -65,6 +67,7 @@ class Staff(Persons):
 
 class Trainers(Staff):
     __tablename__ = "Trainers"
+    __table_args__ = {'extend_existing': True}
     social_number = db.Column(db.String(16), db.ForeignKey('Staff.social_number'), primary_key=True)
     members = db.relationship('Members', backref='trainer', lazy=True)
 
@@ -75,6 +78,7 @@ class Trainers(Staff):
 
 class Managers(Staff):
     __tablename__ = "Managers"
+    __table_args__ = {'extend_existing': True}
     social_number = db.Column(db.String(16), db.ForeignKey('Staff.social_number'), primary_key=True)
 
     __mapper_args__ = {
@@ -84,6 +88,7 @@ class Managers(Staff):
 
 class Instructors(Staff):
     __tablename__ = "Instructors"
+    __table_args__ = {'extend_existing': True}
     social_number = db.Column(db.String(16), db.ForeignKey('Staff.social_number'), primary_key=True)
     courses = db.relationship('Courses', backref='instructor', lazy=True)
 
@@ -98,7 +103,7 @@ class Courses(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(20))
     max_members = db.Column(db.Integer)
-    instructor_id = db.Column(db.Integer, db.ForeignKey('Instructors.id'), nullable=False)
+    instructor_id = db.Column(db.String, db.ForeignKey('Instructors.social_number'), nullable=False)
 
     def __init__(self, name, max_members):
         self.name = name
@@ -138,4 +143,6 @@ class Turns(db.Model):
 
 """
 
+if __name__ == '__main__':
+    db.create_all()
 
