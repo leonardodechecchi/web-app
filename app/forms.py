@@ -7,10 +7,6 @@ from app import bcrypt
 from app.models import Members
 
 
-# DataRequired() : makes sure that the field won't be empty
-# Length() : sets a minimum and maximum length for the username
-# EqualTo() : verifies that 'password' is equal to 'confirm_password'
-
 class RegistrationForm(FlaskForm):
     name = StringField('Name', validators=[DataRequired(), Length(min=2, max=20)])
     surname = StringField('Surname', validators=[DataRequired(), Length(min=2, max=20)])
