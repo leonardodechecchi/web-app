@@ -1,7 +1,7 @@
 from flask import render_template, url_for, flash, redirect
 from app import app, db, bcrypt
 from app.forms import RegistrationForm, LoginForm, EditProfileForm, Prenotazioni
-from app.models import Members, Courses
+from app.models import Members
 from flask_login import login_user, current_user, logout_user, login_required
 
 

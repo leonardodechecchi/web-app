@@ -78,4 +78,4 @@ class Prenotazioni(FlaskForm):
     checkboxes = [BooleanField(), BooleanField()]
     checkboxes[0] = BooleanField()
     checkboxes[1] = BooleanField()
-    submit = SubmitField('Conferma')
+    submit = SubmitField('Confirm')

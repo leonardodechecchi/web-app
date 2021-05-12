@@ -45,7 +45,7 @@
                 {{ form.hidden_tag() }}
                 <fieldset>
 
-                    <!-- Nome -->
+                    <!-- Name -->
                     <div class="register-form">
                         {{ form.name.label }}
                         {% if form.name.errors %}
@@ -60,7 +60,7 @@
                         {% endif %}
                     </div>
 
-                    <!-- Cognome -->
+                    <!-- Surname -->
                     <div class="register-form">
                         {{ form.surname.label }}
                         {% if form.surname.errors %}
@@ -75,7 +75,7 @@
                         {% endif %}
                     </div>
 
-                    <!-- Codice Fiscale -->
+                    <!-- Social Number -->
                     <div class="register-form">
                         {{ form.social_number.label }}
                         {% if form.social_number.errors %}
@@ -120,7 +120,7 @@
                         {% endif %}
                     </div>
 
-                    <!-- Conferma Password -->
+                    <!-- Confirm Password -->
                     <div class="register-form">
                         {{ form.confirm_password.label }}
                         {% if form.confirm_password.errors %}
