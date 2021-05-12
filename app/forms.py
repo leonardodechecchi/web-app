@@ -36,7 +36,13 @@ class LoginForm(FlaskForm):
     submit = SubmitField('Login')
 
 
-class EditProfileForm(RegistrationForm):
+class EditProfileForm(FlaskForm):
+    name = StringField('Name', validators=[Length(max=20)])
+    surname = StringField('Surname', validators=[Length(max=20)])
+    social_number = StringField('Social Security Number', validators=[Length(min=16, max=16)])
+    email = StringField('Email', validators=[Email()])
+    password = PasswordField('Password')
+    confirm_password = PasswordField('Confirm Password', validators=[EqualTo('password')])
     oldpassword = PasswordField('Old Password', validators=[DataRequired()])
     submit = SubmitField('Update')
 
