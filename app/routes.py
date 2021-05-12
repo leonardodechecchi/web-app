@@ -1,4 +1,6 @@
 from flask import render_template, url_for, flash, redirect
+from wtforms import BooleanField, SubmitField
+
 from app import app, db, bcrypt
 from app.forms import RegistrationForm, LoginForm, EditProfileForm, Prenotazioni
 from app.models import Members
@@ -83,10 +85,18 @@ def profile():
 @app.route('/calendar', methods=['GET', 'POST'])
 @login_required
 def calendar():
-    form = Prenotazioni()
-    # courses = Courses.query(Courses.name)
+    # query che seleziona tutti i corsi in calendario
     courses = ["yoga", "crossfit", "cardio", "body", "gym"]
+
+    class F(Prenotazioni):
+        pass
+
+    for name in courses:
+        setattr(F, name, BooleanField())
+    setattr(F, "submit", SubmitField('Confirm'))
+    form = F()
+    # courses = Courses.query(Courses.name)
     if form.is_submitted():
-        for box in form.checkboxes:
-            print(box)
-    return render_template('calendar.html', courses=courses, form=form)
+        for name in courses:
+            print(getattr(form, name).data)
+    return render_template('calendar.html', courses=courses, form=form, zip=zip)

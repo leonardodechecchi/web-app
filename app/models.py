@@ -7,10 +7,10 @@ def load_member(member_id):
     return Members.query.get(member_id)
 
 
-class Persons(db.Model):
+class Persons(db.Model, UserMixin):
     __tablename__ = "Persons"
     __table_args__ = {'extend_existing': True}
-    id = db.Column(db.Integer, primary_key=True)
+    social_number = db.Column(db.String(16), primary_key=True)
     type = db.Column(db.String(50))
     name = db.Column(db.String(30), nullable=False)
     surname = db.Column(db.String(30), nullable=False)
@@ -24,12 +24,14 @@ class Persons(db.Model):
         self.name = name
         self.surname = surname
 
+    def get_id(self):
+        return self.social_number
 
-class Members(Persons, UserMixin):
+
+class Members(Persons):
     __tablename__ = "Members"
     __table_args__ = {'extend_existing': True}
-    id = db.Column(db.Integer, db.ForeignKey('Persons.id'))
-    social_number = db.Column(db.String(16), primary_key=True)
+    social_number = db.Column(db.String(16), db.ForeignKey('Persons.social_number'), primary_key=True)
     email = db.Column(db.String(120), nullable=False, unique=True)
     password = db.Column(db.String(60), nullable=False)
 
@@ -53,16 +55,16 @@ class Members(Persons, UserMixin):
 class Staff(Persons):
     __tablename__ = "Staff"
     __table_args__ = {'extend_existing': True}
-    id = db.Column(db.Integer, db.ForeignKey('Persons.id'), primary_key=True)
+    social_number = db.Column(db.String(16), db.ForeignKey('Persons.social_number'), primary_key=True)
     role = db.Column(db.String(30), nullable=False)
-
-    __mapper_args__ = {
-        'polymorphic_identity': 'Staff'
-    }
 
     def __init__(self, name, surname, role):
         super().__init__(name, surname)
         self.role = role
+
+    __mapper_args__ = {
+        'polymorphic_identity': 'Staff'
+    }
 
 
 class Courses(db.Model):
@@ -79,8 +81,7 @@ class Courses(db.Model):
 
 scheduling = db.Table('scheduling',
                       db.Column('schedule_id', db.Integer, db.ForeignKey('Schedules.id')),
-                      db.Column('turn_id', db.Integer, db.ForeignKey('Turns.id')),
-                      )
+                      db.Column('turn_id', db.Integer, db.ForeignKey('Turns.id')))
 
 
 class Schedules(db.Model):
@@ -109,3 +110,6 @@ class Reservations(db.Model):
     # date
     # turn
 """
+
+if __name__ == '__main__':
+    db.create_all()
