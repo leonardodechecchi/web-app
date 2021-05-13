@@ -578,90 +578,7 @@ ul, ol {
 .single-trainer-item .trainer-text .trainer-social a:last-child {
 	margin-right: 0;
 }
-/*---------------------
-  Testimonial Section
------------------------*/
 
-.testimonial-section {
-	position: relative;
-}
-.testimonial-section:after {
-	position: absolute;
-	left: 50%;
-	top: 50%;
-	width: 1100px;
-	height: 540px;
-	background: url(../img/testimonial/testimonial-bg.png);
-	content: "";
-	-webkit-transform: translate(-550px, -270px);
-	-ms-transform: translate(-550px, -270px);
-	transform: translate(-550px, -270px);
-}
-.testimonial-section .section-title {
-	margin-bottom: 35px;
-}
-.testimonial-slider.owl-carousel .owl-item img {
-	display: inline-block;
-}
-.testimonial-slider.owl-carousel .owl-nav button {
-	font-size: 36px;
-	color: #bdbdbd;
-	position: absolute;
-	left: -110px;
-	top: 30%;
-}
-.testimonial-slider.owl-carousel .owl-nav button:hover {
-	color: #ed8064;
-}
-.testimonial-slider.owl-carousel .owl-nav button.owl-next {
-	left: auto;
-	right: -110px;
-}
-.testimonial-slider .testimonial-item {
-	text-align: center;
-}
-.testimonial-slider .testimonial-item p {
-	font-size: 22px;
-	color: #111111;
-	line-height: 30px;
-	margin-bottom: 60px;
-}
-.testimonial-slider .testimonial-item .ti-pic {
-	width: 120px;
-	height: 120px;
-	margin: 0 auto;
-	position: relative;
-	z-index: 1;
-}
-.testimonial-slider .testimonial-item .ti-pic img {
-	width: 120px;
-	height: 120px;
-	border-radius: 50%;
-}
-.testimonial-slider .testimonial-item .ti-pic .quote {
-	position: absolute;
-	left: 20px;
-	top: -22px;
-	z-index: -1;
-}
-.testimonial-slider .testimonial-item .ti-pic .quote img {
-	width: auto;
-	height: auto;
-	border-radius: initial;
-}
-.testimonial-slider .testimonial-item .ti-author {
-	margin-top: 25px;
-}
-.testimonial-slider .testimonial-item .ti-author h4 {
-	font-size: 22px;
-	color: #111111;
-	font-weight: 600;
-	margin-bottom: 8px;
-}
-.testimonial-slider .testimonial-item .ti-author span {
-	font-size: 16px;
-	color: #f15d44;
-}
 /*---------------------
   Banner Section
 -----------------------*/
@@ -1056,7 +973,6 @@ ul, ol {
 /*---------------------------
   Classes Timetable Section
 ----------------------------*/
-
 .classes-timetable {
 	padding-top: 90px;
 	padding-right: 0;
@@ -1065,26 +981,29 @@ ul, ol {
 	text-align: center;
 	margin-bottom: 42px;
 }
-.classes-timetable .nav-controls ul li {
+.classes-timetable .nav-controls .courses {
+	margin-top: 42px;
+}
+.classes-timetable .nav-controls ul, .nav-controls li, .nav-controls a {
 	list-style: none;
-	font-size: 16px;
+	font-size: 18px;
 	color: #111111;
 	font-weight: 600;
 	display: inline-block;
 	margin-right: 48px;
-	text-transform: uppercase;
+	text-transform: none;
 	-webkit-transition: all 0.3s;
 	-o-transition: all 0.3s;
 	transition: all 0.3s;
 	cursor: pointer;
 }
-.classes-timetable .nav-controls ul li.active {
+.classes-timetable .nav-controls ul, .nav-controls li, .nav-controls a.active {
 	color: #f15d44;
 }
-.classes-timetable .nav-controls ul li:hover {
+.classes-timetable .nav-controls ul, li:hover, a:hover {
 	color: #f15d44;
 }
-.classes-timetable .nav-controls ul li:last-child {
+.classes-timetable .nav-controls ul, .nav-controls li:last-child, .nav-controls a:last-child {
 	margin-right: 0;
 }
 .schedule-table.filtering .ts-item {
@@ -1097,6 +1016,17 @@ ul, ol {
 	width: 100%;
 	text-align: center;
 	border: 1px solid #e1e1e1;
+}
+.calendar-submit {
+	font-size: 14px;
+	color: #808080 ;
+	margin-top: 15px;
+	width: 100%;
+	height: 46px;
+	border: 1px solid #ebebeb;
+	padding-left: 20px;
+	margin-bottom: 0;
+	text-align: center;
 }
 .schedule-table table thead tr th {
 	font-size: 16px;
@@ -1205,54 +1135,7 @@ ul, ol {
 	letter-spacing: 2px;
 	text-transform: uppercase;
 }
-/*---------------------
-  Gym Award Section
------------------------*/
 
-.award-text {
-	padding-top: 20px;
-}
-.award-text h2 {
-	font-size: 40px;
-	font-weight: 600;
-	color: #111111;
-	text-transform: uppercase;
-	margin-bottom: 20px;
-}
-.award-text p {
-	margin-bottom: 10px;
-}
-/*---------------------
-  Gallery Section
------------------------*/
-
-.gallery-section {
-	padding-bottom: 70px;
-}
-.gallery-controls {
-	text-align: center;
-	margin-bottom: 55px;
-}
-.gallery-controls li {
-	list-style: none;
-	display: inline-block;
-	font-size: 16px;
-	font-weight: 600;
-	color: #111111;
-	text-transform: uppercase;
-	margin-right: 30px;
-	cursor: pointer;
-}
-.gallery-controls li.active {
-	color: #f15d44;
-}
-.gallery-controls li:last-child {
-	margin-right: 0;
-}
-.gallery-filter img {
-	min-width: 100%;
-	margin-bottom: 30px;
-}
 /*---------------------
   Blog Section
 -----------------------*/
