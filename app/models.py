@@ -1,5 +1,6 @@
 from app import db, login_manager
 from flask_login import UserMixin
+from datetime import datetime
 
 
 @login_manager.user_loader
@@ -99,17 +100,15 @@ class Turns(db.Model):
     __tablename__ = "Turns"
     __table_args__ = {'extend_existing': True}
     id = db.Column(db.Integer, primary_key=True)
-    from_hour = db.Column(db.DateTime, nullable=False)
-    to_hour = db.Column(db.DateTime, nullable=False)
+    from_hour = db.Column(db.Time, nullable=False)
+    to_hour = db.Column(db.Time, nullable=False)
+
+    def __init__(self, from_hour, to_hour):
+        self.from_hour = from_hour
+        self.to_hour = to_hour
 
 
-""""
-class Reservations(db.Model):
-    __tablename__ = "Reservations"
-    id = db.Column(db.String(16), db.ForeignKey('Members.social_number'), primary_key=True)
-    # date
-    # turn
 """
-
 if __name__ == '__main__':
     db.create_all()
+"""

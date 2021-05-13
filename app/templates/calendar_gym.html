@@ -1,0 +1,99 @@
+{% extends "index.html" %}
+
+{% block content %}
+
+<!-- Breadcrumb Section Begin -->
+<section class="breadcrumb-section set-bg"
+    data-setbg="{{ url_for('static', filename='img/breadcrumb/classes-breadcrumb.jpg') }}">
+    <div class=" container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="breadcrumb-text">
+                    <h2>Gym Calendar</h2>
+                    <div class="breadcrumb-option">
+                        <a href="{{ url_for('home') }}"><i class="fa fa-home"></i> Home</a>
+                        <span>Gym Calendar</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Breadcrumb Section End -->
+
+<!-- flash messages -->
+<div class="alert-section">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert-{{ category }}">
+                    {{ message }}
+                </div>
+                {% endfor %}
+        {% endif %}
+    {% endwith %}
+</div>
+
+<!-- Classes Timetable Section Begin -->
+<section class="classes-timetable spad">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="nav-controls">
+                    <ul>
+                        <li><a href="{{ url_for('calendar_gym') }}">Gym</a></li>
+                        <li><a href="{{ url_for('calendar_courses') }}">Courses</a></li>
+                    </ul>
+                </div>
+                <div class="schedule-table">
+                    <form action="" method="POST" class="">
+                        {{ form.hidden_tag() }}
+
+                        <table>
+
+                            <!-- HEAD  -->
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th>Monday</th>
+                                    <th>Tuesday</th>
+                                    <th>Wednesday</th>
+                                    <th>Thursday</th>
+                                    <th>Friday</th>
+                                    <th>Saturday</th>
+                                    <th>Sunday</th>
+                                </tr>
+                            </thead>
+
+                            <!-- BODY  -->
+                            <tbody>
+                                {% for turn in turns %}
+                                <tr>
+                                    <td class="workout-time">{{ turn.from }}-{{ turn.to }}</td>
+                                    {% for num in range(7) %}
+                                        <td class="hover-bg ts-item" data-tsmeta="gym">
+
+                                        </td>
+                                    {% endfor %}
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+
+                        </table>
+
+                        <!-- RESERVE NOW BUTTON  -->
+                        <div class="register-text">
+                            <div class="register-form">
+                                {{ form.submit(class="register-btn") }}
+                            </div>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Trainers Table Schedule Section End -->
+
+{% endblock %}>

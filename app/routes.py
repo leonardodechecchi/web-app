@@ -1,9 +1,8 @@
 from flask import render_template, url_for, flash, redirect
-from wtforms import BooleanField, SubmitField
 
 from app import app, db, bcrypt
-from app.forms import RegistrationForm, LoginForm, EditProfileForm, Prenotazioni
-from app.models import Members
+from app.forms import RegistrationForm, LoginForm, EditProfileForm, Reservations
+from app.models import Members, Courses
 from flask_login import login_user, current_user, logout_user, login_required
 
 
@@ -79,9 +78,10 @@ def profile():
             member.password = hashed_pw
         db.session.commit()
         return redirect(url_for('home'))
-    return render_template('profile.html', user=current_user, form=form)
+    return render_template('profile.html', title='Profile', user=current_user, form=form)
 
 
+"""
 @app.route('/calendar', methods=['GET', 'POST'])
 @login_required
 def calendar():
@@ -100,3 +100,45 @@ def calendar():
         for name in courses:
             print(getattr(form, name).data)
     return render_template('calendar.html', courses=courses, form=form, zip=zip)
+"""
+
+
+turns = [
+    {
+        'from': 8.00,
+        'to': 9.00
+    },
+    {
+        'from': 9.00,
+        'to': 10.00
+    },
+    {
+        'from': 10.00,
+        'to': 11.00
+    },
+    {
+        'from': 11.00,
+        'to': 12.00
+    },
+    {
+        'from': 12.00,
+        'to': 13.00
+    }
+]
+
+
+@app.route('/calendar/gym', methods=['GET', 'POST'])
+@login_required
+def calendar_gym():
+    form = Reservations()
+    return render_template('calendar_gym.html', title='Gym Calendar',
+                           turns=turns, num=1, range=range, form=form)
+
+
+@app.route('/calendar/courses', methods=['GET', 'POST'])
+@login_required
+def calendar_courses():
+    form = Reservations()
+    courses = Courses.query.all()
+    return render_template('calendar_courses.html', title='Courses Calendar',
+                           turns=turns, num=1, range=range, form=form, courses=courses)

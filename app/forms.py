@@ -66,5 +66,5 @@ class EditProfileForm(FlaskForm):
             raise ValidationError('Wrong password')
 
 
-class Prenotazioni(FlaskForm):
-    pass
+class Reservations(FlaskForm):
+    submit = SubmitField('Reserve Now')
