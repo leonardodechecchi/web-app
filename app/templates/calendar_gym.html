@@ -57,26 +57,39 @@
                             <thead>
                                 <tr>
                                     <th></th>
-                                    <th>Monday</th>
-                                    <th>Tuesday</th>
-                                    <th>Wednesday</th>
-                                    <th>Thursday</th>
-                                    <th>Friday</th>
-                                    <th>Saturday</th>
-                                    <th>Sunday</th>
+                                    {% for day in days %}
+                                        <th>{{ day.day }}</th>
+                                    {% endfor %}
                                 </tr>
                             </thead>
 
                             <!-- BODY  -->
                             <tbody>
-                                {% for turn in turns %}
-                                <tr>
-                                    <td class="workout-time">{{ turn.from }}-{{ turn.to }}</td>
-                                    {% for num in range(7) %}
-                                        <td class="hover-bg ts-item" data-tsmeta="gym">
 
+                                {% for turn in turns %}
+                                <tr> <!-- ROW -->
+
+                                    <!-- PRINT TURN -->
+                                    <td class="workout-time">
+                                        {{ turn.from_hour }}-{{ turn.to }}
+                                    </td>
+
+                                    {% for day in days %}
+
+                                        <!-- PRINT CELL -->
+                                        <td class="hover-bg ts-item">
+                                            <h6>Gym</h6>
+                                            <span>{{ turn.from_hour }}-{{ turn.to }}</span>
+                                            <!-- CHECKBOX -->
+                                            <div class="trainer-name">
+                                                {% set checkbox = getattr(form, turn['from_hour'] + day['day']) %}
+                                                {{ checkbox.label }}
+                                            </div>
+                                            {{ checkbox }}
                                         </td>
+
                                     {% endfor %}
+
                                 </tr>
                                 {% endfor %}
                             </tbody>

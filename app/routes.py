@@ -4,6 +4,7 @@ from app import app, db, bcrypt
 from app.forms import RegistrationForm, LoginForm, EditProfileForm, Reservations
 from app.models import Members, Courses
 from flask_login import login_user, current_user, logout_user, login_required
+from wtforms import BooleanField
 
 
 @app.route('/')
@@ -105,34 +106,52 @@ def calendar():
 
 turns = [
     {
-        'from': 8.00,
-        'to': 9.00
+        'from_hour': '8.00',
+        'to': '9.00'
     },
     {
-        'from': 9.00,
-        'to': 10.00
+        'from_hour': '9.00',
+        'to': '10.00'
     },
     {
-        'from': 10.00,
-        'to': 11.00
+        'from_hour': '10.00',
+        'to': '11.00'
     },
     {
-        'from': 11.00,
-        'to': 12.00
+        'from_hour': '11.00',
+        'to': '12.00'
     },
     {
-        'from': 12.00,
-        'to': 13.00
+        'from_hour': '12.00',
+        'to': '13.00'
     }
+]
+
+days = [
+    {'day': 'Monday'},
+    {'day': 'Tuesday'},
+    {'day': 'Wednesday'},
+    {'day': 'Thursday'},
+    {'day': 'Friday'},
+    {'day': 'Saturday'}
 ]
 
 
 @app.route('/calendar/gym', methods=['GET', 'POST'])
 @login_required
 def calendar_gym():
-    form = Reservations()
+    class F(Reservations):
+        pass
+    for turn in turns:
+        for day in days:
+            setattr(F, turn['from_hour'] + day['day'], BooleanField('Reserve Now'))
+    form = F()
+    if form.is_submitted():
+        for turn in turns:
+            for day in days:
+                print(getattr(form, turn['from_hour'] + day['day']).data)
     return render_template('calendar_gym.html', title='Gym Calendar',
-                           turns=turns, num=1, range=range, form=form)
+                           turns=turns, days=days, form=form, getattr=getattr)
 
 
 @app.route('/calendar/courses', methods=['GET', 'POST'])
@@ -141,4 +160,4 @@ def calendar_courses():
     form = Reservations()
     courses = Courses.query.all()
     return render_template('calendar_courses.html', title='Courses Calendar',
-                           turns=turns, num=1, range=range, form=form, courses=courses)
+                           turns=turns, num=1, range=range, form=form, courses=courses, zip=zip)

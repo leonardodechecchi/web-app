@@ -1077,6 +1077,27 @@ ul, ol {
 .schedule-table table tbody tr td.hover-bg:hover .trainer-name {
 	color: #ffffff;
 }
+
+
+.checkbox input {
+  	display: none;
+}
+.checkbox label {
+	display: inline-block;
+	width: 100px;
+	height: 40px;
+	text-align: center;
+	border: 1px solid #ddd;
+	line-height: 40px;
+	cursor: pointer
+}
+.checkbox label:hover {
+	background: -webkit-gradient(linear, left top, right top, from(#eb3c5a), to(#f67831));
+	background: -o-linear-gradient(left, #eb3c5a, #f67831);
+	background: linear-gradient(to right, #eb3c5a, #f67831);
+}
+
+
 .schedule-table table tbody tr td.hover-bg:hover:after {
 	opacity: 1;
 }
