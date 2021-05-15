@@ -1017,17 +1017,39 @@ ul, ol {
 	text-align: center;
 	border: 1px solid #e1e1e1;
 }
+
+
 .calendar-submit {
+	background: #ffffff;
+}
+.calendar-submit .calendar-form label {
 	font-size: 14px;
 	color: #808080 ;
 	margin-top: 15px;
+}
+.calendar-submit .calendar-form input {
 	width: 100%;
 	height: 46px;
 	border: 1px solid #ebebeb;
-	padding-left: 20px;
+	font-size: 14px;
+	color: #808080 ;
 	margin-bottom: 0;
-	text-align: center;
 }
+.calendar-submit .calendar-form .register-btn {
+	font-size: 16px;
+	color: #ffffff;
+	font-weight: 600;
+	width: 100%;
+	background: -webkit-gradient(linear, left top, right top, from(#eb3c5a), to(#f67831));
+	background: -o-linear-gradient(left, #eb3c5a, #f67831);
+	background: linear-gradient(to right, #eb3c5a, #f67831);
+	border: none;
+	padding: 12px 0;
+	cursor: pointer;
+	margin-top: 30px;
+}
+
+
 .schedule-table table thead tr th {
 	font-size: 16px;
 	color: #000000;
@@ -1079,22 +1101,67 @@ ul, ol {
 }
 
 
-.checkbox input {
-  	display: none;
-}
-.checkbox label {
+/* Customize the label (the container) */
+.my-checkbox {
 	display: inline-block;
-	width: 100px;
-	height: 40px;
-	text-align: center;
-	border: 1px solid #ddd;
-	line-height: 40px;
-	cursor: pointer
+	position: relative;
+	padding-left: 25px;
+
+	cursor: pointer;
+	font-size: 22px;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
 }
-.checkbox label:hover {
+/* Hide the browser's default checkbox */
+.my-checkbox input {
+	position: absolute;
+	opacity: 0;
+	cursor: pointer;
+	height: 0;
+	width: 0;
+}
+/* Create a custom checkbox */
+.checkmark {
+	display: inline-block;
+	position: absolute;
+	top: 0;
+	left: 0;
+	height: 22px;
+	width: 22px;
+	background-color: #eee;
+}
+/* On mouse-over, add a grey background color */
+.my-checkbox:hover input ~ .checkmark {
+}
+/* When the checkbox is checked, add a blue background */
+.my-checkbox input:checked ~ .checkmark {
 	background: -webkit-gradient(linear, left top, right top, from(#eb3c5a), to(#f67831));
 	background: -o-linear-gradient(left, #eb3c5a, #f67831);
 	background: linear-gradient(to right, #eb3c5a, #f67831);
+}
+/* Create the checkmark/indicator (hidden when not checked) */
+.checkmark:after {
+	content: "";
+	position: absolute;
+	display: none;
+}
+/* Show the checkmark when checked */
+.my-checkbox input:checked ~ .checkmark:after {
+	display: block;
+}
+/* Style the checkmark/indicator */
+.my-checkbox .checkmark:after {
+	left: 9px;
+	top: 5px;
+	width: 5px;
+	height: 10px;
+	border: solid white;
+	border-width: 0 3px 3px 0;
+	-webkit-transform: rotate(45deg);
+	-ms-transform: rotate(45deg);
+	transform: rotate(45deg);
 }
 
 
