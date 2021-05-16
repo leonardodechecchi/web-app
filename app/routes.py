@@ -1,8 +1,10 @@
+from datetime import time, date
+
 from flask import render_template, url_for, flash, redirect
 
 from app import app, db, bcrypt
 from app.forms import RegistrationForm, LoginForm, EditProfileForm, Reservations
-from app.models import Members, Courses
+from app.models import Members, Courses, Turns, Schedules
 from flask_login import login_user, current_user, logout_user, login_required
 from wtforms import BooleanField
 
@@ -10,6 +12,18 @@ from wtforms import BooleanField
 @app.route('/')
 @app.route('/home')
 def home():
+    from_hour = time(9, 00, 00)
+    to_hour = time(11, 00, 00)
+    day = date(2021, 5, 26)
+    turn = Turns(from_hour=from_hour, to_hour=to_hour)
+    schedule = Schedules(day=day)
+    db.session.add(turn)
+    db.session.add(schedule)
+    db.session.commit()
+    for times in Turns.query.all():
+        print(times.from_hour, times.to_hour)
+    for dayz in Schedules.query.all():
+        print(dayz.day)
     return render_template('home.html', title='Home Page')
 
 

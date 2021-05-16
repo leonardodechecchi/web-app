@@ -82,7 +82,7 @@ class Courses(db.Model):
 
 scheduling = db.Table('scheduling',
                       db.Column('schedule_id', db.Integer, db.ForeignKey('Schedules.id')),
-                      db.Column('turn_id', db.Integer, db.ForeignKey('Turns.id')))
+                      db.Column('turn_id', db.Integer, db.ForeignKey('Turns.id')), extend_existing=True)
 
 
 class Schedules(db.Model):
@@ -108,7 +108,7 @@ class Turns(db.Model):
         self.to_hour = to_hour
 
 
-"""
 if __name__ == '__main__':
     db.create_all()
-"""
+    for user in Members.query.all():
+        print(user.surname)
