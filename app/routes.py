@@ -84,20 +84,11 @@ def profile():
     return render_template('profile.html', title='Profile', user=current_user, form=form)
 
 
-days = [
-    {'day': 'Monday'},
-    {'day': 'Tuesday'},
-    {'day': 'Wednesday'},
-    {'day': 'Thursday'},
-    {'day': 'Friday'},
-    {'day': 'Saturday'}
-]
-
-
 @app.route('/calendar/gym', methods=['GET', 'POST'])
 @login_required
 def calendar_gym():
     turns = Turns.query.all()
+    days = Schedules.query.all()
 
     class F(Reservations):
         pass
@@ -105,13 +96,13 @@ def calendar_gym():
     # init F
     for turn in turns:
         for day in days:
-            setattr(F, str(turn.from_hour) + day['day'], BooleanField('Reserve Now'))
+            setattr(F, str(turn.from_hour) + str(day.day), BooleanField('Reserve Now'))
 
     form = F()
     if form.validate_on_submit():
         for turn in turns:
             for day in days:
-                if getattr(form, str(turn.from_hour) + day['day']).data:
+                if getattr(form, str(turn.from_hour) + str(day.day)).data:
                     pass  # TODO if checked
 
     return render_template('calendar_gym.html', title='Gym Calendar',

@@ -1,3 +1,5 @@
+from datetime import time, date
+
 from app import db, login_manager
 from flask_login import UserMixin
 
@@ -102,9 +104,9 @@ class Schedules(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     day = db.Column(db.Date, nullable=False, unique=True)
     schedule_gym = db.Column(db.Integer,
-                             db.ForeignKey('WeightRooms.id', ondelete="CASCADE"), nullable=False)  # TODO append
+                             db.ForeignKey('WeightRooms.id', ondelete="CASCADE"))  # TODO append
     schedule_course = db.Column(db.Integer,
-                                db.ForeignKey('Courses.id', ondelete="CASCADE"), nullable=False)  # TODO append
+                                db.ForeignKey('Courses.id', ondelete="CASCADE"))  # TODO append
     turns = db.relationship('Turns', secondary='scheduling', backref='schedule', passive_deletes=True, lazy=True)
     reservations = db.relationship('Reservations', backref='schedule', passive_deletes=True, lazy=True)
 
@@ -136,11 +138,9 @@ class Reservations(db.Model):
     member_id = db.Column(db.String(16), db.ForeignKey('Members.social_number',  ondelete="CASCADE"), primary_key=True)
     schedule_id = db.Column(db.Integer, db.ForeignKey('Schedules.id', ondelete="CASCADE"))
 
-    def __init__(self, user_id):
-        self.member_id = user_id
 
-
+"""
 if __name__ == '__main__':
-    db.create_all()
-    for user in Members.query.all():
-        print(user.surname)
+    # db.drop_all()
+    # db.create_all()
+"""

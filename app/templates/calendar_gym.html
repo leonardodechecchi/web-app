@@ -58,9 +58,13 @@
                                 <tr>
                                     <th></th>
                                     {% for day in days %}
-                                        <th>{{ day.day }}</th>
+                                        <th>
+                                            {{ day.day.strftime("%A") }}
+                                            <br>{{ day.day.strftime("%d/%m") }}
+                                        </th>
                                     {% endfor %}
                                 </tr>
+
                             </thead>
 
                             <!-- BODY  -->
@@ -81,7 +85,7 @@
                                             </div>
                                             <!-- CHECKBOX -->
                                             <label class="my-checkbox">
-                                                {% set checkbox = getattr(form, str(turn.from_hour) + day['day']) %}
+                                                {% set checkbox = getattr(form, str(turn.from_hour) + str(day.day)) %}
                                                 {{ checkbox }}
                                                 <span class="checkmark"></span>
                                             </label>
