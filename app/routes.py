@@ -12,18 +12,6 @@ from wtforms import BooleanField
 @app.route('/')
 @app.route('/home')
 def home():
-    from_hour = time(9, 00, 00)
-    to_hour = time(11, 00, 00)
-    day = date(2021, 5, 26)
-    turn = Turns(from_hour=from_hour, to_hour=to_hour)
-    schedule = Schedules(day=day)
-    db.session.add(turn)
-    db.session.add(schedule)
-    db.session.commit()
-    for times in Turns.query.all():
-        print(times.from_hour, times.to_hour)
-    for dayz in Schedules.query.all():
-        print(dayz.day)
     return render_template('home.html', title='Home Page')
 
 
@@ -96,55 +84,6 @@ def profile():
     return render_template('profile.html', title='Profile', user=current_user, form=form)
 
 
-"""
-@app.route('/calendar', methods=['GET', 'POST'])
-@login_required
-def calendar():
-    # query che seleziona tutti i corsi in calendario
-    courses = ["yoga", "crossfit", "cardio", "body", "gym"]
-
-    class F(Prenotazioni):
-        pass
-
-    for name in courses:
-        setattr(F, name, BooleanField())
-    setattr(F, "submit", SubmitField('Confirm'))
-    form = F()
-    # courses = Courses.query(Courses.name)
-    if form.is_submitted():
-        for name in courses:
-            print(getattr(form, name).data)
-    return render_template('calendar.html', courses=courses, form=form, zip=zip)
-"""
-
-
-turns = [
-    {
-        'from_hour': '8.00',
-        'to': '9.00'
-    },
-    {
-        'from_hour': '9.00',
-        'to': '10.00'
-    },
-    {
-        'from_hour': '10.00',
-        'to': '11.00'
-    },
-    {
-        'from_hour': '11.00',
-        'to': '12.00'
-    },
-    {
-        'from_hour': '12.00',
-        'to': '13.00'
-    },
-    {
-        'from_hour': '13.00',
-        'to': '14.00'
-    }
-]
-
 days = [
     {'day': 'Monday'},
     {'day': 'Tuesday'},
@@ -158,23 +97,31 @@ days = [
 @app.route('/calendar/gym', methods=['GET', 'POST'])
 @login_required
 def calendar_gym():
+    turns = Turns.query.all()
+
     class F(Reservations):
         pass
+
+    # init F
     for turn in turns:
         for day in days:
-            setattr(F, turn['from_hour'] + day['day'], BooleanField('Reserve Now'))
+            setattr(F, str(turn.from_hour) + day['day'], BooleanField('Reserve Now'))
+
     form = F()
-    if form.is_submitted():
+    if form.validate_on_submit():
         for turn in turns:
             for day in days:
-                print(getattr(form, turn['from_hour'] + day['day']).data)
+                if getattr(form, str(turn.from_hour) + day['day']).data:
+                    pass  # TODO if checked
+
     return render_template('calendar_gym.html', title='Gym Calendar',
-                           turns=turns, days=days, form=form, getattr=getattr)
+                           turns=turns, days=days, form=form, getattr=getattr, str=str)
 
 
 @app.route('/calendar/courses', methods=['GET', 'POST'])
 @login_required
 def calendar_courses():
+    turns = Turns.query.all()
     form = Reservations()
     courses = Courses.query.all()
     return render_template('calendar_courses.html', title='Courses Calendar',
