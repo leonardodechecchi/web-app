@@ -1,12 +1,10 @@
-from datetime import time, date
-
 from flask import render_template, url_for, flash, redirect
-
 from app import app, db, bcrypt
-from app.forms import RegistrationForm, LoginForm, EditProfileForm, Reservations
-from app.models import Members, Courses, Turns, Schedules
+from app.forms import RegistrationForm, LoginForm, EditProfileForm, ReservationForm
+from app.models import User, Role, Course, Turn, Schedule
 from flask_login import login_user, current_user, logout_user, login_required
 from wtforms import BooleanField
+from flask_user import roles_required
 
 
 @app.route('/')
@@ -27,13 +25,12 @@ def register():
         return redirect(url_for('home'))
     form = RegistrationForm()
     if form.validate_on_submit():
-        hashed_pw = bcrypt.generate_password_hash(
-            form.password.data).decode('utf-8')  # hashing password
-        # creating new member with the given data and hashed pw
-        member = Members(name=form.name.data, surname=form.surname.data, social_number=form.social_number.data,
-                         email=form.email.data, password=hashed_pw)
-        db.session.add(member)  # adding member in the db
-        db.session.commit()  # pushing changes
+        hashed_pw = bcrypt.generate_password_hash(form.password.data).decode('utf-8')  # hashing password
+        user = User(name=form.name.data, surname=form.surname.data, social_number=form.social_number.data,
+                    email=form.email.data, password=hashed_pw)
+        user.roles.append(Role(name='Member'))
+        db.session.add(user)
+        db.session.commit()
         flash('Your account has been created! Now you are able to log in', 'success')
         return redirect(url_for('login'))
     return render_template('register.html', title='Register', form=form)
@@ -46,10 +43,10 @@ def login():
         return redirect(url_for('home'))
     form = LoginForm()
     if form.validate_on_submit():
-        member = Members.query.filter_by(email=form.email.data).first()  # querying member by email
-        if member and bcrypt.check_password_hash(member.password,
-                                                 form.password.data):  # if member exists and password is valid
-            login_user(member, remember=form.remember.data)
+        user = User.query.filter_by(email=form.email.data).first()
+        if user and bcrypt.check_password_hash(user.password,
+                                               form.password.data):  # if user exists and password is valid
+            login_user(user, remember=form.remember.data)
             return redirect(url_for('home'))
         else:
             flash(f'Login Unsuccessful, please retry', 'danger')
@@ -63,22 +60,22 @@ def logout():
 
 
 @app.route('/profile', methods=['GET', 'POST'])
-@login_required
+@roles_required('Member')
 def profile():
     form = EditProfileForm(obj=current_user)
     if form.validate_on_submit():
-        member = Members.query.filter_by(social_number=current_user.social_number).first()
+        user = User.query.filter_by(social_number=current_user.social_number).first()
         if form.name.data:
-            member.name = form.name.data
+            user.name = form.name.data
         if form.surname.data:
-            member.surname = form.surname.data
+            user.surname = form.surname.data
         if form.email.data:
-            member.email = form.email.data
+            user.email = form.email.data
         if form.social_number.data:
-            member.social_number = form.social_number.data
+            user.social_number = form.social_number.data
         if form.password.data:
             hashed_pw = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
-            member.password = hashed_pw
+            user.password = hashed_pw
         db.session.commit()
         return redirect(url_for('home'))
     return render_template('profile.html', title='Profile', user=current_user, form=form)
@@ -87,33 +84,33 @@ def profile():
 @app.route('/calendar/gym', methods=['GET', 'POST'])
 @login_required
 def calendar_gym():
-    turns = Turns.query.all()
-    days = Schedules.query.all()
+    turns = Turn.query.distinct(Turn.from_hour, Turn.to_hour)
+    schedules = Schedule.query.all()
 
-    class F(Reservations):
+    class F(ReservationForm):
         pass
 
     # init F
     for turn in turns:
-        for day in days:
-            setattr(F, str(turn.from_hour) + str(day.day), BooleanField('Reserve Now'))
+        for schedule in schedules:
+            setattr(F, str(turn.from_hour) + str(schedule.day), BooleanField('Reserve Now'))
 
     form = F()
     if form.validate_on_submit():
         for turn in turns:
-            for day in days:
-                if getattr(form, str(turn.from_hour) + str(day.day)).data:
+            for schedule in schedules:
+                if getattr(form, str(turn.from_hour) + str(schedule.day)).data:
                     pass  # TODO if checked
 
     return render_template('calendar_gym.html', title='Gym Calendar',
-                           turns=turns, days=days, form=form, getattr=getattr, str=str)
+                           turns=turns, schedules=schedules, form=form, getattr=getattr, str=str, Schedule=Schedule)
 
 
 @app.route('/calendar/courses', methods=['GET', 'POST'])
 @login_required
 def calendar_courses():
-    turns = Turns.query.all()
-    form = Reservations()
-    courses = Courses.query.all()
-    return render_template('calendar_courses.html', title='Courses Calendar',
+    turns = Turn.query.all()
+    form = ReservationForm()
+    courses = Course.query.all()
+    return render_template('calendar_courses.html', title='Course Calendar',
                            turns=turns, num=1, range=range, form=form, courses=courses, zip=zip)

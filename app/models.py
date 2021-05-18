@@ -1,129 +1,104 @@
-from datetime import time, date
+import enum
 
 from app import db, login_manager
 from flask_login import UserMixin
 
 
+# Call-back
 @login_manager.user_loader
-def load_member(member_id):
-    return Members.query.get(member_id)
+def load_user(user_id):
+    return User.query.get(user_id)
 
 
-class Persons(db.Model, UserMixin):
-    __tablename__ = "Persons"
+class User(db.Model, UserMixin):
+    __tablename__ = "User"
     __table_args__ = {'extend_existing': True}
+
+    # User primary_key
     social_number = db.Column(db.String(16), primary_key=True)
-    type = db.Column(db.String(50))
-    name = db.Column(db.String(30), nullable=False)
-    surname = db.Column(db.String(30), nullable=False)
 
-    __mapper_args__ = {
-        'polymorphic_identity': 'Persons',
-        'polymorphic_on': type
-    }
+    # User information
+    name = db.Column(db.String(50), nullable=False)
+    surname = db.Column(db.String(50), nullable=False)
 
-    def __init__(self, name, surname):
+    # User authentication information
+    email = db.Column(db.String(120), nullable=False, unique=True)
+    password = db.Column(db.String(60), nullable=False)
+
+    # Relationships
+    roles = db.relationship('Role', secondary='UserRoles', backref=db.backref('users', lazy='dynamic'))
+
+    def __init__(self, social_number, name, surname, email, password):
+        self.social_number = social_number
         self.name = name
         self.surname = surname
+        self.email = email
+        self.password = password
+
+    def __repr__(self):
+        return f"User('{self.social_number}', '{self.name}', '{self.surname}', '{self.email}', '{self.roles}')"
 
     def get_id(self):
         return self.social_number
 
 
-class Members(Persons):
-    __tablename__ = "Members"
+class Role(db.Model):
+    __tablename__ = "Role"
     __table_args__ = {'extend_existing': True}
-    social_number = db.Column(db.String(16), db.ForeignKey('Persons.social_number',
-                                                           ondelete="CASCADE"), primary_key=True)
-    email = db.Column(db.String(120), nullable=False, unique=True)
-    password = db.Column(db.String(60), nullable=False)
-    trainer_id = db.Column(db.String(16), db.ForeignKey('Staff.social_number', ondelete="CASCADE"))
-    reservations = db.relationship('Reservations', backref='member', passive_deletes=True, lazy=True)
 
-    __mapper_args__ = {
-        'polymorphic_identity': 'Members'
-    }
+    id = db.Column(db.Integer(), primary_key=True)
+    name = db.Column(db.String(50), unique=True)
 
-    def __init__(self, name, surname, social_number, email, password):
-        super().__init__(name, surname)
-        self.social_number = social_number
-        self.email = email
-        self.password = password
-
-    def __repr__(self):
-        return f"Member('{self.social_number}', '{self.name}', '{self.surname}', '{self.email}')"
-
-    def get_social_number(self):
-        return self.social_number
-
-
-class Staff(Persons):
-    __tablename__ = "Staff"
-    __table_args__ = {'extend_existing': True}
-    social_number = db.Column(db.String(16), db.ForeignKey('Persons.social_number',
-                                                           ondelete="CASCADE"), primary_key=True)
-    role = db.Column(db.String(30), nullable=False)
-    members = db.relationship('Members', backref='trainer', passive_deletes=True, lazy=True,
-                              foreign_keys=[social_number])  # TODO trigger
-    courses = db.relationship('Courses', backref='instructor', passive_deletes=True, lazy=True)  # TODO trigger
-
-    def __init__(self, name, surname, role):
-        super().__init__(name, surname)
-        self.role = role
-
-    __mapper_args__ = {
-        'polymorphic_identity': 'Staff'
-    }
-
-
-class Courses(db.Model):
-    __tablename__ = "Courses"
-    __table_args__ = {'extend_existing': True}
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(20), nullable=False)
-    max_members = db.Column(db.Integer)
-    instructor_id = db.Column(db.String(16), db.ForeignKey('Staff.social_number', ondelete="CASCADE"))
-    schedules = db.relationship('Schedules', backref='course', passive_deletes=True, lazy=True)
-
-    def __init__(self, name, max_members):
+    def __init__(self, name):
         self.name = name
-        self.max_members = max_members
 
 
-class WeightRooms(db.Model):
-    __tablename__ = "WeightRooms"
+class UserRoles(db.Model):
+    __tablename__ = "UserRoles"
     __table_args__ = {'extend_existing': True}
-    id = db.Column(db.Integer, primary_key=True)
-    dimension = db.Column(db.Float)
-    schedules = db.relationship('Schedules', backref='weightroom', passive_deletes=True, lazy=True)
+
+    id = db.Column(db.Integer(), primary_key=True)
+    user_id = db.Column(db.String(16), db.ForeignKey('User.social_number', ondelete='CASCADE'))
+    role_id = db.Column(db.Integer, db.ForeignKey('Role.id', ondelete='CASCADE'))
 
 
-class Schedules(db.Model):
-    __tablename__ = "Schedules"
+class Days(enum.Enum):
+    Monday = "Monday"
+    Tuesday = "Tuesday"
+    Wednesday = "Wednesday"
+    Thursday = "Thursday"
+    Friday = "Friday"
+    Saturday = "Saturday"
+    Sunday = "Sunday"
+
+
+class Schedule(db.Model):
+    __tablename__ = "Schedule"
     __table_args__ = {'extend_existing': True}
+
     id = db.Column(db.Integer, primary_key=True)
-    day = db.Column(db.Date, nullable=False, unique=True)
-    schedule_gym = db.Column(db.Integer,
-                             db.ForeignKey('WeightRooms.id', ondelete="CASCADE"))  # TODO append
-    schedule_course = db.Column(db.Integer,
-                                db.ForeignKey('Courses.id', ondelete="CASCADE"))  # TODO append
-    turns = db.relationship('Turns', secondary='scheduling', backref='schedule', passive_deletes=True, lazy=True)
-    reservations = db.relationship('Reservations', backref='schedule', passive_deletes=True, lazy=True)
+
+    # Schedule information
+    day = db.Column(db.Enum(Days), nullable=False, unique=True)
+
+    # Relationships
+    turns = db.relationship('Turn', secondary='ScheduleTurns', backref=db.backref('schedules', lazy='dynamic'))
+
+    # ForeignKey
+    course_id = db.Column(db.Integer, db.ForeignKey('Course.id', ondelete='CASCADE'))
+    weightroom_id = db.Column(db.Integer, db.ForeignKey('WeightRoom.id', ondelete='CASCADE'))
 
     def __init__(self, day):
         self.day = day
 
 
-scheduling = db.Table('scheduling',
-                      db.Column('schedule_id', db.Integer, db.ForeignKey('Schedules.id', ondelete="CASCADE")),
-                      db.Column('turn_id', db.Integer, db.ForeignKey('Turns.id', ondelete="CASCADE")),
-                      extend_existing=True)
-
-
-class Turns(db.Model):
-    __tablename__ = "Turns"
+class Turn(db.Model):
+    __tablename__ = "Turn"
     __table_args__ = {'extend_existing': True}
+
     id = db.Column(db.Integer, primary_key=True)
+
+    # Turn information
     from_hour = db.Column(db.Time, nullable=False)
     to_hour = db.Column(db.Time, nullable=False)
 
@@ -132,15 +107,51 @@ class Turns(db.Model):
         self.to_hour = to_hour
 
 
-class Reservations(db.Model):
-    __tablename__ = "Reservations"
+class ScheduleTurns(db.Model):
+    __tablename__ = "ScheduleTurns"
     __table_args__ = {'extend_existing': True}
-    member_id = db.Column(db.String(16), db.ForeignKey('Members.social_number',  ondelete="CASCADE"), primary_key=True)
-    schedule_id = db.Column(db.Integer, db.ForeignKey('Schedules.id', ondelete="CASCADE"))
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    # ForeignKey
+    schedule_id = db.Column(db.Integer, db.ForeignKey('Schedule.id', ondelete='CASCADE'))
+    turn_id = db.Column(db.Integer, db.ForeignKey('Turn.id', ondelete='CASCADE'))
+
+
+class Course(db.Model):
+    __tablename__ = "Course"
+    __table_args__ = {'extend_existing': True}
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    # Course information
+    name = db.Column(db.String(20), nullable=False)
+    max_members = db.Column(db.Integer)
+
+    # Relationships
+    schedules = db.relationship('Schedule', backref='course', passive_deletes=True, lazy=True)
+
+    def __init__(self, name, max_members):
+        self.name = name
+        self.max_members = max_members
+
+
+class WeightRoom(db.Model):
+    __tablename__ = "WeightRoom"
+    __table_args__ = {'extend_existing': True}
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    # WeightRoom information
+    dimension = db.Column(db.Float)
+    max_members = db.Column(db.Integer)
+
+    # Relationships
+    schedules = db.relationship('Schedule', backref='weightroom', passive_deletes=True, lazy=True)
 
 
 """
 if __name__ == '__main__':
-    # db.drop_all()
-    # db.create_all()
+    db.drop_all()
+    db.create_all()
 """

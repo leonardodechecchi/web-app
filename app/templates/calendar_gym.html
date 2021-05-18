@@ -2,8 +2,6 @@
 
 {% block content %}
 
-
-
 <!-- Breadcrumb Section Begin -->
 <section class="breadcrumb-section set-bg"
     data-setbg="{{ url_for('static', filename='img/breadcrumb/classes-breadcrumb.jpg') }}">
@@ -57,10 +55,9 @@
                             <thead>
                                 <tr>
                                     <th></th>
-                                    {% for day in days %}
+                                    {% for schedule in schedules %}
                                         <th>
-                                            {{ day.day.strftime("%A") }}
-                                            <br>{{ day.day.strftime("%d/%m") }}
+                                            {{ schedule.day.value }}
                                         </th>
                                     {% endfor %}
                                 </tr>
@@ -75,7 +72,7 @@
                                     <td class="workout-time">
                                         {{ turn.from_hour.strftime("%H:%M") }}-{{ turn.to_hour.strftime("%H:%M") }}
                                     </td>
-                                    {% for day in days %}
+                                    {% for schedule in schedules %}
                                         <!-- PRINT CELL -->
                                         <td class="hover-bg ts-item">
                                             <h6>Gym</h6>
@@ -85,7 +82,7 @@
                                             </div>
                                             <!-- CHECKBOX -->
                                             <label class="my-checkbox">
-                                                {% set checkbox = getattr(form, str(turn.from_hour) + str(day.day)) %}
+                                                {% set checkbox = getattr(form, str(turn.from_hour) + str(schedule.day)) %}
                                                 {{ checkbox }}
                                                 <span class="checkmark"></span>
                                             </label>

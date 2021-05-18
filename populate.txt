@@ -1,14 +1,13 @@
 from app import db
-db.create_all()
 from app.models import *
 from datetime import date, time
 
 
 /* COURSES */
-course1 = Courses(name='Yoga', max_members=15)
-course2 = Courses(name='Crossfit', max_members=20)
-course3 = Courses(name='Cardio', max_members=10)
-course4 = Courses(name='Body', max_members=15)
+course1 = Course(name='Yoga', max_members=15)
+course2 = Course(name='Crossfit', max_members=20)
+course3 = Course(name='Cardio', max_members=10)
+course4 = Course(name='Body', max_members=15)
 
 db.session.add(course1)
 db.session.add(course2)
@@ -17,31 +16,20 @@ db.session.add(course4)
 db.session.commit()
 
 
-/* TURNS */
-turn1 = Turns(from_hour=time(8, 00, 00), to_hour=time(9, 00, 00))
-turn2 = Turns(from_hour=time(9, 00, 00), to_hour=time(10, 00, 00))
-turn3 = Turns(from_hour=time(10, 00, 00), to_hour=time(11, 00, 00))
-turn4 = Turns(from_hour=time(11, 00, 00), to_hour=time(12, 00, 00))
-turn5 = Turns(from_hour=time(12, 00, 00), to_hour=time(13, 00, 00))
-turn6 = Turns(from_hour=time(13, 00, 00), to_hour=time(14, 00, 00))
-
-db.session.add(turn1)
-db.session.add(turn2)
-db.session.add(turn3)
-db.session.add(turn4)
-db.session.add(turn5)
-db.session.add(turn6)
-db.session.commit()
-
-
 /* SCHEDULES */
-schedule1 = Schedules(day=date(2021, 5, 17))
-schedule2 = Schedules(day=date(2021, 5, 18))
-schedule3 = Schedules(day=date(2021, 5, 19))
-schedule4 = Schedules(day=date(2021, 5, 20))
-schedule5 = Schedules(day=date(2021, 5, 21))
-schedule6 = Schedules(day=date(2021, 5, 22))
-schedule7 = Schedules(day=date(2021, 5, 23))
+schedule1 = Schedule(day=Days.Monday)
+schedule2 = Schedule(day=Days.Tuesday)
+schedule3 = Schedule(day=Days.Wednesday)
+schedule4 = Schedule(day=Days.Thursday)
+schedule5 = Schedule(day=Days.Friday)
+schedule6 = Schedule(day=Days.Saturday)
+
+schedule1.turns.append(Turn(from_hour=time(8, 00, 00), to_hour=time(9, 00, 00)))
+schedule2.turns.append(Turn(from_hour=time(9, 00, 00), to_hour=time(10, 00, 00)))
+schedule3.turns.append(Turn(from_hour=time(10, 00, 00), to_hour=time(11, 00, 00)))
+schedule4.turns.append(Turn(from_hour=time(11, 00, 00), to_hour=time(12, 00, 00)))
+schedule5.turns.append(Turn(from_hour=time(12, 00, 00), to_hour=time(13, 00, 00)))
+schedule6.turns.append(Turn(from_hour=time(13, 00, 00), to_hour=time(14, 00, 00)))
 
 db.session.add(schedule1)
 db.session.add(schedule2)
@@ -49,7 +37,6 @@ db.session.add(schedule3)
 db.session.add(schedule4)
 db.session.add(schedule5)
 db.session.add(schedule6)
-db.session.add(schedule7)
 db.session.commit()
 
 

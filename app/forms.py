@@ -4,35 +4,34 @@ from wtforms import StringField, PasswordField, SubmitField, BooleanField
 from wtforms.validators import DataRequired, Length, EqualTo, Email, ValidationError
 
 from app import bcrypt
-from app.models import Members
+from app.models import User
 
 
 class RegistrationForm(FlaskForm):
-    name = StringField('Name', validators=[DataRequired(), Length(min=2, max=20)])
-    surname = StringField('Surname', validators=[DataRequired(), Length(min=2, max=20)])
+    name = StringField('Name', validators=[DataRequired(), Length(min=2, max=50)])
+    surname = StringField('Surname', validators=[DataRequired(), Length(min=2, max=50)])
     social_number = StringField('Social Security Number', validators=[DataRequired(), Length(min=16, max=16)])
     email = StringField('Email', validators=[DataRequired(), Email()])
     password = PasswordField('Password', validators=[DataRequired()])
-    confirm_password = PasswordField('Confirm Password', validators=[
-        DataRequired(), EqualTo('password')])
+    confirm_password = PasswordField('Confirm Password', validators=[DataRequired(), EqualTo('password')])
     submit = SubmitField('Submit')
 
-    # constraints
+    # Constraints
     def validate_email(self, email):
-        member = Members.query.filter_by(email=email.data).first()
-        if member:
+        user = User.query.filter_by(email=email.data).first()
+        if user:
             raise ValidationError('That email is taken. Please choose another one')
 
     def validate_social_number(self, social_number):
-        member = Members.query.filter_by(social_number=social_number.data).first()
-        if member:
+        user = User.query.filter_by(social_number=social_number.data).first()
+        if user:
             raise ValidationError('That social number security already exists. You are already registered')
 
 
 class LoginForm(FlaskForm):
     email = StringField('Email', validators=[DataRequired(), Email()])
     password = PasswordField('Password', validators=[DataRequired()])
-    remember = BooleanField('Remember Me')  # allow users to stay logged in for some time
+    remember = BooleanField('Remember Me')
     submit = SubmitField('Login')
 
 
@@ -43,22 +42,22 @@ class EditProfileForm(RegistrationForm):
     # constraints
     def validate_email(self, email):
         if email:
-            member = Members.query.filter(Members.email == email.data, Members.email != current_user.email).first()
-            if member:
+            user = User.query.filter(User.email == email.data, User.email != current_user.email).first()
+            if user:
                 raise ValidationError('That email is taken. Please choose another one')
 
     def validate_social_number(self, social_number):
         if social_number:
-            member = Members.query.filter(Members.social_number == social_number.data,
-                                          Members.social_number != current_user.social_number).first()
-            if member:
+            user = User.query.filter(User.social_number == social_number.data,
+                                     User.social_number != current_user.social_number).first()
+            if user:
                 raise ValidationError('That social number security already exists. You are already registered')
 
     def validate_oldpassword(self, oldpassword):
-        member = Members.query.filter_by(social_number=current_user.social_number).first()
-        if not bcrypt.check_password_hash(member.password, oldpassword.data):
+        user = User.query.filter_by(social_number=current_user.social_number).first()
+        if not bcrypt.check_password_hash(user.password, oldpassword.data):
             raise ValidationError('Wrong password')
 
 
-class Reservations(FlaskForm):
+class ReservationForm(FlaskForm):
     submit = SubmitField('Reserve Now')
