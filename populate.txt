@@ -39,4 +39,9 @@ db.session.add(schedule5)
 db.session.add(schedule6)
 db.session.commit()
 
+/* Pe aggiungere un turno ho fatto cosi */
+schedule = Schedule.query.filter_by(day=Days.Friday).first()
+turn = Turn.query.filter_by(from_hour=time(10, 00, 00)).first()
+schedule.turns.append(turn)
+
 

@@ -60,7 +60,7 @@ def logout():
 
 
 @app.route('/profile', methods=['GET', 'POST'])
-@roles_required('Member')
+@login_required
 def profile():
     form = EditProfileForm(obj=current_user)
     if form.validate_on_submit():
