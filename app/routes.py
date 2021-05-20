@@ -1,10 +1,9 @@
 from flask import render_template, url_for, flash, redirect
 from app import app, db, bcrypt
 from app.forms import RegistrationForm, LoginForm, EditProfileForm, ReservationForm
-from app.models import User, Role, Course, Turn, Schedule
+from app.models import User, Course, Turn, Schedule, requires_roles
 from flask_login import login_user, current_user, logout_user, login_required
 from wtforms import BooleanField
-from flask_user import roles_required
 
 
 @app.route('/')
@@ -27,8 +26,7 @@ def register():
     if form.validate_on_submit():
         hashed_pw = bcrypt.generate_password_hash(form.password.data).decode('utf-8')  # hashing password
         user = User(name=form.name.data, surname=form.surname.data, social_number=form.social_number.data,
-                    email=form.email.data, password=hashed_pw)
-        user.roles.append(Role(name='Member'))
+                    email=form.email.data, password=hashed_pw, role='member')
         db.session.add(user)
         db.session.commit()
         flash('Your account has been created! Now you are able to log in', 'success')
@@ -61,6 +59,7 @@ def logout():
 
 @app.route('/profile', methods=['GET', 'POST'])
 @login_required
+@requires_roles('member')
 def profile():
     form = EditProfileForm(obj=current_user)
     if form.validate_on_submit():

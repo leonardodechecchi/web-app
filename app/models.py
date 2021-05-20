@@ -1,7 +1,8 @@
 import enum
+from functools import wraps
 
 from app import db, login_manager
-from flask_login import UserMixin
+from flask_login import UserMixin, current_user
 
 
 # Call-back
@@ -24,16 +25,15 @@ class User(db.Model, UserMixin):
     # User authentication information
     email = db.Column(db.String(120), nullable=False, unique=True)
     password = db.Column(db.String(60), nullable=False)
+    role = db.Column(db.String(64), default='member')
 
-    # Relationships
-    roles = db.relationship('Role', secondary='UserRoles', backref=db.backref('users', lazy='dynamic'))
-
-    def __init__(self, social_number, name, surname, email, password):
+    def __init__(self, social_number, name, surname, email, password, role):
         self.social_number = social_number
         self.name = name
         self.surname = surname
         self.email = email
         self.password = password
+        self.role = role
 
     def __repr__(self):
         return f"User('{self.social_number}', '{self.name}', '{self.surname}', '{self.email}', '{self.roles}')"
@@ -42,24 +42,16 @@ class User(db.Model, UserMixin):
         return self.social_number
 
 
-class Role(db.Model):
-    __tablename__ = "Role"
-    __table_args__ = {'extend_existing': True}
-
-    id = db.Column(db.Integer(), primary_key=True)
-    name = db.Column(db.String(50), unique=True)
-
-    def __init__(self, name):
-        self.name = name
-
-
-class UserRoles(db.Model):
-    __tablename__ = "UserRoles"
-    __table_args__ = {'extend_existing': True}
-
-    id = db.Column(db.Integer(), primary_key=True)
-    user_id = db.Column(db.String(16), db.ForeignKey('User.social_number', ondelete='CASCADE'))
-    role_id = db.Column(db.Integer, db.ForeignKey('Role.id', ondelete='CASCADE'))
+def requires_roles(*roles):
+    def wrapper(f):
+        @wraps(f)
+        def wrapped(*args, **kwargs):
+            if current_user.role not in roles:
+                # Redirect the user to an unauthorized notice!
+                return "You are not authorized to access this page"
+            return f(*args, **kwargs)
+        return wrapped
+    return wrapper
 
 
 class Days(enum.Enum):
@@ -152,6 +144,6 @@ class WeightRoom(db.Model):
 
 """
 if __name__ == '__main__':
-    db.drop_all()
+    # db.drop_all()
     db.create_all()
 """
