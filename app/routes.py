@@ -119,11 +119,16 @@ def calendar_courses():
 @login_required
 @requires_roles('instructor')
 def calendar_instructor():
-    return render_template()
+    turns = Turn.query.distinct(Turn.from_hour, Turn.to_hour)
+    schedules = Schedule.query.all()
+    courses = Course.query.filter_by(instructor_id=current_user.get_id())
+    return render_template('calendar_instructor.html', title='Instructor Calendar', turns=turns, schedules=schedules,
+                           courses=courses)
 
 
 @app.route('/courses', methods=['GET', 'POST'])
 @login_required
 @requires_roles('instructor')
 def update_courses():
-    return render_template()
+    courses = Course.query.filter_by(instructor_id=current_user.get_id())
+    return render_template('update_courses.html', courses=courses)

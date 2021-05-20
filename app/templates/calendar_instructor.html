@@ -1,0 +1,99 @@
+{% extends "index.html" %}
+
+{% block content %}
+
+<!-- Breadcrumb Section Begin -->
+<section class="breadcrumb-section set-bg"
+    data-setbg="{{ url_for('static', filename='img/breadcrumb/classes-breadcrumb.jpg') }}">
+    <div class=" container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="breadcrumb-text">
+                    <h2>Gym Calendar</h2>
+                    <div class="breadcrumb-option">
+                        <a href="{{ url_for('home') }}"><i class="fa fa-home"></i> Home</a>
+                        <span>Gym Calendar</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Breadcrumb Section End -->
+
+<!-- flash messages -->
+<div class="alert-section">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert-{{ category }}">
+                    {{ message }}
+                </div>
+                {% endfor %}
+        {% endif %}
+    {% endwith %}
+</div>
+
+<!-- Classes Timetable Section Begin -->
+<section class="classes-timetable spad">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="nav-controls">
+                    <ul>
+                        <li><a href="{{ url_for('calendar_gym') }}">GYM</a></li>
+                        <li><a href="{{ url_for('calendar_courses') }}">COURSES</a></li>
+                        <li><a class="active" href="{{ url_for('calendar_instructor') }}">YOUR COURSES</a></li>
+                    </ul>
+                </div>
+                <div class="schedule-table">
+                    <table>
+
+                        <!-- HEAD  -->
+                        <thead>
+                            <tr>
+                                <th></th>
+                                {% for schedule in schedules %}
+                                    <th>
+                                        {{ schedule.day.value }}
+                                    </th>
+                                {% endfor %}
+                            </tr>
+                        </thead>
+
+                        <!-- BODY  -->
+                        <tbody>
+                            {% for turn in turns %}
+                            <tr> <!-- ROW -->
+                                <!-- PRINT TURN -->
+                                <td class="workout-time">
+                                    {{ turn.from_hour.strftime("%H:%M") }}-{{ turn.to_hour.strftime("%H:%M") }}
+                                </td>
+                                {% for schedule in courses.schedules %}
+                                    {% if turn in schedule.turns %}
+                                        <!-- PRINT CELL -->
+                                        <td class="hover-bg ts-item">
+                                            <h6>Gym</h6>
+                                            <span>{{ turn.from_hour.strftime("%H:%M") }}-{{ turn.to_hour.strftime("%H:%M") }}</span>
+                                            <div class="trainer-name">
+                                                20 slots available
+                                            </div>
+                                        </td>
+                                    {% else %}
+                                        <td class="hover-bg ts-item">
+                                            <!-- EMPTY CELL -->
+                                        </td>
+                                    {% endif %}
+                                {% endfor %}
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Trainers Table Schedule Section End -->
+
+{% endblock %}>
