@@ -124,7 +124,7 @@ class Course(db.Model):
     max_members = db.Column(db.Integer)
 
     # ForeignKey
-    instructor_id = db.Column(db.String, db.ForeignKey('User.id', ondelete='CASCADE'))
+    instructor_id = db.Column(db.String, db.ForeignKey('User.social_number', ondelete='CASCADE'))
 
     # Relationships
     schedules = db.relationship('Schedule', backref='course', passive_deletes=True, lazy=True)
