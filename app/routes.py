@@ -113,3 +113,17 @@ def calendar_courses():
     courses = Course.query.all()
     return render_template('calendar_courses.html', title='Course Calendar',
                            turns=turns, num=1, range=range, form=form, courses=courses, zip=zip)
+
+
+@app.route('/calendar/instructor')
+@login_required
+@requires_roles('instructor')
+def calendar_instructor():
+    return render_template()
+
+
+@app.route('/courses', methods=['GET', 'POST'])
+@login_required
+@requires_roles('instructor')
+def update_courses():
+    return render_template()

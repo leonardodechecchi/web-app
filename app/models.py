@@ -27,6 +27,9 @@ class User(db.Model, UserMixin):
     password = db.Column(db.String(60), nullable=False)
     role = db.Column(db.String(64), default='member')
 
+    # Relationship
+    course = db.relationship('Course', backref='user', passive_deletes=True, lazy=True)
+
     def __init__(self, social_number, name, surname, email, password, role):
         self.social_number = social_number
         self.name = name
@@ -119,6 +122,9 @@ class Course(db.Model):
     # Course information
     name = db.Column(db.String(20), nullable=False)
     max_members = db.Column(db.Integer)
+
+    # ForeignKey
+    instructor_id = db.Column(db.String, db.ForeignKey('User.id', ondelete='CASCADE'))
 
     # Relationships
     schedules = db.relationship('Schedule', backref='course', passive_deletes=True, lazy=True)
