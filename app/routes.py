@@ -1,6 +1,6 @@
 from flask import render_template, url_for, flash, redirect
 from app import app, db, bcrypt
-from app.forms import RegistrationForm, LoginForm, EditProfileForm, ReservationForm
+from app.forms import RegistrationForm, LoginForm, EditProfileForm, ReservationForm, CreateCourse
 from app.models import User, Course, Turn, Schedule, requires_roles
 from flask_login import login_user, current_user, logout_user, login_required
 from wtforms import BooleanField
@@ -108,11 +108,12 @@ def calendar_gym():
 @app.route('/calendar/courses', methods=['GET', 'POST'])
 @login_required
 def calendar_courses():
-    turns = Turn.query.all()
-    form = ReservationForm()
+    # form = ReservationForm()
+    turns = Turn.query.distinct(Turn.from_hour, Turn.to_hour)
+    schedules = Schedule.query.all()
     courses = Course.query.all()
     return render_template('calendar_courses.html', title='Course Calendar',
-                           turns=turns, num=1, range=range, form=form, courses=courses, zip=zip)
+                           schedules=schedules, turns=turns, courses=courses)
 
 
 @app.route('/calendar/instructor')
@@ -132,3 +133,32 @@ def calendar_instructor():
 def update_courses():
     courses = Course.query.filter_by(instructor_id=current_user.get_id())
     return render_template('update_courses.html', courses=courses)
+
+
+@app.route('/courses/create', methods=['GET', 'POST'])
+@login_required
+def create_course():
+    form = CreateCourse()
+    if form.validate_on_submit():
+        course = Course(name=form.name.data, max_members=form.max_members.data)
+        schedule = Schedule.query.filter_by(day=form.schedule.data.strftime('%A')).first()
+        turn = Turn.query.filter(Turn.from_hour == form.turn_from_hour.data,
+                                 Turn.to_hour == form.turn_to_hour.data).first()
+        if schedule:  # if schedule exists
+            if turn and turn in schedule.turns:
+                course.schedules.append(schedule)
+            else:
+                turn = Turn(from_hour=form.turn_from_hour.data, to_hour=form.turn_to_hour)
+                schedule.turns.append(turn)
+                course.schedules.append(schedule)
+        else:  # schedule not exists
+            schedule = Schedule(day=form.schedule.data)
+            if turn:
+                schedule.turns.append(turn)
+            else:
+                turn = Turn(from_hour=form.turn_from_hour.data, to_hour=form.turn_to_hour)
+                schedule.turns.append(turn)
+            course.schedules.append(schedule)
+        db.session.commit()
+        return redirect(url_for('home'))
+    return render_template('create_course.html', title='Create Course', form=form)

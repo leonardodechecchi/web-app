@@ -1,7 +1,7 @@
 import enum
 from functools import wraps
 
-from app import db, login_manager
+from app import db, login_manager, bcrypt
 from flask_login import UserMixin, current_user
 
 
@@ -147,9 +147,3 @@ class WeightRoom(db.Model):
     # Relationships
     schedules = db.relationship('Schedule', backref='weightroom', passive_deletes=True, lazy=True)
 
-
-"""
-if __name__ == '__main__':
-    # db.drop_all()
-    db.create_all()
-"""

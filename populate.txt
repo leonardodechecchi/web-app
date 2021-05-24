@@ -15,6 +15,10 @@ db.session.add(course3)
 db.session.add(course4)
 db.session.commit()
 
+turn1 = Turn.query.filter_by(from_hour=time(8, 00, 00)).first()
+turn2 = Turn.query.filter_by(from_hour=time(9, 00, 00)).first()
+course1.schedules.append(turn1)
+course2.schedules.append(turn2)
 
 /* SCHEDULES */
 schedule1 = Schedule(day=Days.Monday)

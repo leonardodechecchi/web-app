@@ -1,6 +1,6 @@
 from flask_login import current_user
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, BooleanField
+from wtforms import StringField, PasswordField, SubmitField, BooleanField, IntegerField, TimeField, DateField
 from wtforms.validators import DataRequired, Length, EqualTo, Email, ValidationError
 
 from app import bcrypt
@@ -61,3 +61,12 @@ class EditProfileForm(RegistrationForm):
 
 class ReservationForm(FlaskForm):
     submit = SubmitField('Reserve Now')
+
+
+class CreateCourse(FlaskForm):
+    name = StringField('Course Name', validators=[DataRequired()])
+    max_members = IntegerField('Max Members Allowed', validators=[DataRequired()])
+    schedule = DateField('Date', format='%d/%m/%Y', validators=[DataRequired()])
+    turn_from_hour = TimeField('Start', format='%X', validators=[DataRequired()])
+    turn_to_hour = TimeField('End', format='%X', validators=[DataRequired()])
+    submit = SubmitField('Create')
