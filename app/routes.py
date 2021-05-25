@@ -1,6 +1,7 @@
 from flask import render_template, url_for, flash, redirect
 from app import app, db, bcrypt
-from app.forms import RegistrationForm, LoginForm, EditProfileForm, ReservationForm, CreateCourse, InsertCourse
+from app.forms import RegistrationForm, LoginForm, EditProfileForm, ReservationForm, CreateCourse, AddEventCourse, \
+    AddEventGym
 from app.models import User, Course, Turn, Schedule, requires_roles
 from flask_login import login_user, current_user, logout_user, login_required
 from wtforms import BooleanField
@@ -83,7 +84,7 @@ def profile():
 @app.route('/calendar/gym', methods=['GET', 'POST'])
 @login_required
 def calendar_gym():
-    turns = Turn.query.distinct(Turn.from_hour, Turn.to_hour)
+    turns = Turn.query.all()
     schedules = Schedule.query.all()
 
     class F(ReservationForm):
@@ -109,7 +110,7 @@ def calendar_gym():
 @login_required
 def calendar_courses():
     form = ReservationForm()
-    turns = Turn.query.distinct(Turn.from_hour, Turn.to_hour)
+    turns = Turn.query.distinct(Turn.from_hour, Turn.to_hour).all()
     schedules = Schedule.query.all()
     courses = Course.query.all()
     return render_template('calendar_courses.html', title='Course Calendar',
@@ -139,19 +140,20 @@ def create_course():
         db.session.add(course)
         db.session.commit()
         flash(f'Course {form.name.data} created successfully', 'success')
+        return redirect(url_for('home'))
     return render_template('admin/create_course.html', form=form)
 
 
 @app.route('/course/add-event', methods=['GET', 'POST'])
 @login_required
 def add_event_course():
-    form = InsertCourse()
+    form = AddEventCourse()
     if form.validate_on_submit():
         course = Course.query.filter_by(name=form.name.data).first()
         schedule = Schedule.query.filter_by(day=form.date.data).first()
         turn = Turn.query.filter(Turn.from_hour == form.turn_start.data, Turn.to_hour == form.turn_end.data).first()
         if schedule:
-            if not turn and turn not in schedule.turns:
+            if not turn:
                 turn = Turn(from_hour=form.turn_start.data, to_hour=form.turn_end.data)
                 schedule.turns.append(turn)
             course.schedules.append(schedule)
@@ -163,4 +165,19 @@ def add_event_course():
             course.schedules.append(schedule)
         db.session.commit()
         flash(f'Successfully added an event to {form.name.data} class', 'success')
+        return redirect(url_for('calendar_courses'))
     return render_template('admin/add_event.html', form=form)
+
+
+# TODO
+@app.route('/weightroom/create', methods=['GET', 'POST'])
+def create_weightroom():
+    pass
+
+
+# TODO
+@app.route('/weightroom/add-event', methods=['GET', 'POST'])
+def add_event_gym():
+    form = AddEventGym()
+    if form.validate_on_submit():
+        pass

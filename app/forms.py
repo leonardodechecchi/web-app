@@ -75,7 +75,7 @@ class CreateCourse(FlaskForm):
                 raise ValidationError('That course already exists')
 
 
-class InsertCourse(FlaskForm):
+class AddEventCourse(FlaskForm):
     name = StringField('Course Name', validators=[DataRequired()])
     date = DateField('Date (yyyy-mm-dd)')
     turn_start = TimeField('Course Start (hh:mm)')
@@ -87,3 +87,10 @@ class InsertCourse(FlaskForm):
             course = Course.query.filter_by(name=name.data).first()
             if not course:
                 raise ValidationError('That course does not exist. Please insert an existing course')
+
+
+class AddEventGym(FlaskForm):
+    date = DateField('Date (yyyy-mm-dd)')
+    turn_start = TimeField('Course Start (hh:mm)')
+    turn_end = TimeField('Course End (hh:mm)')
+    submit = SubmitField('Insert')

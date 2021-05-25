@@ -57,16 +57,6 @@ def requires_roles(*roles):
     return wrapper
 
 
-class Days(enum.Enum):
-    Monday = "Monday"
-    Tuesday = "Tuesday"
-    Wednesday = "Wednesday"
-    Thursday = "Thursday"
-    Friday = "Friday"
-    Saturday = "Saturday"
-    Sunday = "Sunday"
-
-
 class Schedule(db.Model):
     __tablename__ = "Schedule"
     __table_args__ = {'extend_existing': True}
