@@ -89,6 +89,12 @@ class AddEventCourse(FlaskForm):
                 raise ValidationError('That course does not exist. Please insert an existing course')
 
 
+class CreateWeightRoom(FlaskForm):
+    max_members = IntegerField('Max Members Allowed', validators=[DataRequired()])
+    dimension = IntegerField('Dimension of the room in square meters', validators=[DataRequired()])
+    submit = SubmitField('Create')
+
+
 class AddEventGym(FlaskForm):
     date = DateField('Date (yyyy-mm-dd)')
     turn_start = TimeField('Course Start (hh:mm)')

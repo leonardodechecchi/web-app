@@ -137,3 +137,6 @@ class WeightRoom(db.Model):
     # Relationships
     schedules = db.relationship('Schedule', backref='weightroom', passive_deletes=True, lazy=True)
 
+    def __init__(self, dimension, max_members):
+        self.max_members = max_members
+        self.dimension = dimension

@@ -1,8 +1,8 @@
 from flask import render_template, url_for, flash, redirect
 from app import app, db, bcrypt
 from app.forms import RegistrationForm, LoginForm, EditProfileForm, ReservationForm, CreateCourse, AddEventCourse, \
-    AddEventGym
-from app.models import User, Course, Turn, Schedule, requires_roles
+    AddEventGym, CreateWeightRoom
+from app.models import User, Course, Turn, Schedule, requires_roles, WeightRoom
 from flask_login import login_user, current_user, logout_user, login_required
 from wtforms import BooleanField
 
@@ -84,8 +84,8 @@ def profile():
 @app.route('/calendar/gym', methods=['GET', 'POST'])
 @login_required
 def calendar_gym():
-    turns = Turn.query.all()
-    schedules = Schedule.query.all()
+    turns = Turn.query.distinct(Turn.from_hour, Turn.to_hour).all()
+    schedules = Schedule.query.order_by(Schedule.day).all()
 
     class F(ReservationForm):
         pass
@@ -103,7 +103,7 @@ def calendar_gym():
                     pass  # TODO if checked
 
     return render_template('calendar_gym.html', title='Gym Calendar',
-                           turns=turns, schedules=schedules, form=form, getattr=getattr, str=str, Schedule=Schedule)
+                           turns=turns, schedules=schedules, form=form, getattr=getattr, str=str)
 
 
 @app.route('/calendar/courses', methods=['GET', 'POST'])
@@ -168,7 +168,19 @@ def add_event_course():
 # TODO
 @app.route('/weightroom/create', methods=['GET', 'POST'])
 def create_weightroom():
-    pass
+    weightroom = WeightRoom.query.first()
+    form = CreateWeightRoom(obj=weightroom)
+    if form.validate_on_submit():
+        if not weightroom:
+            weightroom = WeightRoom(max_members=form.max_members.data, dimension=form.dimension.data)
+            db.session.add(weightroom)
+        else:
+            weightroom.max_members = form.max_members.data
+            weightroom.dimension = form.dimension.data
+        db.session.commit()
+        # flash(f'Course {form.name.data} created successfully', 'success')
+        return redirect(url_for('home'))
+    return render_template('admin/create_weightroom.html', form=form)
 
 
 # TODO
@@ -176,4 +188,19 @@ def create_weightroom():
 def add_event_gym():
     form = AddEventGym()
     if form.validate_on_submit():
-        pass
+        weightroom = WeightRoom.query.first()
+        if not weightroom:
+            return redirect(url_for('admin/create_weightroom'))
+        schedule = Schedule.query.filter_by(day=form.date.data).first()
+        turn = Turn.query.filter(Turn.from_hour == form.turn_start.data, Turn.to_hour == form.turn_end.data).first()
+        if not schedule:
+            schedule = Schedule(day=form.date.data)
+        if not turn:
+            turn = Turn(from_hour=form.turn_start.data, to_hour=form.turn_end.data)
+        schedule.turns.append(turn)
+        if schedule not in weightroom.schedules:
+            weightroom.schedules.append(schedule)
+        db.session.commit()
+        # flash(f'Successfully added an event to {form.name.data} class', 'success')
+        return redirect(url_for('calendar_gym'))
+    return render_template('admin/add_event_weightroom.html', form=form)
