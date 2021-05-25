@@ -85,7 +85,7 @@ def profile():
 @login_required
 def calendar_gym():
     turns = Turn.query.distinct(Turn.from_hour, Turn.to_hour).all()
-    schedules = Schedule.query.order_by(Schedule.day).all()
+    schedules = Schedule.query.order_by(Schedule.day).limit(7).all()
 
     class F(ReservationForm):
         pass
@@ -111,7 +111,7 @@ def calendar_gym():
 def calendar_courses():
     form = ReservationForm()
     turns = Turn.query.distinct(Turn.from_hour, Turn.to_hour).all()
-    schedules = Schedule.query.order_by(Schedule.day).all()
+    schedules = Schedule.query.order_by(Schedule.day).limit(7).all()
     courses = Course.query.all()
     return render_template('calendar_courses.html', title='Course Calendar',
                            schedules=schedules, turns=turns, courses=courses, form=form, str=str, getattr=getattr)
@@ -154,8 +154,10 @@ def add_event_course():
         turn = Turn.query.filter(Turn.from_hour == form.turn_start.data, Turn.to_hour == form.turn_end.data).first()
         if not schedule:
             schedule = Schedule(day=form.date.data)
+            db.session.add(schedule)
         if not turn:
             turn = Turn(from_hour=form.turn_start.data, to_hour=form.turn_end.data)
+            db.session.add(turn)
         schedule.turns.append(turn)
         if schedule not in course.schedules:
             course.schedules.append(schedule)
