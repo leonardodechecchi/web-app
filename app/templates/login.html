@@ -21,19 +21,6 @@
 </section>
 <!-- Breadcrumb Section End -->
 
-<!-- flash messages -->
-<div class="alert-section">
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            {% for category, message in messages %}
-                <div class="alert-{{ category }}">
-                    {{ message }}
-                </div>
-                {% endfor %}
-        {% endif %}
-    {% endwith %}
-</div>
-
 <!-- Register Section Begin -->
 <section class="register-section spad">
     

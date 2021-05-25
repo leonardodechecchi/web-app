@@ -28,7 +28,7 @@ class User(db.Model, UserMixin):
     role = db.Column(db.String(64), default='member')
 
     # Relationship
-    course = db.relationship('Course', backref='user', passive_deletes=True, lazy=True)
+    courses = db.relationship('Course', backref='user', passive_deletes=True, lazy=True)
 
     def __init__(self, social_number, name, surname, email, password, role):
         self.social_number = social_number
@@ -74,7 +74,7 @@ class Schedule(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
     # Schedule information
-    day = db.Column(db.Enum(Days), nullable=False, unique=True)
+    day = db.Column(db.DATE, nullable=False, unique=True)
 
     # Relationships
     turns = db.relationship('Turn', secondary='ScheduleTurns', backref=db.backref('schedules', lazy='dynamic'))
@@ -94,8 +94,8 @@ class Turn(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
     # Turn information
-    from_hour = db.Column(db.Time, nullable=False)
-    to_hour = db.Column(db.Time, nullable=False)
+    from_hour = db.Column(db.TIME, nullable=False)
+    to_hour = db.Column(db.TIME, nullable=False)
 
     def __init__(self, from_hour, to_hour):
         self.from_hour = from_hour

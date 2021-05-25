@@ -4,7 +4,7 @@ from wtforms import StringField, PasswordField, SubmitField, BooleanField, Integ
 from wtforms.validators import DataRequired, Length, EqualTo, Email, ValidationError
 
 from app import bcrypt
-from app.models import User
+from app.models import User, Course
 
 
 class RegistrationForm(FlaskForm):
@@ -66,7 +66,24 @@ class ReservationForm(FlaskForm):
 class CreateCourse(FlaskForm):
     name = StringField('Course Name', validators=[DataRequired()])
     max_members = IntegerField('Max Members Allowed', validators=[DataRequired()])
-    schedule = DateField('Date', format='%d/%m/%Y', validators=[DataRequired()])
-    turn_from_hour = TimeField('Start', format='%X', validators=[DataRequired()])
-    turn_to_hour = TimeField('End', format='%X', validators=[DataRequired()])
     submit = SubmitField('Create')
+
+    def validate_name(self, name):
+        if name:
+            course = Course.query.filter_by(name=name.data).first()
+            if course:
+                raise ValidationError('That course already exists')
+
+
+class InsertCourse(FlaskForm):
+    name = StringField('Course Name', validators=[DataRequired()])
+    date = DateField('Date (yyyy-mm-dd)')
+    turn_start = TimeField('Course Start (hh:mm)')
+    turn_end = TimeField('Course End (hh:mm)')
+    submit = SubmitField('Insert')
+
+    def validate_name(self, name):
+        if name:
+            course = Course.query.filter_by(name=name.data).first()
+            if not course:
+                raise ValidationError('That course does not exist. Please insert an existing course')
