@@ -111,7 +111,7 @@ def calendar_gym():
 def calendar_courses():
     form = ReservationForm()
     turns = Turn.query.distinct(Turn.from_hour, Turn.to_hour).all()
-    schedules = Schedule.query.all()
+    schedules = Schedule.query.order_by(Schedule.day).all()
     courses = Course.query.all()
     return render_template('calendar_courses.html', title='Course Calendar',
                            schedules=schedules, turns=turns, courses=courses, form=form, str=str, getattr=getattr)
@@ -152,17 +152,12 @@ def add_event_course():
         course = Course.query.filter_by(name=form.name.data).first()
         schedule = Schedule.query.filter_by(day=form.date.data).first()
         turn = Turn.query.filter(Turn.from_hour == form.turn_start.data, Turn.to_hour == form.turn_end.data).first()
-        if schedule:
-            if not turn:
-                turn = Turn(from_hour=form.turn_start.data, to_hour=form.turn_end.data)
-                schedule.turns.append(turn)
-            schedule.turns.append(turn)
-            course.schedules.append(schedule)
-        else:
+        if not schedule:
             schedule = Schedule(day=form.date.data)
-            if not turn:
-                turn = Turn(from_hour=form.turn_start.data, to_hour=form.turn_end.data)
-            schedule.turns.append(turn)
+        if not turn:
+            turn = Turn(from_hour=form.turn_start.data, to_hour=form.turn_end.data)
+        schedule.turns.append(turn)
+        if schedule not in course.schedules:
             course.schedules.append(schedule)
         db.session.commit()
         flash(f'Successfully added an event to {form.name.data} class', 'success')
