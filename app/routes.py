@@ -156,6 +156,7 @@ def add_event_course():
             if not turn:
                 turn = Turn(from_hour=form.turn_start.data, to_hour=form.turn_end.data)
                 schedule.turns.append(turn)
+            schedule.turns.append(turn)
             course.schedules.append(schedule)
         else:
             schedule = Schedule(day=form.date.data)
