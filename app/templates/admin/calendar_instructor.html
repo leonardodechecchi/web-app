@@ -9,10 +9,10 @@
         <div class="row">
             <div class="col-lg-12">
                 <div class="breadcrumb-text">
-                    <h2>Gym Calendar</h2>
+                    <h2>{{ current_user.name }} Calendar</h2>
                     <div class="breadcrumb-option">
                         <a href="{{ url_for('home') }}"><i class="fa fa-home"></i> Home</a>
-                        <span>Gym Calendar</span>
+                        <span>{{ current_user.name }} Calendar</span>
                     </div>
                 </div>
             </div>
@@ -20,19 +20,6 @@
     </div>
 </section>
 <!-- Breadcrumb Section End -->
-
-<!-- flash messages -->
-<div class="alert-section">
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            {% for category, message in messages %}
-                <div class="alert-{{ category }}">
-                    {{ message }}
-                </div>
-                {% endfor %}
-        {% endif %}
-    {% endwith %}
-</div>
 
 <!-- Classes Timetable Section Begin -->
 <section class="classes-timetable spad">
@@ -55,7 +42,8 @@
                                 <th></th>
                                 {% for schedule in schedules %}
                                     <th>
-                                        {{ schedule.day.value }}
+                                        {{ schedule.day.strftime('%A') }}<br>
+                                        {{ schedule.day.strftime('%m-%d') }}
                                     </th>
                                 {% endfor %}
                             </tr>

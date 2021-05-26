@@ -76,6 +76,9 @@ class Schedule(db.Model):
     def __init__(self, day):
         self.day = day
 
+    def __repr__(self):
+        return f"Schedule('{self.day}', '{self.course_id}', '{self.weightroom_id}')"
+
 
 class Turn(db.Model):
     __tablename__ = "Turn"

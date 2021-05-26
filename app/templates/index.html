@@ -55,9 +55,13 @@
                         {% endif %}
                     </ul>
                 </nav>
-                {% if current_user.is_authenticated %}
+                {% if current_user.is_authenticated and current_user.role == 'instructor' %}
+                    <a href="#" class="primary-btn signup-btn">Dashboard</a>
+                {% endif %}
+                {% if current_user.is_authenticated and current_user.role == 'member' %}
                     <a href="{{ url_for('profile') }}" class="primary-btn signup-btn">Edit Profile</a>
-                {% else %}
+                {% endif %}
+                {% if not current_user.is_authenticated %}
                     <a href="{{ url_for('register') }}" class="primary-btn signup-btn">Register Now</a>
                 {% endif %}
             </div>
