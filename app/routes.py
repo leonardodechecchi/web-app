@@ -84,8 +84,8 @@ def profile():
 @app.route('/calendar/gym', methods=['GET', 'POST'])
 @login_required
 def calendar_gym():
-    schedules = Schedule.query.filter(Schedule.weightroom_id is not None).order_by(Schedule.day).limit(7).all()
-    turns = Turn.query.join(Schedule, Schedule.id == Turn.id).filter(Schedule.weightroom_id is not None).all()
+    schedules = Schedule.query.filter(Schedule.weightroom_id != None).order_by(Schedule.day).limit(7).all()
+    turns = Turn.query.join(Schedule, Schedule.id == Turn.id).filter(Schedule.weightroom_id != None).all()
 
     class F(ReservationForm):
         pass
@@ -158,7 +158,8 @@ def add_event_course():
         if not turn:
             turn = Turn(from_hour=form.turn_start.data, to_hour=form.turn_end.data)
             db.session.add(turn)
-        schedule.turns.append(turn)
+        if turn not in schedule.turns:
+            schedule.turns.append(turn)
         if schedule not in course.schedules:
             course.schedules.append(schedule)
         db.session.commit()
