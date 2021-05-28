@@ -61,25 +61,29 @@
                                     <td class="workout-time">
                                         {{ turn.from_hour.strftime('%H:%M') }}-{{ turn.to_hour.strftime('%H:%M') }}
                                     </td>
-                                    {% for schedule in schedules %}
-                                        {% if turn in schedule.turns and schedule.course_id %}
-                                           <!-- PRINT CELL -->
-                                            <td class="hover-bg ts-item">
-                                                <h6>{{ schedule.course.name }}</h6>
-                                                <span>{{ turn.from_hour.strftime('%H:%M') }}-{{ turn.to_hour.strftime('%H:%M') }}</span>
-                                                <div class="trainer-name">
-                                                    20 slots available
-                                                </div>
-                                                <!-- CHECKBOX -->
-                                                <label class="my-checkbox">
+                                    {% for course in courses %}
+                                        {% if turn.course_id == course.id %}
+                                            {% for schedule in schedules %}
+                                                {% if turn.schedule_id == schedule.id %}
+                                                   <!-- PRINT CELL -->
+                                                    <td class="hover-bg ts-item">
+                                                        <h6>{{ course.name }}</h6>
+                                                        <span>{{ turn.from_hour.strftime('%H:%M') }}-{{ turn.to_hour.strftime('%H:%M') }}</span>
+                                                        <div class="trainer-name">
+                                                            20 slots available
+                                                        </div>
+                                                        <!-- CHECKBOX -->
+                                                        <label class="my-checkbox">
 
-                                                    <span class="checkmark"></span>
-                                                </label>
-                                            </td>
-                                        {% else %}
-                                            <td class="hover-bg ts-item">
-                                                <!-- EMPTY CELL -->
-                                            </td>
+                                                            <span class="checkmark"></span>
+                                                        </label>
+                                                    </td>
+                                                {% else %}
+                                                    <td class="hover-bg ts-item">
+                                                        <!-- EMPTY CELL -->
+                                                    </td>
+                                                {% endif %}
+                                            {% endfor %}
                                         {% endif %}
                                     {% endfor %}
                                 </tr>
