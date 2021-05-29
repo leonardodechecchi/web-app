@@ -68,34 +68,14 @@ class Schedule(db.Model):
 
     # Relationships
     courses = db.relationship('Course', secondary='ScheduleCourse', backref=db.backref('schedule', lazy='dynamic'))
-    weightrooms = db.relationship('WeightRoom', secondary='ScheduleWeightRoom', backref=db.backref('schedule', lazy='dynamic'))
-
-    # ForeignKey
-    # course_id = db.Column(db.Integer, db.ForeignKey('Course.id', ondelete='CASCADE'))
-    # weightroom_id = db.Column(db.Integer, db.ForeignKey('WeightRoom.id', ondelete='CASCADE'))
+    weightrooms = db.relationship('WeightRoom', secondary='ScheduleWeightRoom',
+                                  backref=db.backref('schedule', lazy='dynamic'))
 
     def __init__(self, day):
         self.day = day
 
     def __repr__(self):
-        return f"Schedule('{self.day}', '{self.course_id}', '{self.weightroom_id}')"
-
-
-"""
-class Turn(db.Model):
-    __tablename__ = "Turn"
-    __table_args__ = {'extend_existing': True}
-
-    id = db.Column(db.Integer, primary_key=True)
-
-    # Turn information
-    from_hour = db.Column(db.TIME, nullable=False)
-    to_hour = db.Column(db.TIME, nullable=False)
-
-    def __init__(self, from_hour, to_hour):
-        self.from_hour = from_hour
-        self.to_hour = to_hour
-"""
+        return f"Schedule('{self.day}')"
 
 
 class ScheduleCourse(db.Model):
@@ -128,19 +108,6 @@ class ScheduleWeightRoom(db.Model):
     weightroom_id = db.Column(db.Integer, db.ForeignKey('WeightRoom.id', ondelete='CASCADE'))
 
 
-"""
-class ScheduleTurns(db.Model):
-    __tablename__ = "ScheduleTurns"
-    __table_args__ = {'extend_existing': True}
-
-    id = db.Column(db.Integer, primary_key=True)
-
-    # ForeignKey
-    schedule_id = db.Column(db.Integer, db.ForeignKey('Schedule.id', ondelete='CASCADE'))
-    turn_id = db.Column(db.Integer, db.ForeignKey('Turn.id', ondelete='CASCADE'))
-"""
-
-
 class Course(db.Model):
     __tablename__ = "Course"
     __table_args__ = {'extend_existing': True}
@@ -156,7 +123,6 @@ class Course(db.Model):
 
     # Relationships
     schedules = db.relationship('Schedule', secondary='ScheduleCourse', backref=db.backref('course', lazy='dynamic'))
-    # schedules = db.relationship('Schedule', backref='course', passive_deletes=True, lazy=True)
 
     def __init__(self, name, max_members):
         self.name = name
@@ -174,8 +140,8 @@ class WeightRoom(db.Model):
     max_members = db.Column(db.Integer)
 
     # Relationships
-    schedules = db.relationship('Schedule', secondary='ScheduleWeightRoom', backref=db.backref('weightroom', lazy='dynamic'))
-    # schedules = db.relationship('Schedule', backref='weightroom', passive_deletes=True, lazy=True)
+    schedules = db.relationship('Schedule', secondary='ScheduleWeightRoom',
+                                backref=db.backref('weightroom', lazy='dynamic'))
 
     def __init__(self, dimension, max_members):
         self.max_members = max_members

@@ -21,7 +21,7 @@ def about():
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if current_user.is_authenticated:
-        flash('You must logout to make a new registration', 'info')
+        # flash('You must logout to make a new registration', 'info')
         return redirect(url_for('home'))
     form = RegistrationForm()
     if form.validate_on_submit():
@@ -30,7 +30,7 @@ def register():
                     email=form.email.data, password=hashed_pw, role='member')
         db.session.add(user)
         db.session.commit()
-        flash('Your account has been created! Now you are able to log in', 'success')
+        # flash('Your account has been created! Now you are able to log in', 'success')
         return redirect(url_for('login'))
     return render_template('register.html', title='Register', form=form)
 
@@ -38,7 +38,7 @@ def register():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
-        flash('You are already logged-in', 'info')
+        # flash('You are already logged-in', 'info')
         return redirect(url_for('home'))
     form = LoginForm()
     if form.validate_on_submit():
@@ -48,7 +48,8 @@ def login():
             login_user(user, remember=form.remember.data)
             return redirect(url_for('home'))
         else:
-            flash(f'Login Unsuccessful, please retry', 'danger')
+            pass
+            # flash(f'Login Unsuccessful, please retry', 'danger')
     return render_template('login.html', title='Login', form=form)
 
 
@@ -85,17 +86,18 @@ def profile():
 @login_required
 def calendar_gym():
     turns = ScheduleWeightRoom.query.distinct(ScheduleWeightRoom.from_hour, ScheduleWeightRoom.to_hour).all()
-    schedules = Schedule.query.order_by(Schedule.day).limit(7).all()  # TODO join con scheduleweightroom per filtrare i giorni che appartengono solo alla weightroom
+    schedules = Schedule.query.join(Schedule.weightrooms).filter_by(id=ScheduleWeightRoom.schedule_id).all()
 
     class F(ReservationForm):
         pass
 
-    # init F
+    form = F()
+
     for turn in turns:
         for schedule in schedules:
-            setattr(F, str(turn.from_hour) + str(schedule.day), BooleanField('Reserve Now'))
+            setattr(F, str(turn.from_hour.strftime('%H')) + str(schedule.day.strftime('%A')),
+                    BooleanField('Reserve Now'))
 
-    form = F()
     if form.validate_on_submit():
         for turn in turns:
             for schedule in schedules:
@@ -112,7 +114,7 @@ def calendar_courses():
     form = ReservationForm()
     turns = ScheduleCourse.query.distinct(ScheduleCourse.from_hour, ScheduleCourse.to_hour).all()
     allturns = ScheduleCourse.query.all()
-    schedules = Schedule.query.order_by(Schedule.day).limit(7).all()  # TODO join con schedulecourse per filtrare i giorni che appartengono solo ai corsi
+    schedules = Schedule.query.join(Schedule.courses).filter_by(id=ScheduleCourse.schedule_id).all()
     courses = Course.query.all()
     return render_template('calendar_courses.html', title='Course Calendar', schedules=schedules, turns=turns,
                            allturns=allturns, courses=courses, form=form, str=str, getattr=getattr)
@@ -177,7 +179,6 @@ def add_event_course():
 
 
 @app.route('/weightroom/create', methods=['GET', 'POST'])
-@requires_roles('instructor')
 def create_weightroom():
     weightroom = WeightRoom.query.first()
     form = CreateWeightRoom(obj=weightroom)
@@ -195,7 +196,6 @@ def create_weightroom():
 
 
 @app.route('/weightroom/add-event', methods=['GET', 'POST'])
-@requires_roles('instructor')
 def add_event_gym():
     form = AddEventGym()
     if form.validate_on_submit():
