@@ -86,7 +86,7 @@ def profile():
 @login_required
 def calendar_gym():
     turns = ScheduleWeightRoom.query.distinct(ScheduleWeightRoom.from_hour, ScheduleWeightRoom.to_hour).all()
-    schedules = Schedule.query.join(Schedule.weightrooms).filter_by(id=ScheduleWeightRoom.schedule_id).all()
+    schedules = Schedule.query.filter_by(id=ScheduleWeightRoom.schedule_id).all()
 
     class F(ReservationForm):
         pass
@@ -114,7 +114,7 @@ def calendar_courses():
     form = ReservationForm()
     turns = ScheduleCourse.query.distinct(ScheduleCourse.from_hour, ScheduleCourse.to_hour).all()
     allturns = ScheduleCourse.query.all()
-    schedules = Schedule.query.join(Schedule.courses).filter_by(id=ScheduleCourse.schedule_id).all()
+    schedules = Schedule.query.filter_by(id=ScheduleCourse.schedule_id).all()
     courses = Course.query.all()
     return render_template('calendar_courses.html', title='Course Calendar', schedules=schedules, turns=turns,
                            allturns=allturns, courses=courses, form=form, str=str, getattr=getattr)
