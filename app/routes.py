@@ -113,11 +113,12 @@ def calendar_gym():
 def calendar_courses():
     form = ReservationForm()
     turns = ScheduleCourse.query.distinct(ScheduleCourse.from_hour, ScheduleCourse.to_hour).all()
+    schedules = Schedule.query.filter_by(id=ScheduleCourse.schedule_id).distinct(Schedule.day).limit(7).all()
     allturns = ScheduleCourse.query.all()
-    schedules = Schedule.query.filter_by(id=ScheduleCourse.schedule_id).all()
     courses = Course.query.all()
+    flag = {'flag': True}
     return render_template('calendar_courses.html', title='Course Calendar', schedules=schedules, turns=turns,
-                           allturns=allturns, courses=courses, form=form, str=str, getattr=getattr)
+                           allturns=allturns, courses=courses, form=form, str=str, getattr=getattr, flag=flag)
 
 
 @app.route('/calendar/instructor')
@@ -161,7 +162,6 @@ def add_event_course():
                                            ScheduleCourse.to_hour == form.turn_end.data,
                                            ScheduleCourse.course_id == course.id,
                                            ScheduleCourse.schedule_id == schedule.id).first()
-        # print(turn.from_hour, turn.to_hour, turn.course_id, course.id, turn.schedule_id, schedule.id, schedule.day, course.name)
         if not turn:
             turn = ScheduleCourse(from_hour=form.turn_start.data, to_hour=form.turn_end.data, course_id=course.id,
                                   schedule_id=schedule.id)

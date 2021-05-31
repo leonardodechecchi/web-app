@@ -61,30 +61,35 @@
                                     <td class="workout-time">
                                         {{ turn.from_hour.strftime('%H:%M') }}-{{ turn.to_hour.strftime('%H:%M') }}
                                     </td>
-                                    {% for course in courses %}
-                                        {% if turn.course_id == course.id %}
-                                            {% for schedule in schedules %}
-                                                {% if turn.schedule_id == schedule.id %}
-                                                   <!-- PRINT CELL -->
-                                                    <td class="hover-bg ts-item">
-                                                        <h6>{{ course.name }}</h6>
-                                                        <span>{{ turn.from_hour.strftime('%H:%M') }}-{{ turn.to_hour.strftime('%H:%M') }}</span>
-                                                        <div class="trainer-name">
-                                                            20 slots available
-                                                        </div>
-                                                        <!-- CHECKBOX -->
-                                                        <label class="my-checkbox">
+                                    {% for schedule in schedules %}
+                                        {% for allturn in allturns %}
+                                            {% if allturn.schedule_id == schedule.id and allturn.from_hour == turn.from_hour and allturn.to_hour == turn.to_hour %}
+                                                {% for course in courses %}
+                                                    {% if allturn.course_id == course.id %}
+                                                        {% if flag.update({'flag': False}) %} {% endif %}
+                                                       <!-- PRINT CELL -->
+                                                        <td class="hover-bg ts-item">
+                                                            <h6>{{ course.name }}</h6>
+                                                            <span>{{ turn.from_hour.strftime('%H:%M') }}-{{ turn.to_hour.strftime('%H:%M') }}</span>
+                                                            <div class="trainer-name">
+                                                                20 slots available
+                                                            </div>
+                                                            <!-- CHECKBOX -->
+                                                            <label class="my-checkbox">
 
-                                                            <span class="checkmark"></span>
-                                                        </label>
-                                                    </td>
-                                                {% else %}
-                                                    <td class="hover-bg ts-item">
-                                                        <!-- EMPTY CELL -->
-                                                    </td>
-                                                {% endif %}
-                                            {% endfor %}
+                                                                <span class="checkmark"></span>
+                                                            </label>
+                                                        </td>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            {% endif %}
+                                        {% endfor %}
+                                        {% if flag.flag %}
+                                            <td class="hover-bg ts-item">
+                                                <!-- EMPTY CELL -->
+                                            </td>
                                         {% endif %}
+                                        {% if flag.update({'flag': True}) %} {% endif %}
                                     {% endfor %}
                                 </tr>
                                 {% endfor %}
