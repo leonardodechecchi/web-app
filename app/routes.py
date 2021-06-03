@@ -5,7 +5,7 @@ from wtforms import BooleanField
 from app import app, db, bcrypt
 from app.forms import RegistrationForm, LoginForm, EditProfileForm, ReservationForm, CreateCourse, AddEventCourse, \
     AddEventGym, CreateWeightRoom
-from app.models import User, Courses, requires_roles, WeightRooms, SchedulesCourse, SchedulesWeightRoom
+from app.models import User, Courses, requires_roles, WeightRooms, SchedulesCourse, SchedulesWeightRoom, Reservations
 
 
 @app.route('/')
@@ -96,17 +96,16 @@ def calendar_weightrooms():
 
     form = F()
 
-    # TODO
-    for turn in turns:
-        for schedule in schedules:
-            setattr(F, str(turn.from_hour.strftime('%H')) + str(schedule.day.strftime('%A')),
-                    BooleanField('Reserve Now'))
+    for allturn in allturns:
+        setattr(F, str(allturn.id), BooleanField('Reserve Now'))
 
     if form.validate_on_submit():
-        for turn in turns:
-            for schedule in schedules:
-                if getattr(form, str(turn.from_hour) + str(schedule.day)).data:
-                    pass  # TODO if checked
+        for allturn in allturns:
+            if getattr(form, str(allturn.id)).data:
+                reservation = Reservations(user_id=current_user.id, schedule_weightroom_id=allturn.id,
+                                           schedule_course_id=None)
+                db.session.add(reservation)
+        db.session.commit()
 
     flag = {'flag': True}
     return render_template('calendar_gym.html', title='Gym Calendar', schedules=schedules, turns=turns,

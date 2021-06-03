@@ -75,7 +75,7 @@
                                                             </div>
                                                             <!-- CHECKBOX -->
                                                             <label class="my-checkbox">
-                                                                {% set checkbox = getattr(form, str(turn.from_hour) + str(schedule.day)).data %}
+                                                                {% set checkbox = getattr(form, str(allturn.id)).data %}
                                                                 {{ checkbox }}
                                                                 <span class="checkmark"></span>
                                                             </label>
