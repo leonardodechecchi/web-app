@@ -162,24 +162,14 @@ def course_add_event():
     form = AddEventCourse()
     if form.validate_on_submit():
         course = Courses.query.filter_by(name=form.name.data).first()
-        schedule = SchedulesCourse.query.filter_by(day=form.date.data).first()
-        if not schedule:
-            schedule = SchedulesCourse(day=form.date.data)
-            db.session.add(schedule)
         turn = SchedulesCourse.query.filter(SchedulesCourse.from_hour == form.turn_start.data,
                                             SchedulesCourse.to_hour == form.turn_end.data,
                                             SchedulesCourse.course_id == course.id,
-                                            SchedulesCourse.schedule_id == schedule.id).first()
+                                            SchedulesCourse.day == form.date.data).first()
         if not turn:
             turn = SchedulesCourse(from_hour=form.turn_start.data, to_hour=form.turn_end.data, course_id=course.id,
-                                   schedule_id=schedule.id)
+                                   day=form.date.data)
             db.session.add(turn)
-        """
-        if turn not in schedule.turns:
-            schedule.turns.append(turn)
-        if schedule not in course.schedules:
-            course.schedules.append(schedule)
-        """
         db.session.commit()
         # flash(f'Successfully added an event to {form.name.data} class', 'success')
         return redirect(url_for('calendar_courses'))
@@ -210,25 +200,15 @@ def weightroom_add_event():
         weightroom = WeightRooms.query.first()
         if not weightroom:
             return redirect(url_for('admin/create_weightroom'))
-        schedule = SchedulesWeightRoom.query.filter_by(day=form.date.data).first()
-        if not schedule:
-            schedule = Schedule(day=form.date.data)
-            db.session.add(schedule)
         turn = SchedulesWeightRoom.query.filter(SchedulesWeightRoom.from_hour == form.turn_start.data,
                                                 SchedulesWeightRoom.to_hour == form.turn_end.data,
                                                 SchedulesWeightRoom.weightroom_id == weightroom.id,
-                                                SchedulesWeightRoom.schedule_id == schedule.id).first()
+                                                SchedulesWeightRoom.day == form.date.data).first()
         if not turn:
             turn = SchedulesWeightRoom(from_hour=form.turn_start.data, to_hour=form.turn_end.data,
-                                       weightroom_id=weightroom.id, schedule_id=schedule.id)
+                                       weightroom_id=weightroom.id, day=form.date.data)
             db.session.add(turn)
-        """
-        if turn not in schedule.turns:
-            schedule.turns.append(turn)
-        if schedule not in weightroom.schedules:
-            weightroom.schedules.append(schedule)
-        """
         db.session.commit()
         # flash(f'Successfully added an event to {form.name.data} class', 'success')
-        return redirect(url_for('calendar_gym'))
+        return redirect(url_for('calendar_weightrooms'))
     return render_template('admin/add_event_weightroom.html', form=form)

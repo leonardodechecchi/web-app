@@ -63,7 +63,7 @@
                                     </td>
                                     {% for schedule in schedules %}
                                         {% for allturn in allturns %}
-                                            {% if allturn.schedule_id == schedule.id and allturn.from_hour == turn.from_hour and allturn.to_hour == turn.to_hour %}
+                                            {% if allturn.day == schedule.day and allturn.from_hour == turn.from_hour and allturn.to_hour == turn.to_hour %}
                                                 {% for course in courses %}
                                                     {% if allturn.course_id == course.id %}
                                                         {% if flag.update({'flag': False}) %} {% endif %}

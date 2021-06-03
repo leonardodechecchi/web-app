@@ -39,7 +39,7 @@ class User(db.Model, UserMixin):
     role = db.Column(db.String(64), default='member')
 
     # Relationship
-    # courses = db.relationship('Courses', backref='user', passive_deletes=True, lazy=True)
+    courses = db.relationship('Courses', backref='user', passive_deletes=True, lazy=True)
     reservations = db.relationship('Reservations', backref='user', passive_deletes=True, lazy=True)
 
     def __init__(self, social_number, name, surname, email, password, role):
@@ -79,7 +79,7 @@ class SchedulesCourse(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
     # SchedulesCourse information
-    day = db.Column(db.DATE, nullable=False, unique=True)
+    day = db.Column(db.DATE, nullable=False)
     from_hour = db.Column(db.TIME, nullable=False)
     to_hour = db.Column(db.TIME, nullable=False)
 
@@ -104,7 +104,7 @@ class Courses(db.Model):
     schedules_course = db.relationship('SchedulesCourse', backref='course', passive_deletes=True, lazy=True)
 
     # ForeignKey
-    # instructor_id = db.Column(db.String, db.ForeignKey('User.social_number', ondelete='CASCADE'))
+    instructor_id = db.Column(db.String, db.ForeignKey('User.social_number', ondelete='CASCADE'))
 
     def __init__(self, name, max_members):
         self.name = name
@@ -118,7 +118,7 @@ class SchedulesWeightRoom(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
     # SchedulesWeightRoom information
-    day = db.Column(db.DATE, nullable=False, unique=True)
+    day = db.Column(db.DATE, nullable=False)
     from_hour = db.Column(db.TIME, nullable=False)
     to_hour = db.Column(db.TIME, nullable=False)
 
@@ -147,7 +147,5 @@ class WeightRooms(db.Model):
         self.dimension = dimension
 
 
-"""
 if __name__ == '__main__':
     db.create_all()
-"""
