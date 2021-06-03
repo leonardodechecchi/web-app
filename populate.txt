@@ -4,10 +4,10 @@ from datetime import date, time
 
 
 /* COURSES */
-course1 = Course(name='Yoga', max_members=15)
-course2 = Course(name='Crossfit', max_members=20)
-course3 = Course(name='Cardio', max_members=10)
-course4 = Course(name='Body', max_members=15)
+course1 = Courses(name='Yoga', max_members=15)
+course2 = Courses(name='Crossfit', max_members=20)
+course3 = Courses(name='Cardio', max_members=10)
+course4 = Courses(name='Body', max_members=15)
 
 db.session.add(course1)
 db.session.add(course2)

@@ -1,10 +1,11 @@
-from flask import render_template, url_for, flash, redirect
+from flask import render_template, url_for, redirect
+from flask_login import login_user, current_user, logout_user, login_required
+from wtforms import BooleanField
+
 from app import app, db, bcrypt
 from app.forms import RegistrationForm, LoginForm, EditProfileForm, ReservationForm, CreateCourse, AddEventCourse, \
     AddEventGym, CreateWeightRoom
-from app.models import User, Course, Schedule, requires_roles, WeightRoom, ScheduleCourse, ScheduleWeightRoom
-from flask_login import login_user, current_user, logout_user, login_required
-from wtforms import BooleanField
+from app.models import User, Courses, requires_roles, WeightRooms, SchedulesCourse, SchedulesWeightRoom
 
 
 @app.route('/')
@@ -85,14 +86,17 @@ def profile():
 @app.route('/calendar/gym', methods=['GET', 'POST'])
 @login_required
 def calendar_gym():
-    turns = ScheduleWeightRoom.query.distinct(ScheduleWeightRoom.from_hour, ScheduleWeightRoom.to_hour).all()
-    schedules = Schedule.query.filter_by(id=ScheduleWeightRoom.schedule_id).all()
+    turns = SchedulesWeightRoom.query.distinct(SchedulesWeightRoom.from_hour, SchedulesWeightRoom.to_hour).all()
+    schedules = Schedule.query.filter_by(id=SchedulesWeightRoom.schedule_id).distinct(Schedule.day).limit(7).all()
+    allturns = SchedulesWeightRoom.query.all()
+    weightrooms = WeightRooms.query.all()
 
     class F(ReservationForm):
         pass
 
     form = F()
 
+    # TODO
     for turn in turns:
         for schedule in schedules:
             setattr(F, str(turn.from_hour.strftime('%H')) + str(schedule.day.strftime('%A')),
@@ -104,67 +108,68 @@ def calendar_gym():
                 if getattr(form, str(turn.from_hour) + str(schedule.day)).data:
                     pass  # TODO if checked
 
-    return render_template('calendar_gym.html', title='Gym Calendar',
-                           schedules=schedules, turns=turns, form=form, getattr=getattr, str=str)
+    flag = {'flag': True}
+    return render_template('calendar_gym.html', title='Gym Calendar', schedules=schedules, turns=turns,
+                           allturns=allturns, weightrooms=weightrooms, form=form, getattr=getattr, str=str, flag=flag)
 
 
 @app.route('/calendar/courses', methods=['GET', 'POST'])
 @login_required
 def calendar_courses():
     form = ReservationForm()
-    turns = ScheduleCourse.query.distinct(ScheduleCourse.from_hour, ScheduleCourse.to_hour).all()
-    schedules = Schedule.query.filter_by(id=ScheduleCourse.schedule_id).distinct(Schedule.day).limit(7).all()
-    allturns = ScheduleCourse.query.all()
-    courses = Course.query.all()
+    turns = SchedulesCourse.query.distinct(SchedulesCourse.from_hour, SchedulesCourse.to_hour).all()
+    schedules = Schedule.query.filter_by(id=SchedulesCourse.schedule_id).distinct(Schedule.day).limit(7).all()
+    allturns = SchedulesCourse.query.all()
+    courses = Courses.query.all()
     flag = {'flag': True}
-    return render_template('calendar_courses.html', title='Course Calendar', schedules=schedules, turns=turns,
+    return render_template('calendar_courses.html', title='Courses Calendar', schedules=schedules, turns=turns,
                            allturns=allturns, courses=courses, form=form, str=str, getattr=getattr, flag=flag)
 
 
 @app.route('/calendar/instructor')
 @login_required
-@requires_roles('instructor')
+# @requires_roles('instructor')
 def calendar_instructor():
-    turns = ScheduleCourse.query.all()
+    turns = SchedulesCourse.query.all()
     schedules = Schedule.query.limit(7).all()
-    courses = Course.query.filter_by(instructor_id=current_user.get_id())
+    courses = Courses.query.filter_by(instructor_id=current_user.get_id())
     return render_template('admin/calendar_instructor.html', title='Instructor Calendar', turns=turns,
                            schedules=schedules, courses=courses)
 
 
 @app.route('/course/create', methods=['GET', 'POST'])
 @login_required
-@requires_roles('instructor')
+# @requires_roles('instructor')
 def create_course():
     form = CreateCourse()
     if form.validate_on_submit():
-        course = Course(name=form.name.data, max_members=form.max_members.data)
+        course = Courses(name=form.name.data, max_members=form.max_members.data)
         current_user.courses.append(course)
         db.session.add(course)
         db.session.commit()
-        # flash(f'Course {form.name.data} created successfully', 'success')
+        # flash(f'Courses {form.name.data} created successfully', 'success')
         return redirect(url_for('home'))
     return render_template('admin/create_course.html', form=form)
 
 
 @app.route('/course/add-event', methods=['GET', 'POST'])
 @login_required
-@requires_roles('instructor')
+# @requires_roles('instructor')
 def add_event_course():
     form = AddEventCourse()
     if form.validate_on_submit():
-        course = Course.query.filter_by(name=form.name.data).first()
+        course = Courses.query.filter_by(name=form.name.data).first()
         schedule = Schedule.query.filter_by(day=form.date.data).first()
         if not schedule:
             schedule = Schedule(day=form.date.data)
             db.session.add(schedule)
-        turn = ScheduleCourse.query.filter(ScheduleCourse.from_hour == form.turn_start.data,
-                                           ScheduleCourse.to_hour == form.turn_end.data,
-                                           ScheduleCourse.course_id == course.id,
-                                           ScheduleCourse.schedule_id == schedule.id).first()
+        turn = SchedulesCourse.query.filter(SchedulesCourse.from_hour == form.turn_start.data,
+                                            SchedulesCourse.to_hour == form.turn_end.data,
+                                            SchedulesCourse.course_id == course.id,
+                                            SchedulesCourse.schedule_id == schedule.id).first()
         if not turn:
-            turn = ScheduleCourse(from_hour=form.turn_start.data, to_hour=form.turn_end.data, course_id=course.id,
-                                  schedule_id=schedule.id)
+            turn = SchedulesCourse(from_hour=form.turn_start.data, to_hour=form.turn_end.data, course_id=course.id,
+                                   schedule_id=schedule.id)
             db.session.add(turn)
         """
         if turn not in schedule.turns:
@@ -180,17 +185,17 @@ def add_event_course():
 
 @app.route('/weightroom/create', methods=['GET', 'POST'])
 def create_weightroom():
-    weightroom = WeightRoom.query.first()
+    weightroom = WeightRooms.query.first()
     form = CreateWeightRoom(obj=weightroom)
     if form.validate_on_submit():
         if not weightroom:
-            weightroom = WeightRoom(max_members=form.max_members.data, dimension=form.dimension.data)
+            weightroom = WeightRooms(max_members=form.max_members.data, dimension=form.dimension.data)
             db.session.add(weightroom)
         else:
             weightroom.max_members = form.max_members.data
             weightroom.dimension = form.dimension.data
         db.session.commit()
-        # flash(f'Course {form.name.data} created successfully', 'success')
+        # flash(f'Courses {form.name.data} created successfully', 'success')
         return redirect(url_for('home'))
     return render_template('admin/create_weightroom.html', form=form)
 
@@ -199,20 +204,20 @@ def create_weightroom():
 def add_event_gym():
     form = AddEventGym()
     if form.validate_on_submit():
-        weightroom = WeightRoom.query.first()
+        weightroom = WeightRooms.query.first()
         if not weightroom:
             return redirect(url_for('admin/create_weightroom'))
         schedule = Schedule.query.filter_by(day=form.date.data).first()
         if not schedule:
             schedule = Schedule(day=form.date.data)
             db.session.add(schedule)
-        turn = ScheduleWeightRoom.query.filter(ScheduleWeightRoom.from_hour == form.turn_start.data,
-                                               ScheduleWeightRoom.to_hour == form.turn_end.data,
-                                               ScheduleWeightRoom.weightroom_id == weightroom.id,
-                                               ScheduleWeightRoom.schedule_id == schedule.id).first()
+        turn = SchedulesWeightRoom.query.filter(SchedulesWeightRoom.from_hour == form.turn_start.data,
+                                                SchedulesWeightRoom.to_hour == form.turn_end.data,
+                                                SchedulesWeightRoom.weightroom_id == weightroom.id,
+                                                SchedulesWeightRoom.schedule_id == schedule.id).first()
         if not turn:
-            turn = ScheduleWeightRoom(from_hour=form.turn_start.data, to_hour=form.turn_end.data,
-                                      weightroom_id=weightroom.id, schedule_id=schedule.id)
+            turn = SchedulesWeightRoom(from_hour=form.turn_start.data, to_hour=form.turn_end.data,
+                                       weightroom_id=weightroom.id, schedule_id=schedule.id)
             db.session.add(turn)
         """
         if turn not in schedule.turns:

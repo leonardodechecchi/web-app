@@ -56,32 +56,40 @@
                             <!-- BODY  -->
                             <tbody>
                                 {% for turn in turns %}
-                                <!-- ROW -->
                                 <tr>
-                                    <!-- PRINT TURN -->
                                     <td class="workout-time">
                                         {{ turn.from_hour.strftime("%H:%M") }}-{{ turn.to_hour.strftime("%H:%M") }}
                                     </td>
                                     {% for schedule in schedules %}
-                                        {% if turn in scheduleweightroom %}
-                                            <!-- PRINT CELL -->
+                                        {% for allturn in allturns %}
+                                            {% if allturn.schedule_id == schedule.id and allturn.from_hour == turn.from_hour and allturn.to_hour == turn.to_hour %}
+                                                {% for weightroom in weightrooms %}
+                                                    {% if allturn.weightroom_id == weightroom.id %}
+                                                        {% if flag.update({'flag': False}) %} {% endif %}
+                                                        <!-- PRINT CELL -->
+                                                        <td class="hover-bg ts-item">
+                                                            <h6>GYM</h6>
+                                                            <span>{{ turn.from_hour.strftime('%H:%M') }}-{{ turn.to_hour.strftime('%H:%M') }}</span>
+                                                            <div class="trainer-name">
+                                                                20 slots available
+                                                            </div>
+                                                            <!-- CHECKBOX -->
+                                                            <label class="my-checkbox">
+                                                                {% set checkbox = getattr(form, str(turn.from_hour) + str(schedule.day)).data %}
+                                                                {{ checkbox }}
+                                                                <span class="checkmark"></span>
+                                                            </label>
+                                                        </td>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            {% endif %}
+                                        {% endfor %}
+                                        {% if flag.flag %}
                                             <td class="hover-bg ts-item">
-                                                <h6>Gym</h6>
-                                                <span>{{ turn.from_hour.strftime("%H:%M") }}-{{ turn.to_hour.strftime("%H:%M") }}</span>
-                                                <div class="trainer-name">
-                                                    20 slots available
-                                                </div>
-                                                <!-- CHECKBOX -->
-                                                <label class="my-checkbox">
-                                                    {% set checkbox = getattr(form, str(turn.from_hour.strftime('%H')) + str(schedule.day.strftime('%A'))) %}
-                                                    {{ checkbox.data }}
-                                                    <span class="checkmark"></span>
-                                                </label>
+                                                <!-- EMPTY CELL -->
                                             </td>
-                                        {% else %}
-                                            <!-- EMPTY CELL -->
-                                            <td class="hover-bg ts-item"></td>
                                         {% endif %}
+                                        {% if flag.update({'flag': True}) %} {% endif %}
                                     {% endfor %}
                                 </tr>
                                 {% endfor %}

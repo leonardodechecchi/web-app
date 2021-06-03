@@ -4,7 +4,7 @@ from wtforms import StringField, PasswordField, SubmitField, BooleanField, Integ
 from wtforms.validators import DataRequired, Length, EqualTo, Email, ValidationError
 
 from app import bcrypt
-from app.models import User, Course
+from app.models import User, Courses
 
 
 class RegistrationForm(FlaskForm):
@@ -64,27 +64,27 @@ class ReservationForm(FlaskForm):
 
 
 class CreateCourse(FlaskForm):
-    name = StringField('Course Name', validators=[DataRequired()])
+    name = StringField('Courses Name', validators=[DataRequired()])
     max_members = IntegerField('Max Members Allowed', validators=[DataRequired()])
     submit = SubmitField('Create')
 
     def validate_name(self, name):
         if name:
-            course = Course.query.filter_by(name=name.data).first()
+            course = Courses.query.filter_by(name=name.data).first()
             if course:
                 raise ValidationError('That course already exists')
 
 
 class AddEventCourse(FlaskForm):
-    name = StringField('Course Name', validators=[DataRequired()])
+    name = StringField('Courses Name', validators=[DataRequired()])
     date = DateField('Date (yyyy-mm-dd)')
-    turn_start = TimeField('Course Start (hh:mm)')
-    turn_end = TimeField('Course End (hh:mm)')
+    turn_start = TimeField('Courses Start (hh:mm)')
+    turn_end = TimeField('Courses End (hh:mm)')
     submit = SubmitField('Insert')
 
     def validate_name(self, name):
         if name:
-            course = Course.query.filter_by(name=name.data).first()
+            course = Courses.query.filter_by(name=name.data).first()
             if not course:
                 raise ValidationError('That course does not exist. Please insert an existing course')
 
@@ -97,6 +97,6 @@ class CreateWeightRoom(FlaskForm):
 
 class AddEventGym(FlaskForm):
     date = DateField('Date (yyyy-mm-dd)')
-    turn_start = TimeField('Course Start (hh:mm)')
-    turn_end = TimeField('Course End (hh:mm)')
+    turn_start = TimeField('Courses Start (hh:mm)')
+    turn_end = TimeField('Courses End (hh:mm)')
     submit = SubmitField('Insert')

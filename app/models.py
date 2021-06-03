@@ -1,7 +1,6 @@
-import enum
 from functools import wraps
 
-from app import db, login_manager, bcrypt
+from app import db, login_manager
 from flask_login import UserMixin, current_user
 
 
@@ -9,6 +8,18 @@ from flask_login import UserMixin, current_user
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(user_id)
+
+
+def requires_roles(*roles):
+    def wrapper(f):
+        @wraps(f)
+        def wrapped(*args, **kwargs):
+            if current_user.role not in roles:
+                # Redirect the user to an unauthorized notice!
+                return "You are not authorized to access this page"
+            return f(*args, **kwargs)
+        return wrapped
+    return wrapper
 
 
 class User(db.Model, UserMixin):
@@ -28,7 +39,8 @@ class User(db.Model, UserMixin):
     role = db.Column(db.String(64), default='member')
 
     # Relationship
-    courses = db.relationship('Course', backref='user', passive_deletes=True, lazy=True)
+    # courses = db.relationship('Courses', backref='user', passive_deletes=True, lazy=True)
+    reservations = db.relationship('Reservations', backref='user', passive_deletes=True, lazy=True)
 
     def __init__(self, social_number, name, surname, email, password, role):
         self.social_number = social_number
@@ -45,107 +57,97 @@ class User(db.Model, UserMixin):
         return self.social_number
 
 
-def requires_roles(*roles):
-    def wrapper(f):
-        @wraps(f)
-        def wrapped(*args, **kwargs):
-            if current_user.role not in roles:
-                # Redirect the user to an unauthorized notice!
-                return "You are not authorized to access this page"
-            return f(*args, **kwargs)
-        return wrapped
-    return wrapper
-
-
-class Schedule(db.Model):
-    __tablename__ = "Schedule"
+class Reservations(db.Model):
+    __tablename__ = "Reservations"
     __table_args__ = {'extend_existing': True}
 
     id = db.Column(db.Integer, primary_key=True)
 
-    # Schedule information
+    # Reservations information
+    # ...
+
+    # ForeignKey
+    user_id = db.Column(db.String, db.ForeignKey('User.social_number', ondelete='CASCADE'))
+    schedule_course_id = db.Column(db.Integer, db.ForeignKey('SchedulesCourse.id', ondelete='CASCADE'))
+    schedule_weightroom_id = db.Column(db.Integer, db.ForeignKey('SchedulesWeightRoom.id', ondelete='CASCADE'))
+
+
+class SchedulesCourse(db.Model):
+    __tablename__ = "SchedulesCourse"
+    __table_args__ = {'extend_existing': True}
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    # SchedulesCourse information
     day = db.Column(db.DATE, nullable=False, unique=True)
+    from_hour = db.Column(db.TIME, nullable=False)
+    to_hour = db.Column(db.TIME, nullable=False)
 
     # Relationships
-    courses = db.relationship('Course', secondary='ScheduleCourse', backref=db.backref('schedules', lazy='dynamic'))
-    weightrooms = db.relationship('WeightRoom', secondary='ScheduleWeightRoom', backref=db.backref('weightrooms',
-                                  lazy='dynamic'))
-
-    def __init__(self, day):
-        self.day = day
-
-    def __repr__(self):
-        return f"Schedule('{self.day}')"
-
-
-class ScheduleCourse(db.Model):
-    __tablename__ = "ScheduleCourse"
-    __table_args__ = {'extend_existing': True}
-
-    id = db.Column(db.Integer, primary_key=True)
-
-    # Turn information
-    from_hour = db.Column(db.TIME, nullable=False)
-    to_hour = db.Column(db.TIME, nullable=False)
+    reservations = db.relationship('Reservations', backref='schedules_course', passive_deletes=True, lazy=True)
 
     # ForeignKey
-    schedule_id = db.Column(db.Integer, db.ForeignKey('Schedule.id', ondelete='CASCADE'))
-    course_id = db.Column(db.Integer, db.ForeignKey('Course.id', ondelete='CASCADE'))
+    course_id = db.Column(db.Integer, db.ForeignKey('Courses.id', ondelete='CASCADE'))
 
 
-class ScheduleWeightRoom(db.Model):
-    __tablename__ = "ScheduleWeightRoom"
+class Courses(db.Model):
+    __tablename__ = "Courses"
     __table_args__ = {'extend_existing': True}
 
     id = db.Column(db.Integer, primary_key=True)
 
-    # Turn information
-    from_hour = db.Column(db.TIME, nullable=False)
-    to_hour = db.Column(db.TIME, nullable=False)
-
-    # ForeignKey
-    schedule_id = db.Column(db.Integer, db.ForeignKey('Schedule.id', ondelete='CASCADE'))
-    weightroom_id = db.Column(db.Integer, db.ForeignKey('WeightRoom.id', ondelete='CASCADE'))
-
-
-class Course(db.Model):
-    __tablename__ = "Course"
-    __table_args__ = {'extend_existing': True}
-
-    id = db.Column(db.Integer, primary_key=True)
-
-    # Course information
+    # Courses information
     name = db.Column(db.String(20), nullable=False)
     max_members = db.Column(db.Integer)
 
-    # ForeignKey
-    instructor_id = db.Column(db.String, db.ForeignKey('User.social_number', ondelete='CASCADE'))
-
     # Relationships
-    # schedules = db.relationship('Schedule', secondary='ScheduleCourse', back_populates='courses', lazy='dynamic')
+    schedules_course = db.relationship('SchedulesCourse', backref='course', passive_deletes=True, lazy=True)
+
+    # ForeignKey
+    # instructor_id = db.Column(db.String, db.ForeignKey('User.social_number', ondelete='CASCADE'))
 
     def __init__(self, name, max_members):
         self.name = name
         self.max_members = max_members
 
 
-class WeightRoom(db.Model):
-    __tablename__ = "WeightRoom"
+class SchedulesWeightRoom(db.Model):
+    __tablename__ = "SchedulesWeightRoom"
     __table_args__ = {'extend_existing': True}
 
     id = db.Column(db.Integer, primary_key=True)
 
-    # WeightRoom information
+    # SchedulesWeightRoom information
+    day = db.Column(db.DATE, nullable=False, unique=True)
+    from_hour = db.Column(db.TIME, nullable=False)
+    to_hour = db.Column(db.TIME, nullable=False)
+
+    # Relationships
+    reservations = db.relationship('Reservations', backref='schedules_weightroom', passive_deletes=True, lazy=True)
+
+    # ForeignKey
+    weightroom_id = db.Column(db.Integer, db.ForeignKey('WeightRooms.id', ondelete='CASCADE'))
+
+
+class WeightRooms(db.Model):
+    __tablename__ = "WeightRooms"
+    __table_args__ = {'extend_existing': True}
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    # WeightRooms information
     dimension = db.Column(db.Float)
     max_members = db.Column(db.Integer)
 
-    # Relationships schedules = db.relationship('Schedule', secondary='ScheduleWeightRoom',
-    # back_populates='weightrooms', lazy='dynamic')
+    # Relationships
+    schedules_weightroom = db.relationship('SchedulesWeightRoom', backref='weightroom', passive_deletes=True, lazy=True)
 
     def __init__(self, dimension, max_members):
         self.max_members = max_members
         self.dimension = dimension
 
 
+"""
 if __name__ == '__main__':
     db.create_all()
+"""
