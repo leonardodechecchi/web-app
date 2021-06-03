@@ -85,9 +85,9 @@ def profile():
 
 @app.route('/calendar/gym', methods=['GET', 'POST'])
 @login_required
-def calendar_gym():
+def calendar_weightrooms():
     turns = SchedulesWeightRoom.query.distinct(SchedulesWeightRoom.from_hour, SchedulesWeightRoom.to_hour).all()
-    schedules = Schedule.query.filter_by(id=SchedulesWeightRoom.schedule_id).distinct(Schedule.day).limit(7).all()
+    schedules = SchedulesWeightRoom.query.distinct(SchedulesWeightRoom.day).limit(7).all()
     allturns = SchedulesWeightRoom.query.all()
     weightrooms = WeightRooms.query.all()
 
@@ -116,11 +116,13 @@ def calendar_gym():
 @app.route('/calendar/courses', methods=['GET', 'POST'])
 @login_required
 def calendar_courses():
-    form = ReservationForm()
     turns = SchedulesCourse.query.distinct(SchedulesCourse.from_hour, SchedulesCourse.to_hour).all()
-    schedules = Schedule.query.filter_by(id=SchedulesCourse.schedule_id).distinct(Schedule.day).limit(7).all()
+    schedules = SchedulesCourse.query.distinct(SchedulesCourse.day).limit(7).all()
     allturns = SchedulesCourse.query.all()
     courses = Courses.query.all()
+
+    form = ReservationForm()
+
     flag = {'flag': True}
     return render_template('calendar_courses.html', title='Courses Calendar', schedules=schedules, turns=turns,
                            allturns=allturns, courses=courses, form=form, str=str, getattr=getattr, flag=flag)
@@ -130,9 +132,10 @@ def calendar_courses():
 @login_required
 # @requires_roles('instructor')
 def calendar_instructor():
-    turns = SchedulesCourse.query.all()
-    schedules = Schedule.query.limit(7).all()
+    turns = SchedulesCourse.query.distinct(SchedulesCourse.from_hour, SchedulesCourse.to_hour).all()
+    schedules = SchedulesCourse.query.distinct(SchedulesCourse.day).limit(7).all()
     courses = Courses.query.filter_by(instructor_id=current_user.get_id())
+
     return render_template('admin/calendar_instructor.html', title='Instructor Calendar', turns=turns,
                            schedules=schedules, courses=courses)
 
@@ -140,7 +143,7 @@ def calendar_instructor():
 @app.route('/course/create', methods=['GET', 'POST'])
 @login_required
 # @requires_roles('instructor')
-def create_course():
+def course_create():
     form = CreateCourse()
     if form.validate_on_submit():
         course = Courses(name=form.name.data, max_members=form.max_members.data)
@@ -155,13 +158,13 @@ def create_course():
 @app.route('/course/add-event', methods=['GET', 'POST'])
 @login_required
 # @requires_roles('instructor')
-def add_event_course():
+def course_add_event():
     form = AddEventCourse()
     if form.validate_on_submit():
         course = Courses.query.filter_by(name=form.name.data).first()
-        schedule = Schedule.query.filter_by(day=form.date.data).first()
+        schedule = SchedulesCourse.query.filter_by(day=form.date.data).first()
         if not schedule:
-            schedule = Schedule(day=form.date.data)
+            schedule = SchedulesCourse(day=form.date.data)
             db.session.add(schedule)
         turn = SchedulesCourse.query.filter(SchedulesCourse.from_hour == form.turn_start.data,
                                             SchedulesCourse.to_hour == form.turn_end.data,
@@ -184,7 +187,7 @@ def add_event_course():
 
 
 @app.route('/weightroom/create', methods=['GET', 'POST'])
-def create_weightroom():
+def weightroom_create():
     weightroom = WeightRooms.query.first()
     form = CreateWeightRoom(obj=weightroom)
     if form.validate_on_submit():
@@ -201,13 +204,13 @@ def create_weightroom():
 
 
 @app.route('/weightroom/add-event', methods=['GET', 'POST'])
-def add_event_gym():
+def weightroom_add_event():
     form = AddEventGym()
     if form.validate_on_submit():
         weightroom = WeightRooms.query.first()
         if not weightroom:
             return redirect(url_for('admin/create_weightroom'))
-        schedule = Schedule.query.filter_by(day=form.date.data).first()
+        schedule = SchedulesWeightRoom.query.filter_by(day=form.date.data).first()
         if not schedule:
             schedule = Schedule(day=form.date.data)
             db.session.add(schedule)
