@@ -1,3 +1,5 @@
+import itertools
+
 from flask import render_template, url_for, redirect
 from flask_login import login_user, current_user, logout_user, login_required
 from wtforms import BooleanField
@@ -137,6 +139,39 @@ def calendar_courses():
     flag = {'flag': True}
     return render_template('calendar_courses.html', title='Courses Calendar', schedules=schedules, turns=turns,
                            allturns=allturns, courses=courses, form=form, str=str, getattr=getattr, flag=flag)
+
+
+@app.route('/calendar/reservations')
+@login_required
+def calendar_reservations():
+    reservations = Reservations.query.filter_by(user_id=current_user.id)
+    courses = Courses.query.all()
+    weightrooms = WeightRooms.query.all()
+    reservation_courses = []
+    reservation_weightroom = []
+    for reservation in reservations:
+        if reservation.schedule_course_id:
+            reservation_courses.append(reservation.schedule_course_id)
+        if reservation.schedule_weightroom_id:
+            reservation_weightroom.append(reservation.schedule_weightroom_id)
+    allturns_c = SchedulesCourse.query.filter(SchedulesCourse.id.in_(reservation_courses))
+    allturns_w = SchedulesWeightRoom.query.filter(SchedulesWeightRoom.id.in_(reservation_weightroom))
+    days_temp = []
+    turns_temp = []
+    for allturn_c in allturns_c:
+        days_temp.append(allturn_c.day)
+        turns_temp.append((allturn_c.from_hour, allturn_c.to_hour))
+    for allturn_w in allturns_w:
+        days_temp.append(allturn_w.day)
+        turns_temp.append((allturn_w.from_hour, allturn_w.to_hour))
+    days = list(dict.fromkeys(days_temp))
+    turns = list(dict.fromkeys(turns_temp))
+    days.sort()
+    turns.sort()
+    flag = {'flag': True}
+    return render_template('calendar_reservations.html', days=days, turns=turns, allturns_c=allturns_c,
+                           allturns_w=allturns_w, courses=courses, weightrooms=weightrooms, flag=flag,
+                           zip=itertools.zip_longest)
 
 
 @app.route('/calendar/instructor')
