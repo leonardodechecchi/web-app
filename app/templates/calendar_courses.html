@@ -76,7 +76,8 @@
                                                             </div>
                                                             <!-- CHECKBOX -->
                                                             <label class="my-checkbox">
-
+                                                                {% set checkbox = getattr(form, str(allturn.id)) %}
+                                                                {{ checkbox }}
                                                                 <span class="checkmark"></span>
                                                             </label>
                                                         </td>

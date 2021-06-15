@@ -94,10 +94,9 @@ def calendar_weightrooms():
     class F(ReservationForm):
         pass
 
-    form = F()
-
     for allturn in allturns:
         setattr(F, str(allturn.id), BooleanField('Reserve Now'))
+    form = F()
 
     if form.validate_on_submit():
         for allturn in allturns:
@@ -120,7 +119,20 @@ def calendar_courses():
     allturns = SchedulesCourse.query.all()
     courses = Courses.query.all()
 
-    form = ReservationForm()
+    class F(ReservationForm):
+        pass
+
+    for allturn in allturns:
+        setattr(F, str(allturn.id), BooleanField('Reserve Now'))
+    form = F()
+
+    if form.validate_on_submit():
+        for allturn in allturns:
+            if getattr(form, str(allturn.id)).data:
+                reservation = Reservations(user_id=current_user.id, schedule_weightroom_id=None,
+                                           schedule_course_id=allturn.id)
+                db.session.add(reservation)
+        db.session.commit()
 
     flag = {'flag': True}
     return render_template('calendar_courses.html', title='Courses Calendar', schedules=schedules, turns=turns,
