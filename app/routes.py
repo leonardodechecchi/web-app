@@ -7,7 +7,7 @@ from wtforms import BooleanField
 
 from app import app, db, bcrypt
 from app.forms import RegistrationForm, LoginForm, EditProfileForm, ReservationForm, CreateCourse, AddEventCourse, \
-    AddEventGym, CreateWeightRoom
+    AddEventGym, CreateWeightRoom, CancelReservationForm
 from app.models import User, Courses, requires_roles, WeightRooms, SchedulesCourse, SchedulesWeightRoom, Reservations
 
 
@@ -128,7 +128,7 @@ def calendar_courses():
     allturns = SchedulesCourse.query.all()
     courses = Courses.query.all()
     reservations = Reservations.query.with_entities(Reservations.schedule_course_id,
-                                                    func.count(Reservations.schedule_course_id).label('count')) \
+                                                    func.count(Reservations.schedule_course_id).label('count'))\
         .group_by(Reservations.schedule_course_id).all()
 
     class F(ReservationForm):
@@ -154,7 +154,7 @@ def calendar_courses():
                            reservations=reservations, flag_slots=flag_slots)
 
 
-@app.route('/calendar/reservations')
+@app.route('/calendar/reservations', methods=['GET', 'POST'])
 @login_required
 def calendar_reservations():
     reservations = Reservations.query.filter_by(user_id=current_user.social_number)
@@ -181,11 +181,28 @@ def calendar_reservations():
     turns = list(dict.fromkeys(turns_temp))
     days.sort()
     turns.sort()
-    # TODO add cancel reservation functionality
+
+    class F(CancelReservationForm):
+        pass
+
+    for allturn_c in allturns_c:
+        setattr(F, str(allturn_c.id) + 'c', BooleanField('Cancel Reservation'))
+    for allturn_w in allturns_w:
+        setattr(F, str(allturn_w.id) + 'w', BooleanField('Cancel Reservation'))
+    form = F()
+
+    if form.validate_on_submit():  # TODO cancel reservation
+        for allturn_c in allturns_c:
+            if getattr(form, str(allturn_c.id) + 'c').data:
+                print(allturn_c.day, allturn_c.from_hour, allturn_c.to_hour, "course")
+        for allturn_w in allturns_w:
+            if getattr(form, str(allturn_w.id) + 'w').data:
+                print(allturn_w.day, allturn_w.from_hour, allturn_w.to_hour, "gym")
+
     flag = {'flag': True}
     return render_template('calendar_reservations.html', days=days, turns=turns, allturns_c=allturns_c,
                            allturns_w=allturns_w, courses=courses, weightrooms=weightrooms, flag=flag,
-                           zip=itertools.zip_longest)
+                           zip=itertools.zip_longest, form=form, str=str, getattr=getattr)
 
 
 @app.route('/calendar/instructor')

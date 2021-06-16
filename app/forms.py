@@ -63,6 +63,10 @@ class ReservationForm(FlaskForm):
     submit = SubmitField('Reserve Now')
 
 
+class CancelReservationForm(FlaskForm):
+    submit = SubmitField('Cancel Selected Reservations')
+
+
 class CreateCourse(FlaskForm):
     name = StringField('Courses Name', validators=[DataRequired()])
     max_members = IntegerField('Max Members Allowed', validators=[DataRequired()])
