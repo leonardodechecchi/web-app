@@ -1,0 +1,52 @@
+{% extends "calendar.html" %}
+
+{% block calendar %}
+
+<table>
+
+    <thead>
+        <tr>
+            <th></th>
+            {% for schedule in schedules %}
+                <th>
+                    {{ schedule.day.strftime('%A') }}<br>
+                    {{ schedule.day.strftime('%m-%d') }}
+                </th>
+            {% endfor %}
+        </tr>
+    </thead>
+
+    <tbody>
+        {% for turn in turns %}
+        <tr>
+            <td class="workout-time">
+                {{ turn.from_hour.strftime("%H:%M") }}-{{ turn.to_hour.strftime("%H:%M") }}
+            </td>
+            {% for schedule in schedules %}
+                {% for allturn in allturns %}
+                    {% if allturn.day == schedule.day and allturn.from_hour == schedule.from_hour and allturn.to_hour == schedule.to_hour %}
+                        {% if flag.update({'flag': False}) %} {% endif %}
+                        <!-- PRINT CELL -->
+                        <td class="hover-bg ts-item">
+                            <h6></h6>
+                            <span>{{ turn.from_hour.strftime("%H:%M") }}-{{ turn.to_hour.strftime("%H:%M") }}</span>
+                            <div class="trainer-name">
+                                20 slots available
+                            </div>
+                        </td>
+                        {% if flag.flag %}
+                        <td class="hover-bg ts-item">
+                            <!-- EMPTY CELL -->
+                        </td>
+                        {% endif %}
+                    {% endif %}
+                    {% if flag.update({'flag': True}) %} {% endif %}
+                {% endfor %}
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    </tbody>
+
+</table>
+
+{% endblock %}>
