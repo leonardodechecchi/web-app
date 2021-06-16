@@ -1,0 +1,50 @@
+{% extends "index.html" %}
+
+{% block content %}
+
+<section class="breadcrumb-section set-bg"
+    data-setbg="{{ url_for('static', filename='img/breadcrumb/classes-breadcrumb.jpg') }}">
+    <div class=" container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="breadcrumb-text">
+                    <h2>{{ title }} Calendar</h2>
+                    <div class="breadcrumb-option">
+                        <a href="{{ url_for('home') }}"><i class="fa fa-home"></i> Home</a>
+                        <span>{{ title }} Calendar</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="classes-timetable spad">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="nav-controls">
+                    <ul>
+                        {% if current_user.role == 'instructor' %}
+                        <li><a href="{{ url_for('calendar_weightrooms') }}">GYM</a></li>
+                        <li><a href="{{ url_for('calendar_courses') }}">COURSES</a></li>
+                        <li><a href="{{ url_for('calendar_instructor') }}">YOUR COURSES</a></li>
+                        {% else %}
+                        <li><a href="{{ url_for('calendar_weightrooms') }}">GYM</a></li>
+                        <li><a href="{{ url_for('calendar_courses') }}">COURSES</a></li>
+                        <li><a class="active" href="{{ url_for('calendar_reservations') }}">RESERVATIONS</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+
+                <div class="schedule-table">
+                    {% block calendar %}
+                    {% endblock %}
+                </div>
+
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

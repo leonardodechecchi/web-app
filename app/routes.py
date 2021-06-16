@@ -86,6 +86,13 @@ def profile():
     return render_template('profile.html', title='Profile', user=current_user, form=form)
 
 
+@app.route('/dashboard')
+@login_required
+@requires_roles('instructor')
+def dashboard():
+    return render_template('dashboard.html', title='Dashboard')
+
+
 @app.route('/calendar/gym', methods=['GET', 'POST'])
 @login_required
 def calendar_weightrooms():
@@ -115,7 +122,7 @@ def calendar_weightrooms():
 
     flag = {'flag': True}
     flag_slots = {'flag': True}
-    return render_template('calendar_gym.html', title='Gym Calendar', schedules=schedules, turns=turns,
+    return render_template('calendar_gym.html', title='Gym', schedules=schedules, turns=turns,
                            allturns=allturns, weightrooms=weightrooms, form=form, getattr=getattr, str=str, flag=flag,
                            reservations=reservations, flag_slots=flag_slots)
 
@@ -149,7 +156,7 @@ def calendar_courses():
 
     flag = {'flag': True}
     flag_slots = {'flag': True}
-    return render_template('calendar_courses.html', title='Courses Calendar', schedules=schedules, turns=turns,
+    return render_template('calendar_courses.html', title='Courses', schedules=schedules, turns=turns,
                            allturns=allturns, courses=courses, form=form, str=str, getattr=getattr, flag=flag,
                            reservations=reservations, flag_slots=flag_slots)
 
@@ -207,19 +214,21 @@ def calendar_reservations():
 
 @app.route('/calendar/instructor')
 @login_required
-# @requires_roles('instructor')
+@requires_roles('instructor')
 def calendar_instructor():
     turns = SchedulesCourse.query.distinct(SchedulesCourse.from_hour, SchedulesCourse.to_hour).all()
     schedules = SchedulesCourse.query.distinct(SchedulesCourse.day).limit(7).all()
-    courses = Courses.query.filter_by(instructor_id=current_user.get_id())
+    courses = Courses.query.filter_by(instructor_id=current_user.social_number)
+    allturns = SchedulesCourse.query.all()
 
-    return render_template('admin/calendar_instructor.html', title='Instructor Calendar', turns=turns,
-                           schedules=schedules, courses=courses)
+    flag = {'flag': True}
+    return render_template('calendar_instructor.html', title='Instructor', turns=turns, allturns=allturns,
+                           schedules=schedules, courses=courses, flag=flag)
 
 
 @app.route('/course/create', methods=['GET', 'POST'])
 @login_required
-# @requires_roles('instructor')
+@requires_roles('instructor')
 def course_create():
     form = CreateCourse()
     if form.validate_on_submit():
@@ -228,13 +237,13 @@ def course_create():
         db.session.add(course)
         db.session.commit()
         # flash(f'Courses {form.name.data} created successfully', 'success')
-        return redirect(url_for('home'))
+        return redirect(url_for('dashboard'))
     return render_template('admin/create_course.html', form=form)
 
 
 @app.route('/course/add-event', methods=['GET', 'POST'])
 @login_required
-# @requires_roles('instructor')
+@requires_roles('instructor')
 def course_add_event():
     form = AddEventCourse()
     if form.validate_on_submit():
@@ -254,6 +263,8 @@ def course_add_event():
 
 
 @app.route('/weightroom/create', methods=['GET', 'POST'])
+@login_required
+@requires_roles('instructor')
 def weightroom_create():
     weightroom = WeightRooms.query.first()
     form = CreateWeightRoom(obj=weightroom)
@@ -266,11 +277,13 @@ def weightroom_create():
             weightroom.dimension = form.dimension.data
         db.session.commit()
         # flash(f'Courses {form.name.data} created successfully', 'success')
-        return redirect(url_for('home'))
+        return redirect(url_for('dashboard'))
     return render_template('admin/create_weightroom.html', form=form)
 
 
 @app.route('/weightroom/add-event', methods=['GET', 'POST'])
+@login_required
+@requires_roles('instructor')
 def weightroom_add_event():
     form = AddEventGym()
     if form.validate_on_submit():

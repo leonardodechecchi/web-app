@@ -117,6 +117,28 @@ ul, ol {
 }
 /* buttons */
 
+.primary-btn2 {
+	text-align: center;
+	font-size: 16px;
+	font-weight: 600;
+	padding: 0 12px;
+	color: #6b6e71;
+	box-sizing: border-box;
+	border-left: 2px solid #eb3c5a;
+	border-right: 2px solid #f67831;
+	border-top: 2px solid #eb3c5a;
+	border-bottom: 2px solid #f67831;
+	-webkit-transition-duration: 1000ms;
+	-o-transition-duration: 1000ms;
+	transition-duration: 1000ms;
+	line-height: 50px;
+}
+
+.register-form .signup-btn {
+	display: grid;
+	margin: 20px 20px 20px 20px;
+}
+
 .primary-btn {
 	display: inline-block;
 	font-size: 16px;
@@ -487,97 +509,6 @@ ul, ol {
 	color: #e85d39;
 	margin-right: 4px;
 }
-/*---------------------
-  Trainers Section
------------------------*/
-
-.trainer-section {
-	background: #f5f5f5;
-	padding-top: 90px;
-	padding-bottom: 190px;
-}
-.trainer-section.about-trainer {
-	background: #ffffff;
-}
-.single-trainer-item {
-	position: relative;
-}
-.single-trainer-item:hover .trainer-text {
-	height: 250px;
-	bottom: -90px;
-	padding: 26px 30px 30px;
-	-webkit-box-shadow: 0px 10px 49px 0px rgba(0, 0, 0, 0.15);
-	box-shadow: 0px 10px 49px 0px rgba(0, 0, 0, 0.15);
-}
-.single-trainer-item:hover .trainer-text p {
-	opacity: 1;
-}
-.single-trainer-item:hover .trainer-text .trainer-social {
-	opacity: 1;
-	visibility: visible;
-}
-.single-trainer-item img {
-	min-width: 100%;
-}
-.single-trainer-item .trainer-text {
-	position: absolute;
-	left: 50%;
-	bottom: -55px;
-	text-align: center;
-	background: #ffffff;
-	width: 310px;
-	margin: 0 auto;
-	-webkit-transform: translateX(-155px);
-	-ms-transform: translateX(-155px);
-	transform: translateX(-155px);
-	-webkit-box-shadow: 0px 3px 4px 0px rgba(0, 0, 0, 0.15);
-	box-shadow: 0px 3px 4px 0px rgba(0, 0, 0, 0.15);
-	padding: 20px 30px 18px;
-	height: 90px;
-	-webkit-transition: all 0.5s;
-	-o-transition: all 0.5s;
-	transition: all 0.5s;
-	overflow: hidden;
-}
-.single-trainer-item .trainer-text h5 {
-	font-size: 20px;
-	color: #111111;
-	font-weight: 600;
-	margin-bottom: 4px;
-}
-.single-trainer-item .trainer-text span {
-	font-size: 16px;
-	color: #f15d44;
-}
-.single-trainer-item .trainer-text p {
-	margin-top: 7px;
-	opacity: 0;
-	-webkit-transition: all 0.3s;
-	-o-transition: all 0.3s;
-	transition: all 0.3s;
-}
-.single-trainer-item .trainer-text .trainer-social {
-	opacity: 0;
-	visibility: hidden;
-	-webkit-transition: all 0.3s;
-	-o-transition: all 0.3s;
-	transition: all 0.3s;
-}
-.single-trainer-item .trainer-text .trainer-social a {
-	display: inline-block;
-	font-size: 17px;
-	color: #111111;
-	margin-right: 25px;
-	-webkit-transition: all 0.3s;
-	-o-transition: all 0.3s;
-	transition: all 0.3s;
-}
-.single-trainer-item .trainer-text .trainer-social a:hover {
-	color: #f15d44;
-}
-.single-trainer-item .trainer-text .trainer-social a:last-child {
-	margin-right: 0;
-}
 
 /*---------------------
   Banner Section
@@ -602,91 +533,7 @@ ul, ol {
 	color: #ffffff;
 	margin-bottom: 50px;
 }
-/*---------------------
-  Membership Section
------------------------*/
 
-.membership-section {
-	padding-bottom: 0;
-}
-.membership-section .section-title {
-	margin-bottom: 55px;
-}
-.membership-item {
-	text-align: center;
-	background: #ffffff;
-	-webkit-box-shadow: 0px 15px 49px rgba(0, 0, 0, 0.15);
-	box-shadow: 0px 15px 49px rgba(0, 0, 0, 0.15);
-	padding-bottom: 50px;
-}
-.membership-item .mi-title {
-	background: -webkit-gradient(linear, left top, right top, from(#eb3c5a), to(#f67831));
-	background: -o-linear-gradient(left, #eb3c5a, #f67831);
-	background: linear-gradient(to right, #eb3c5a, #f67831);
-	padding: 25px 0;
-	position: relative;
-	margin-bottom: 38px;
-}
-.membership-item .mi-title h4 {
-	color: #ffffff;
-	font-weight: 600;
-	text-transform: uppercase;
-}
-.membership-item .mi-title:after {
-	position: absolute;
-	left: 50%;
-	bottom: -14px;
-	width: 30px;
-	height: 15px;
-	-webkit-transform: translateX(-15px);
-	-ms-transform: translateX(-15px);
-	transform: translateX(-15px);
-	-webkit-clip-path: polygon(0% 0%, 50% 100%, 50% 100%, 100% 0%);
-	clip-path: polygon(0% 0%, 50% 100%, 50% 100%, 100% 0%);
-	background: -webkit-gradient(linear, left top, right top, from(#eb3c5a), to(#f67831));
-	background: -o-linear-gradient(left, #eb3c5a, #f67831);
-	background: linear-gradient(to right, #eb3c5a, #f67831);
-	content: "";
-}
-.membership-item .mi-price {
-	font-size: 40px;
-	color: #f15d44;
-	font-weight: 600;
-	margin-bottom: 24px;
-}
-.membership-item .mi-price span {
-	font-size: 16px;
-	color: #6b6b6b;
-	font-weight: 400;
-}
-.membership-item ul {
-	margin-bottom: 27px;
-}
-.membership-item ul li {
-	list-style: none;
-	font-size: 16px;
-	line-height: 36px;
-}
-.membership-item ul li p {
-	margin-bottom: 0;
-	color: #6b6b6b;
-}
-.membership-item ul li span {
-	color: #111111;
-	font-weight: 600;
-}
-.membership-item .membership-btn {
-	color: #111111;
-}
-.membership-item .membership-btn:hover {
-	color: #ffffff;
-}
-.membership-item .membership-btn:hover:after {
-	opacity: 1;
-}
-.membership-item .membership-btn:after {
-	opacity: 0;
-}
 /*---------------------
   Register Section
 -----------------------*/
