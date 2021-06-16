@@ -2,6 +2,7 @@ import itertools
 
 from flask import render_template, url_for, redirect
 from flask_login import login_user, current_user, logout_user, login_required
+from sqlalchemy import func
 from wtforms import BooleanField
 
 from app import app, db, bcrypt
@@ -92,6 +93,9 @@ def calendar_weightrooms():
     schedules = SchedulesWeightRoom.query.distinct(SchedulesWeightRoom.day).limit(7).all()
     allturns = SchedulesWeightRoom.query.all()
     weightrooms = WeightRooms.query.all()
+    reservations = Reservations.query.with_entities(Reservations.schedule_weightroom_id,
+                                                    func.count(Reservations.schedule_weightroom_id).label('count'))\
+        .group_by(Reservations.schedule_weightroom_id).all()
 
     class F(ReservationForm):
         pass
@@ -103,14 +107,17 @@ def calendar_weightrooms():
     if form.validate_on_submit():
         for allturn in allturns:
             if getattr(form, str(allturn.id)).data:
-                reservation = Reservations(user_id=current_user.id, schedule_weightroom_id=allturn.id,
+                reservation = Reservations(user_id=current_user.social_number, schedule_weightroom_id=allturn.id,
                                            schedule_course_id=None)
                 db.session.add(reservation)
         db.session.commit()
+        return redirect(url_for('calendar_reservations'))
 
     flag = {'flag': True}
+    flag_slots = {'flag': True}
     return render_template('calendar_gym.html', title='Gym Calendar', schedules=schedules, turns=turns,
-                           allturns=allturns, weightrooms=weightrooms, form=form, getattr=getattr, str=str, flag=flag)
+                           allturns=allturns, weightrooms=weightrooms, form=form, getattr=getattr, str=str, flag=flag,
+                           reservations=reservations, flag_slots=flag_slots)
 
 
 @app.route('/calendar/courses', methods=['GET', 'POST'])
@@ -120,6 +127,9 @@ def calendar_courses():
     schedules = SchedulesCourse.query.distinct(SchedulesCourse.day).limit(7).all()
     allturns = SchedulesCourse.query.all()
     courses = Courses.query.all()
+    reservations = Reservations.query.with_entities(Reservations.schedule_course_id,
+                                                    func.count(Reservations.schedule_course_id).label('count')) \
+        .group_by(Reservations.schedule_course_id).all()
 
     class F(ReservationForm):
         pass
@@ -131,20 +141,23 @@ def calendar_courses():
     if form.validate_on_submit():
         for allturn in allturns:
             if getattr(form, str(allturn.id)).data:
-                reservation = Reservations(user_id=current_user.id, schedule_weightroom_id=None,
+                reservation = Reservations(user_id=current_user.social_number, schedule_weightroom_id=None,
                                            schedule_course_id=allturn.id)
                 db.session.add(reservation)
         db.session.commit()
+        return redirect(url_for('calendar_reservations'))
 
     flag = {'flag': True}
+    flag_slots = {'flag': True}
     return render_template('calendar_courses.html', title='Courses Calendar', schedules=schedules, turns=turns,
-                           allturns=allturns, courses=courses, form=form, str=str, getattr=getattr, flag=flag)
+                           allturns=allturns, courses=courses, form=form, str=str, getattr=getattr, flag=flag,
+                           reservations=reservations, flag_slots=flag_slots)
 
 
 @app.route('/calendar/reservations')
 @login_required
 def calendar_reservations():
-    reservations = Reservations.query.filter_by(user_id=current_user.id)
+    reservations = Reservations.query.filter_by(user_id=current_user.social_number)
     courses = Courses.query.all()
     weightrooms = WeightRooms.query.all()
     reservation_courses = []
@@ -168,6 +181,7 @@ def calendar_reservations():
     turns = list(dict.fromkeys(turns_temp))
     days.sort()
     turns.sort()
+    # TODO add cancel reservation functionality
     flag = {'flag': True}
     return render_template('calendar_reservations.html', days=days, turns=turns, allturns_c=allturns_c,
                            allturns_w=allturns_w, courses=courses, weightrooms=weightrooms, flag=flag,

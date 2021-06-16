@@ -73,7 +73,16 @@
                                                             <h6>{{ course.name }}</h6>
                                                             <span>{{ turn.from_hour.strftime('%H:%M') }}-{{ turn.to_hour.strftime('%H:%M') }}</span>
                                                             <div class="trainer-name">
-                                                                20 slots available
+                                                                {% for reservation in reservations %}
+                                                                    {% if reservation.schedule_course_id == allturn.id %}
+                                                                        {% if flag_slots.update({'flag': False}) %} {% endif %}
+                                                                        {{ course.max_members - reservation.count }} slots available
+                                                                    {% endif %}
+                                                                {% endfor %}
+                                                                {% if flag_slots.flag %}
+                                                                    {{ course.max_members }} slots available
+                                                                {% endif %}
+                                                                {% if flag_slots.update({'flag': True}) %} {% endif %}
                                                             </div>
                                                             <!-- CHECKBOX -->
                                                             <label class="my-checkbox">
