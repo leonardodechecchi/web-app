@@ -207,9 +207,9 @@ def calendar_reservations():
                 print(allturn_w.day, allturn_w.from_hour, allturn_w.to_hour, "gym")
 
     flag = {'flag': True}
-    return render_template('calendar_reservations.html', days=days, turns=turns, allturns_c=allturns_c,
-                           allturns_w=allturns_w, courses=courses, weightrooms=weightrooms, flag=flag,
-                           zip=itertools.zip_longest, form=form, str=str, getattr=getattr)
+    return render_template('calendar_reservations.html', title='Reservations', days=days, turns=turns,
+                           allturns_c=allturns_c, allturns_w=allturns_w, courses=courses, weightrooms=weightrooms,
+                           flag=flag, zip=itertools.zip_longest, form=form, str=str, getattr=getattr)
 
 
 @app.route('/calendar/instructor')
