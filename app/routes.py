@@ -248,15 +248,15 @@ def course_add_event():
     form = AddEventCourse()
     if form.validate_on_submit():
         course = Courses.query.filter_by(name=form.name.data).first()
-        turn = SchedulesCourse.query.filter(SchedulesCourse.from_hour == form.turn_start.data,
-                                            SchedulesCourse.to_hour == form.turn_end.data,
-                                            SchedulesCourse.course_id == course.id,
-                                            SchedulesCourse.day == form.date.data).first()
-        if not turn:
-            turn = SchedulesCourse(from_hour=form.turn_start.data, to_hour=form.turn_end.data, course_id=course.id,
-                                   day=form.date.data)
-            db.session.add(turn)
-        db.session.commit()
+        schedule = SchedulesCourse.query.filter(SchedulesCourse.from_hour == form.turn_start.data,
+                                                SchedulesCourse.to_hour == form.turn_end.data,
+                                                SchedulesCourse.course_id == course.id,
+                                                SchedulesCourse.day == form.date.data).first()
+        if not schedule:
+            schedule = SchedulesCourse(from_hour=form.turn_start.data, to_hour=form.turn_end.data, course_id=course.id,
+                                       day=form.date.data)
+            db.session.add(schedule)
+            db.session.commit()
         # flash(f'Successfully added an event to {form.name.data} class', 'success')
         return redirect(url_for('calendar_courses'))
     return render_template('admin/add_event.html', form=form)

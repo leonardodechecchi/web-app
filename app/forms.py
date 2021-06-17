@@ -4,7 +4,7 @@ from wtforms import StringField, PasswordField, SubmitField, BooleanField, Integ
 from wtforms.validators import DataRequired, Length, EqualTo, Email, ValidationError
 
 from app import bcrypt
-from app.models import User, Courses
+from app.models import User, Courses, SchedulesCourse
 
 
 class RegistrationForm(FlaskForm):
