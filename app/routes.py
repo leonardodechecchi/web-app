@@ -198,13 +198,19 @@ def calendar_reservations():
         setattr(F, str(allturn_w.id) + 'w', BooleanField('Cancel Reservation'))
     form = F()
 
-    if form.validate_on_submit():  # TODO cancel reservation
+    if form.validate_on_submit():
         for allturn_c in allturns_c:
             if getattr(form, str(allturn_c.id) + 'c').data:
-                print(allturn_c.day, allturn_c.from_hour, allturn_c.to_hour, "course")
+                reservation = Reservations.query.filter_by(user_id=current_user.social_number,
+                                                           schedule_course_id=allturn_c.id).first()
+                db.session.delete(reservation)
         for allturn_w in allturns_w:
             if getattr(form, str(allturn_w.id) + 'w').data:
-                print(allturn_w.day, allturn_w.from_hour, allturn_w.to_hour, "gym")
+                reservation = Reservations.query.filter_by(user_id=current_user.social_number,
+                                                           schedule_weightroom_id=allturn_w.id).first()
+                db.session.delete(reservation)
+        db.session.commit()
+        return redirect(url_for('calendar_reservations'))
 
     flag = {'flag': True}
     return render_template('calendar_reservations.html', title='Reservations', days=days, turns=turns,
