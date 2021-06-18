@@ -35,22 +35,30 @@
                                         <h6>{{ course.name }}</h6>
                                         <span>{{ turn.from_hour.strftime('%H:%M') }}-{{ turn.to_hour.strftime('%H:%M') }}</span>
                                         <div class="trainer-name">
-                                            {% for reservation in reservations %}
-                                                {% if reservation.schedule_course_id == allturn.id %}
-                                                    {% if flag_slots.update({'flag': False}) %} {% endif %}
-                                                    {{ course.max_members - reservation.count }} slots available
-                                                    {% if course.max_members - reservation.count <= 0 %}
-                                                        {% if flag_checkbox.update({'flag': False}) %} {% endif %}
-                                                    {% endif %}
+                                            {% for your_reservation in your_reservations %}
+                                                {% if your_reservation.schedule_course_id == allturn.id %}
+                                                    {% if flag_reservation.update({'flag': False}) %} {% endif %}
+                                                    You have already reserved a slot
                                                 {% endif %}
                                             {% endfor %}
-                                            {% if flag_slots.flag %}
-                                                {{ course.max_members }} slots available
+                                            {% if flag_reservation.flag %}
+                                                {% for reservation in reservations %}
+                                                    {% if reservation.schedule_course_id == allturn.id %}
+                                                        {% if flag_slots.update({'flag': False}) %} {% endif %}
+                                                        {{ course.max_members - reservation.count }} slots available
+                                                        {% if course.max_members - reservation.count <= 0 %}
+                                                            {% if flag_checkbox.update({'flag': False}) %} {% endif %}
+                                                        {% endif %}
+                                                    {% endif %}
+                                                {% endfor %}
+                                                {% if flag_slots.flag %}
+                                                    {{ course.max_members }} slots available
+                                                {% endif %}
+                                                {% if flag_slots.update({'flag': True}) %} {% endif %}
                                             {% endif %}
-                                            {% if flag_slots.update({'flag': True}) %} {% endif %}
                                         </div>
                                         <!-- PRINT CHECKBOX -->
-                                        {% if flag_checkbox.flag %}
+                                        {% if flag_checkbox.flag and flag_reservation.flag %}
                                             <label class="my-checkbox">
                                                 {% set checkbox = getattr(form, str(allturn.id)) %}
                                                 {{ checkbox }}
@@ -58,6 +66,7 @@
                                             </label>
                                         {% endif %}
                                         {% if flag_checkbox.update({'flag': True}) %} {% endif %}
+                                        {% if flag_reservation.update({'flag': True}) %} {% endif %}
                                     </td>
                                 {% endif %}
                             {% endfor %}
