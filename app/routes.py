@@ -122,9 +122,10 @@ def calendar_weightrooms():
 
     flag = {'flag': True}
     flag_slots = {'flag': True}
+    flag_checkbox = {'flag': True}
     return render_template('calendar_gym.html', title='Gym', schedules=schedules, turns=turns,
                            allturns=allturns, weightrooms=weightrooms, form=form, getattr=getattr, str=str, flag=flag,
-                           reservations=reservations, flag_slots=flag_slots)
+                           reservations=reservations, flag_slots=flag_slots, flag_checkbox=flag_checkbox)
 
 
 @app.route('/calendar/courses', methods=['GET', 'POST'])
@@ -156,9 +157,10 @@ def calendar_courses():
 
     flag = {'flag': True}
     flag_slots = {'flag': True}
+    flag_checkbox = {'flag': True}
     return render_template('calendar_courses.html', title='Courses', schedules=schedules, turns=turns,
                            allturns=allturns, courses=courses, form=form, str=str, getattr=getattr, flag=flag,
-                           reservations=reservations, flag_slots=flag_slots)
+                           reservations=reservations, flag_slots=flag_slots, flag_checkbox=flag_checkbox)
 
 
 @app.route('/calendar/reservations', methods=['GET', 'POST'])

@@ -39,6 +39,9 @@
                                                 {% if reservation.schedule_course_id == allturn.id %}
                                                     {% if flag_slots.update({'flag': False}) %} {% endif %}
                                                     {{ course.max_members - reservation.count }} slots available
+                                                    {% if course.max_members - reservation.count <= 0 %}
+                                                        {% if flag_checkbox.update({'flag': False}) %} {% endif %}
+                                                    {% endif %}
                                                 {% endif %}
                                             {% endfor %}
                                             {% if flag_slots.flag %}
@@ -47,11 +50,14 @@
                                             {% if flag_slots.update({'flag': True}) %} {% endif %}
                                         </div>
                                         <!-- PRINT CHECKBOX -->
-                                        <label class="my-checkbox">
-                                            {% set checkbox = getattr(form, str(allturn.id)) %}
-                                            {{ checkbox }}
-                                            <span class="checkmark"></span>
-                                        </label>
+                                        {% if flag_checkbox.flag %}
+                                            <label class="my-checkbox">
+                                                {% set checkbox = getattr(form, str(allturn.id)) %}
+                                                {{ checkbox }}
+                                                <span class="checkmark"></span>
+                                            </label>
+                                        {% endif %}
+                                        {% if flag_checkbox.update({'flag': True}) %} {% endif %}
                                     </td>
                                 {% endif %}
                             {% endfor %}
