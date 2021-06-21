@@ -1,6 +1,6 @@
 import itertools
 
-from flask import render_template, url_for, redirect
+from flask import render_template, url_for, redirect, flash
 from flask_login import login_user, current_user, logout_user, login_required
 from sqlalchemy import func
 from wtforms import BooleanField
@@ -25,7 +25,7 @@ def about():
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if current_user.is_authenticated:
-        # flash('You must logout to make a new registration', 'info')
+        flash('You must logout to make a new registration', 'info')
         return redirect(url_for('home'))
     form = RegistrationForm()
     if form.validate_on_submit():
@@ -34,7 +34,7 @@ def register():
                     email=form.email.data, password=hashed_pw, role='member')
         db.session.add(user)
         db.session.commit()
-        # flash('Your account has been created! Now you are able to log in', 'success')
+        flash('Your account has been created! Now you are able to log in', 'success')
         return redirect(url_for('login'))
     return render_template('register.html', title='Register', form=form)
 
@@ -42,7 +42,7 @@ def register():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
-        # flash('You are already logged-in', 'info')
+        flash('You are already logged-in', 'info')
         return redirect(url_for('home'))
     form = LoginForm()
     if form.validate_on_submit():
@@ -52,8 +52,7 @@ def login():
             login_user(user, remember=form.remember.data)
             return redirect(url_for('home'))
         else:
-            pass
-            # flash(f'Login Unsuccessful, please retry', 'danger')
+            flash(f'Login Unsuccessful, please retry', 'danger')
     return render_template('login.html', title='Login', form=form)
 
 
@@ -252,7 +251,7 @@ def course_create():
         current_user.courses.append(course)
         db.session.add(course)
         db.session.commit()
-        # flash(f'Courses {form.name.data} created successfully', 'success')
+        flash(f'Courses {form.name.data} created successfully', 'success')
         return redirect(url_for('dashboard'))
     return render_template('admin/create_course.html', form=form)
 
@@ -273,7 +272,7 @@ def course_add_event():
                                        day=form.date.data)
             db.session.add(schedule)
             db.session.commit()
-        # flash(f'Successfully added an event to {form.name.data} class', 'success')
+        flash(f'Successfully added an event to {form.name.data} class', 'success')
         return redirect(url_for('calendar_courses'))
     return render_template('admin/add_event.html', form=form)
 
@@ -292,7 +291,7 @@ def weightroom_create():
             weightroom.max_members = form.max_members.data
             weightroom.dimension = form.dimension.data
         db.session.commit()
-        # flash(f'Courses {form.name.data} created successfully', 'success')
+        flash(f'Courses {form.name.data} created successfully', 'success')
         return redirect(url_for('dashboard'))
     return render_template('admin/create_weightroom.html', form=form)
 
@@ -315,6 +314,6 @@ def weightroom_add_event():
                                        weightroom_id=weightroom.id, day=form.date.data)
             db.session.add(turn)
         db.session.commit()
-        # flash(f'Successfully added an event to {form.name.data} class', 'success')
+        flash(f'Successfully added an event to {form.name.data} class', 'success')
         return redirect(url_for('calendar_weightrooms'))
     return render_template('admin/add_event_weightroom.html', form=form)

@@ -1,6 +1,6 @@
 {% extends "index.html" %}
 
-{% block content %}
+{% block breadcrumb %}
 
 <section class="breadcrumb-section set-bg"
     data-setbg="{{ url_for('static', filename='img/breadcrumb/classes-breadcrumb.jpg') }}">
@@ -18,6 +18,9 @@
         </div>
     </div>
 </section>
+
+{% endblock %}
+{% block content %}
 
 <section class="classes-timetable spad">
     <div class="container">
