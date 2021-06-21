@@ -81,6 +81,7 @@ def profile():
             hashed_pw = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
             user.password = hashed_pw
         db.session.commit()
+        flash('Profile has been successfully edited', 'success')
         return redirect(url_for('home'))
     return render_template('profile.html', title='Profile', user=current_user, form=form)
 
@@ -96,11 +97,11 @@ def dashboard():
 @login_required
 def calendar_weightrooms():
     turns = SchedulesWeightRoom.query.distinct(SchedulesWeightRoom.from_hour, SchedulesWeightRoom.to_hour).all()
-    schedules = SchedulesWeightRoom.query.distinct(SchedulesWeightRoom.day).limit(7).all()
+    schedules = SchedulesWeightRoom.query.distinct(SchedulesWeightRoom.day).limit(7).all()  # TODO get only the next 7 days relative to today
     allturns = SchedulesWeightRoom.query.all()
     weightrooms = WeightRooms.query.all()
     reservations = Reservations.query.with_entities(Reservations.schedule_weightroom_id,
-                                                    func.count(Reservations.schedule_weightroom_id).label('count'))\
+                                                    func.count(Reservations.schedule_weightroom_id).label('count')) \
         .group_by(Reservations.schedule_weightroom_id).all()
     your_reservations = Reservations.query.filter(Reservations.user_id == current_user.social_number,
                                                   Reservations.schedule_weightroom_id != None)
@@ -112,13 +113,14 @@ def calendar_weightrooms():
         setattr(F, str(allturn.id), BooleanField('Reserve Now'))
     form = F()
 
-    if form.validate_on_submit():
+    if form.validate_on_submit():  # TODO check that the user hasn't reserved a course on same date and time
         for allturn in allturns:
             if getattr(form, str(allturn.id)).data:
                 reservation = Reservations(user_id=current_user.social_number, schedule_weightroom_id=allturn.id,
                                            schedule_course_id=None)
                 db.session.add(reservation)
         db.session.commit()
+        flash('All reservations were successfully saved', 'success')
         return redirect(url_for('calendar_reservations'))
 
     flag = {'flag': True}
@@ -135,11 +137,11 @@ def calendar_weightrooms():
 @login_required
 def calendar_courses():
     turns = SchedulesCourse.query.distinct(SchedulesCourse.from_hour, SchedulesCourse.to_hour).all()
-    schedules = SchedulesCourse.query.distinct(SchedulesCourse.day).limit(7).all()
+    schedules = SchedulesCourse.query.distinct(SchedulesCourse.day).limit(7).all()  # TODO get only the next 7 days relative to today
     allturns = SchedulesCourse.query.all()
     courses = Courses.query.all()
     reservations = Reservations.query.with_entities(Reservations.schedule_course_id,
-                                                    func.count(Reservations.schedule_course_id).label('count'))\
+                                                    func.count(Reservations.schedule_course_id).label('count')) \
         .group_by(Reservations.schedule_course_id).all()
     your_reservations = Reservations.query.filter(Reservations.user_id == current_user.social_number,
                                                   Reservations.schedule_course_id != None)
@@ -151,13 +153,14 @@ def calendar_courses():
         setattr(F, str(allturn.id), BooleanField('Reserve Now'))
     form = F()
 
-    if form.validate_on_submit():
+    if form.validate_on_submit():  # TODO check that the user hasn't reserved a weightroom on same date and time
         for allturn in allturns:
             if getattr(form, str(allturn.id)).data:
                 reservation = Reservations(user_id=current_user.social_number, schedule_weightroom_id=None,
                                            schedule_course_id=allturn.id)
                 db.session.add(reservation)
         db.session.commit()
+        flash('All reservations were successfully saved', 'success')
         return redirect(url_for('calendar_reservations'))
 
     flag = {'flag': True}
@@ -219,6 +222,7 @@ def calendar_reservations():
                                                            schedule_weightroom_id=allturn_w.id).first()
                 db.session.delete(reservation)
         db.session.commit()
+        flash('All reservations were successfully deleted', 'success')
         return redirect(url_for('calendar_reservations'))
 
     flag = {'flag': True}
@@ -247,12 +251,16 @@ def calendar_instructor():
 def course_create():
     form = CreateCourse()
     if form.validate_on_submit():
-        course = Courses(name=form.name.data, max_members=form.max_members.data)
-        current_user.courses.append(course)
-        db.session.add(course)
-        db.session.commit()
-        flash(f'Courses {form.name.data} created successfully', 'success')
-        return redirect(url_for('dashboard'))
+        exists = Courses.query.filter_by(name=form.name.data).first()
+        if exists:
+            flash(f'{form.name.data} already exists', 'danger')
+        else:
+            course = Courses(name=form.name.data, max_members=form.max_members.data)
+            current_user.courses.append(course)
+            db.session.add(course)
+            db.session.commit()
+            flash(f'Course {form.name.data} created successfully', 'success')
+            return redirect(url_for('dashboard'))
     return render_template('admin/create_course.html', form=form)
 
 
@@ -261,19 +269,30 @@ def course_create():
 @requires_roles('instructor')
 def course_add_event():
     form = AddEventCourse()
-    if form.validate_on_submit():
+    if form.validate_on_submit():  # TODO check turn length (lunghezza fissa dei turni?)
         course = Courses.query.filter_by(name=form.name.data).first()
-        schedule = SchedulesCourse.query.filter(SchedulesCourse.from_hour == form.turn_start.data,
-                                                SchedulesCourse.to_hour == form.turn_end.data,
-                                                SchedulesCourse.course_id == course.id,
-                                                SchedulesCourse.day == form.date.data).first()
-        if not schedule:
-            schedule = SchedulesCourse(from_hour=form.turn_start.data, to_hour=form.turn_end.data, course_id=course.id,
-                                       day=form.date.data)
-            db.session.add(schedule)
-            db.session.commit()
-        flash(f'Successfully added an event to {form.name.data} class', 'success')
-        return redirect(url_for('calendar_courses'))
+        if course:
+            exists = SchedulesCourse.query.filter(SchedulesCourse.from_hour == form.turn_start.data,
+                                                  SchedulesCourse.to_hour == form.turn_end.data,
+                                                  SchedulesCourse.course_id != course.id,
+                                                  SchedulesCourse.day == form.date.data).first()
+            if exists:
+                flash(f'The selected Schedule is already occupied', 'danger')
+            else:
+                schedule = SchedulesCourse.query.filter(SchedulesCourse.from_hour == form.turn_start.data,
+                                                        SchedulesCourse.to_hour == form.turn_end.data,
+                                                        SchedulesCourse.course_id == course.id,
+                                                        SchedulesCourse.day == form.date.data).first()
+                if not schedule:
+                    schedule = SchedulesCourse(from_hour=form.turn_start.data, to_hour=form.turn_end.data,
+                                               course_id=course.id,
+                                               day=form.date.data)
+                    db.session.add(schedule)
+                    db.session.commit()
+                flash(f'Successfully added an event to {form.name.data} class', 'success')
+                return redirect(url_for('calendar_courses'))
+        else:
+            flash(f'{form.name.data} does not exist', 'danger')
     return render_template('admin/add_event.html', form=form)
 
 
@@ -291,7 +310,7 @@ def weightroom_create():
             weightroom.max_members = form.max_members.data
             weightroom.dimension = form.dimension.data
         db.session.commit()
-        flash(f'Courses {form.name.data} created successfully', 'success')
+        flash(f'Weightroom created successfully', 'success')
         return redirect(url_for('dashboard'))
     return render_template('admin/create_weightroom.html', form=form)
 
@@ -301,7 +320,7 @@ def weightroom_create():
 @requires_roles('instructor')
 def weightroom_add_event():
     form = AddEventGym()
-    if form.validate_on_submit():
+    if form.validate_on_submit():  # TODO check turn length (lunghezza fissa dei turni?)
         weightroom = WeightRooms.query.first()
         if not weightroom:
             return redirect(url_for('admin/create_weightroom'))
@@ -314,6 +333,6 @@ def weightroom_add_event():
                                        weightroom_id=weightroom.id, day=form.date.data)
             db.session.add(turn)
         db.session.commit()
-        flash(f'Successfully added an event to {form.name.data} class', 'success')
+        flash(f'Successfully added an event to the weightroom', 'success')
         return redirect(url_for('calendar_weightrooms'))
     return render_template('admin/add_event_weightroom.html', form=form)
