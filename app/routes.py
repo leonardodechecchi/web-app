@@ -89,7 +89,7 @@ def profile():
 @app.route('/dashboard')
 @login_required
 @requires_roles('instructor')
-def dashboard():
+def dashboard():  # TODO add delete course and delete scheduling
     return render_template('dashboard.html', title='Dashboard')
 
 
