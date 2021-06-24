@@ -93,6 +93,7 @@ def dashboard():  # TODO add delete course and delete scheduling
     return render_template('dashboard.html', title='Dashboard')
 
 
+# What does the instructor see?
 @app.route('/calendar/gym', methods=['GET', 'POST'])
 @login_required
 def calendar_weightrooms():
@@ -105,6 +106,8 @@ def calendar_weightrooms():
         .group_by(Reservations.schedule_weightroom_id).all()
     your_reservations = Reservations.query.filter(Reservations.user_id == current_user.social_number,
                                                   Reservations.schedule_weightroom_id != None)
+    course_reservations = Reservations.query.filter(Reservations.user_id == current_user.social_number,
+                                                    Reservations.schedule_course_id != None)
 
     class F(ReservationForm):
         pass
@@ -113,14 +116,24 @@ def calendar_weightrooms():
         setattr(F, str(allturn.id), BooleanField('Reserve Now'))
     form = F()
 
-    if form.validate_on_submit():  # TODO check that the user hasn't reserved a course on same date and time
+    if form.validate_on_submit():
+        flag_validate = False
         for allturn in allturns:
             if getattr(form, str(allturn.id)).data:
-                reservation = Reservations(user_id=current_user.social_number, schedule_weightroom_id=allturn.id,
-                                           schedule_course_id=None)
-                db.session.add(reservation)
+                for course in course_reservations:
+                    exists = SchedulesCourse.query.filter_by(day=allturn.day, from_hour=allturn.from_hour,
+                                                             to_hour=allturn.to_hour, id=course.schedule_course_id).first()
+                    if exists:
+                        flag_validate = True
+                if not flag_validate:
+                    reservation = Reservations(user_id=current_user.social_number, schedule_weightroom_id=allturn.id,
+                                               schedule_course_id=None)
+                    db.session.add(reservation)
         db.session.commit()
-        flash('All reservations were successfully saved', 'success')
+        if flag_validate:
+            flash('Some reservations were in conflict with your courses reservations so they were not saved', 'danger')
+        else:
+            flash('All reservations were successfully saved', 'success')
         return redirect(url_for('calendar_reservations'))
 
     flag = {'flag': True}
@@ -133,6 +146,7 @@ def calendar_weightrooms():
                            your_reservations=your_reservations, flag_reservation=flag_reservation)
 
 
+# What does the instructor see?
 @app.route('/calendar/courses', methods=['GET', 'POST'])
 @login_required
 def calendar_courses():
@@ -145,6 +159,8 @@ def calendar_courses():
         .group_by(Reservations.schedule_course_id).all()
     your_reservations = Reservations.query.filter(Reservations.user_id == current_user.social_number,
                                                   Reservations.schedule_course_id != None)
+    weightroom_reservations = Reservations.query.filter(Reservations.user_id == current_user.social_number,
+                                                        Reservations.schedule_weightroom_id != None)
 
     class F(ReservationForm):
         pass
@@ -153,14 +169,26 @@ def calendar_courses():
         setattr(F, str(allturn.id), BooleanField('Reserve Now'))
     form = F()
 
-    if form.validate_on_submit():  # TODO check that the user hasn't reserved a weightroom on same date and time
+    if form.validate_on_submit():
+        flag_validate = False
         for allturn in allturns:
             if getattr(form, str(allturn.id)).data:
-                reservation = Reservations(user_id=current_user.social_number, schedule_weightroom_id=None,
-                                           schedule_course_id=allturn.id)
-                db.session.add(reservation)
+                for weightroom in weightroom_reservations:
+                    exists = SchedulesWeightRoom.query.filter_by(day=allturn.day, from_hour=allturn.from_hour,
+                                                                 to_hour=allturn.to_hour,
+                                                                 id=weightroom.schedule_weightroom_id).first()
+                    if exists:
+                        flag_validate = True
+                if not flag_validate:
+                    reservation = Reservations(user_id=current_user.social_number, schedule_weightroom_id=None,
+                                               schedule_course_id=allturn.id)
+                    db.session.add(reservation)
         db.session.commit()
-        flash('All reservations were successfully saved', 'success')
+        if flag_validate:
+            flash('Some reservations were in conflict with your weightroom reservations so they were not saved',
+                  'danger')
+        else:
+            flash('All reservations were successfully saved', 'success')
         return redirect(url_for('calendar_reservations'))
 
     flag = {'flag': True}
@@ -175,6 +203,7 @@ def calendar_courses():
 
 @app.route('/calendar/reservations', methods=['GET', 'POST'])
 @login_required
+@requires_roles('member')
 def calendar_reservations():
     reservations = Reservations.query.filter_by(user_id=current_user.social_number)
     courses = Courses.query.all()

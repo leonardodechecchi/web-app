@@ -63,9 +63,6 @@ class Reservations(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
 
-    # Reservations information
-    # ...
-
     # ForeignKey
     user_id = db.Column(db.String, db.ForeignKey('User.social_number', ondelete='CASCADE'))
     schedule_course_id = db.Column(db.Integer, db.ForeignKey('SchedulesCourse.id', ondelete='CASCADE'))
@@ -84,7 +81,7 @@ class SchedulesCourse(db.Model):
     to_hour = db.Column(db.TIME, nullable=False)
 
     # Relationships
-    reservations = db.relationship('Reservations', backref='schedules_course', passive_deletes=True, lazy=True)
+    reservations = db.relationship('Reservations', backref='schedules_course', passive_deletes=True, lazy=True)  # needed?
 
     # ForeignKey
     course_id = db.Column(db.Integer, db.ForeignKey('Courses.id', ondelete='CASCADE'))
@@ -123,7 +120,7 @@ class SchedulesWeightRoom(db.Model):
     to_hour = db.Column(db.TIME, nullable=False)
 
     # Relationships
-    reservations = db.relationship('Reservations', backref='schedules_weightroom', passive_deletes=True, lazy=True)
+    reservations = db.relationship('Reservations', backref='schedules_weightroom', passive_deletes=True, lazy=True)  # needed?
 
     # ForeignKey
     weightroom_id = db.Column(db.Integer, db.ForeignKey('WeightRooms.id', ondelete='CASCADE'))
