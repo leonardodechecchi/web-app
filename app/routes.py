@@ -314,8 +314,7 @@ def course_add_event():
                                                         SchedulesCourse.day == form.date.data).first()
                 if not schedule:
                     schedule = SchedulesCourse(from_hour=form.turn_start.data, to_hour=form.turn_end.data,
-                                               course_id=course.id,
-                                               day=form.date.data)
+                                               course_id=course.id, day=form.date.data)
                     db.session.add(schedule)
                     db.session.commit()
                 flash(f'Successfully added an event to {form.name.data} class', 'success')

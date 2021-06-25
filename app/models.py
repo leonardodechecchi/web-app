@@ -36,7 +36,7 @@ class User(db.Model, UserMixin):
     # User authentication information
     email = db.Column(db.String(120), nullable=False, unique=True)
     password = db.Column(db.String(60), nullable=False)
-    role = db.Column(db.String(64), default='instructor')
+    role = db.Column(db.String(64), default='member')
 
     # Relationship
     courses = db.relationship('Courses', backref='user', passive_deletes=True, lazy=True)
