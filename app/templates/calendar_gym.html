@@ -4,20 +4,19 @@
 
 <form action="" method="POST" class="">
     {{ form.hidden_tag() }}
+    {% set found = {'found': False} %}
     <table>
-
         <thead>
             <tr>
                 <th></th>
                 {% for schedule in schedules %}
                     <th>
                         {{ schedule.day.strftime('%A') }}<br>
-                        {{ schedule.day.strftime('%m-%d') }}
+                        {{ schedule.day.strftime('%d-%m') }}
                     </th>
                 {% endfor %}
             </tr>
         </thead>
-
         <tbody>
             {% for turn in turns %}
             <tr>
@@ -25,72 +24,76 @@
                     {{ turn.from_hour.strftime('%H:%M') }}-{{ turn.to_hour.strftime('%H:%M') }}
                 </td>
                 {% for schedule in schedules %}
-                    {% for allturn in allturns %}
-                        {% if allturn.day == schedule.day and allturn.from_hour == turn.from_hour and allturn.to_hour == turn.to_hour %}
-                            {% for weightroom in weightrooms %}
-                                {% if allturn.weightroom_id == weightroom.id %}
-                                    {% if flag.update({'flag': False}) %} {% endif %}
-                                    <!-- PRINT CELL -->
-                                    <td class="hover-bg ts-item">
-                                        <h6>GYM</h6>
-                                        <span>{{ turn.from_hour.strftime('%H:%M') }}-{{ turn.to_hour.strftime('%H:%M') }}</span>
-                                        <div class="trainer-name">
-                                            {% for your_reservation in your_reservations %}
-                                                {% if your_reservation.schedule_weightroom_id == allturn.id %}
-                                                    {% if flag_reservation.update({'flag': False}) %} {% endif %}
-                                                    You have already reserved a slot
-                                                {% endif %}
+
+                    {# importante #}
+                    {% if found.update({'found': False}) %}{% endif %}
+
+                    {# controlla tutti i turni e se lo trova e se lo trova esce #}
+                    {% for all_turn in all_turns if not found.get('found') %}
+
+                        {# se è il turno corrispondente #}
+                        {% if all_turn[0].day == schedule.day and all_turn[0].from_hour == turn.from_hour
+                                                              and all_turn[0].to_hour == turn.to_hour %}
+                            {# stampa la casella #}
+                            <td class="hover-bg ts-item">
+                                <h6>GYM</h6>
+                                <span>
+                                    {{ turn.from_hour.strftime('%H:%M') }}-{{ turn.to_hour.strftime('%H:%M') }}
+                                </span>
+
+                                {# stampa alcune informazioni solo se loggati come membri #}
+                                {% if current_user.role == 'member' %}
+
+                                    {% set tmp = {'already reserved': False} %}
+                                    {% for res in current_user.reservations %}
+                                        {% if res.schedule_weightroom_id == all_turn[0].id %}
+                                            <div class="trainer-name">You have already reserved this slot</div>
+                                            {% if tmp.update({'already_reserved': True}) %}{% endif %}
+                                        {% endif %}
+                                    {% endfor %}
+
+                                        {# se non ha prenotato potrà visualizzare il numero di slot disponibili #}
+                                        {# e la checkbox #}
+                                        {% if not tmp.get('already_reserved') %}
+                                            {% set tmp = {'num_res': 0} %}
+                                            {% for res in reservations_cnt if res[1].id == all_turn[0].id  %}
+                                                {% if tmp.update({'num_res': res[2]}) %}{% endif %}
                                             {% endfor %}
-                                            {% if flag_reservation.flag %}
-                                                {% for reservation in reservations %}
-                                                    {% if reservation.schedule_weightroom_id == allturn.id %}
-                                                        {% if flag_slots.update({'flag': False}) %} {% endif %}
-                                                        {{ weightroom.max_members - reservation.count }} slots available
-                                                        {% if weightroom.max_members - reservation.count <= 0 %}
-                                                            {% if flag_checkbox.update({'flag': False}) %} {% endif %}
-                                                        {% endif %}
-                                                    {% endif %}
-                                                {% endfor %}
-                                                {% if flag_slots.flag %}
-                                                    {{ weightroom.max_members }} slots available
-                                                {% endif %}
-                                                {% if flag_slots.update({'flag': True}) %} {% endif %}
-                                            {% endif %}
-                                        </div>
-                                        <!-- PRINT CHECKBOX -->
-                                        {% if flag_checkbox.flag and flag_reservation.flag %}
+                                            <div class="trainer-name">
+                                                {{ all_turn[1].max_members - tmp.get('num_res') }} slots available
+                                            </div>
                                             <label class="my-checkbox">
-                                                {% set checkbox = getattr(form, str(allturn.id)) %}
+                                                {% set checkbox = getattr(form, str(all_turn[0].id)) %}
                                                 {{ checkbox }}
-                                                <span class="checkmark"></span>
+                                            <span class="checkmark"></span>
                                             </label>
                                         {% endif %}
-                                        {% if flag_checkbox.update({'flag': True}) %} {% endif %}
-                                        {% if flag_reservation.update({'flag': True}) %} {% endif %}
-                                    </td>
+
                                 {% endif %}
-                            {% endfor %}
+                            </td>
+                            {% if found.update({'found': True}) %}{% endif %}
                         {% endif %}
+
                     {% endfor %}
-                    {% if flag.flag %}
-                        <td class="hover-bg ts-item">
-                            <!-- EMPTY CELL -->
-                        </td>
+
+                    {# stampa la cella vuota #}
+                    {% if not found.get('found') %}
+                        <td class="hover-bg ts-item"></td>
                     {% endif %}
-                    {% if flag.update({'flag': True}) %} {% endif %}
+
                 {% endfor %}
             </tr>
             {% endfor %}
         </tbody>
-        
     </table>
 
-    <div class="calendar-submit">
-        <div class="calendar-form">
-            {{ form.submit(class="register-btn") }}
+    {% if current_user.role == 'member' %}
+        <div class="calendar-submit">
+            <div class="calendar-form">
+                {{ form.submit(class="register-btn") }}
+            </div>
         </div>
-    </div>
-
+    {% endif %}
 </form>
 
 {% endblock %}>
