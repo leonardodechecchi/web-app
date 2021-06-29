@@ -47,7 +47,7 @@
                                     {% set tmp = {'already reserved': False} %}
                                     {% for res in current_user.reservations %}
                                         {% if res.schedule_weightroom_id == all_turn[0].id %}
-                                            <div class="trainer-name">You have already reserved this slot</div>
+                                            <div class="trainer-name">Reserved</div>
                                             {% if tmp.update({'already_reserved': True}) %}{% endif %}
                                         {% endif %}
                                     {% endfor %}
