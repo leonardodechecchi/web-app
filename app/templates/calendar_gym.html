@@ -28,7 +28,7 @@
                     {# importante #}
                     {% if found.update({'found': False}) %}{% endif %}
 
-                    {# controlla tutti i turni e se lo trova e se lo trova esce #}
+                    {# controlla tutti i turni e se lo trova esce #}
                     {% for all_turn in all_turns if not found.get('found') %}
 
                         {# se è il turno corrispondente #}
@@ -41,9 +41,10 @@
                                     {{ turn.from_hour.strftime('%H:%M') }}-{{ turn.to_hour.strftime('%H:%M') }}
                                 </span>
 
-                                {# stampa alcune informazioni solo se loggati come membri #}
+                                {# se loggati come membri stampa tutto altrimenti solo il turno #}
                                 {% if current_user.role == 'member' %}
 
+                                    {# verifica che l'utente non abbia già prenotato #}
                                     {% set tmp = {'already reserved': False} %}
                                     {% for res in current_user.reservations %}
                                         {% if res.schedule_weightroom_id == all_turn[0].id %}
@@ -52,8 +53,8 @@
                                         {% endif %}
                                     {% endfor %}
 
-                                        {# se non ha prenotato potrà visualizzare il numero di slot disponibili #}
-                                        {# e la checkbox #}
+                                        {# se non ha prenotato verrà visualizzato il numero di slot disponibili
+                                           e la checkbox #}
                                         {% if not tmp.get('already_reserved') %}
                                             {% set tmp = {'num_res': 0} %}
                                             {% for res in reservations_cnt if res[1].id == all_turn[0].id  %}
