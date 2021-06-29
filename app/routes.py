@@ -112,13 +112,13 @@ def calendar_weightrooms():
     class F(ReservationForm):
         pass
 
-    for turn, weightroom in all_turns:
+    for turn, weightroom in all_turns.all():
         setattr(F, str(turn.id), BooleanField())
 
     form = F()
 
     if form.validate_on_submit():
-        for turn, weightroom in all_turns:
+        for turn, weightroom in all_turns.all():
             if getattr(form, str(turn.id)).data:
 
                 for res, sch in Reservations.query \
@@ -163,13 +163,13 @@ def calendar_courses():
     class F(ReservationForm):
         pass
 
-    for turn, course in all_turns:
+    for turn, course in all_turns.all():
         setattr(F, str(turn.id), BooleanField())
 
     form = F()
 
     if form.validate_on_submit():
-        for turn, course in all_turns:
+        for turn, course in all_turns.all():
             if getattr(form, str(turn.id)).data:
 
                 for res, sch in Reservations.query \
