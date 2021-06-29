@@ -97,22 +97,11 @@ def dashboard():  # TODO add delete course and delete scheduling
 @app.route('/calendar/gym', methods=['GET', 'POST'])
 @login_required
 def calendar_weightrooms():
-    schedules = SchedulesWeightRoom.query \
-        .distinct(SchedulesWeightRoom.day) \
-        .filter(SchedulesWeightRoom.day >= datetime(datetime.today().year, datetime.today().month,
-                                                    datetime.today().day)).limit(7).all()
-
-    turns = SchedulesWeightRoom.query \
-        .distinct(SchedulesWeightRoom.from_hour, SchedulesWeightRoom.to_hour) \
-        .filter(SchedulesWeightRoom.day >= datetime(datetime.today().year, datetime.today().month,
-                                                    datetime.today().day)) \
-        .order_by(SchedulesWeightRoom.from_hour).all()
-
     all_turns = SchedulesWeightRoom.query \
         .join(WeightRooms, SchedulesWeightRoom.weightroom_id == WeightRooms.id) \
         .add_columns(WeightRooms) \
         .filter(SchedulesWeightRoom.day >= datetime(datetime.today().year, datetime.today().month,
-                                                    datetime.today().day)).all()
+                                                    datetime.today().day))
 
     reservations_cnt = Reservations.query.with_entities(WeightRooms, SchedulesWeightRoom,
                                                         func.count(Reservations.schedule_weightroom_id).label('count'))\
@@ -148,29 +137,22 @@ def calendar_weightrooms():
         flash('All reservations were successfully saved', 'success')
         return redirect(url_for('calendar_reservations'))
 
-    return render_template('calendar_gym.html', title='Gym', schedules=schedules, turns=turns, all_turns=all_turns,
+    return render_template('calendar_gym.html', title='Gym', all_turns=all_turns.all(),
+                           schedules=all_turns.with_entities(SchedulesWeightRoom)
+                           .distinct(SchedulesWeightRoom.day).all(),
+                           turns=all_turns.with_entities(SchedulesWeightRoom)
+                           .distinct(SchedulesWeightRoom.from_hour, SchedulesWeightRoom.to_hour).all(),
                            reservations_cnt=reservations_cnt, form=form, getattr=getattr, str=str)
 
 
 @app.route('/calendar/courses', methods=['GET', 'POST'])
 @login_required
 def calendar_courses():
-    schedules = SchedulesCourse.query \
-        .distinct(SchedulesCourse.day) \
-        .filter(SchedulesCourse.day >= datetime(datetime.today().year, datetime.today().month,
-                                                datetime.today().day)).limit(7).all()
-
-    turns = SchedulesCourse.query \
-        .distinct(SchedulesCourse.from_hour, SchedulesCourse.to_hour) \
-        .filter(SchedulesCourse.day >= datetime(datetime.today().year, datetime.today().month,
-                                                datetime.today().day)) \
-        .order_by(SchedulesCourse.from_hour).all()
-
     all_turns = SchedulesCourse.query \
         .join(Courses, SchedulesCourse.course_id == Courses.id) \
         .add_columns(Courses) \
         .filter(SchedulesCourse.day >= datetime(datetime.today().year, datetime.today().month,
-                                                datetime.today().day)).all()
+                                                datetime.today().day))
 
     reservations_cnt = Reservations.query.with_entities(Courses, SchedulesCourse,
                                                         func.count(Reservations.schedule_course_id).label('count')) \
@@ -207,8 +189,12 @@ def calendar_courses():
         flash('All reservations were successfully saved', 'success')
         return redirect(url_for('calendar_reservations'))
 
-    return render_template('calendar_courses.html', title='Courses', schedules=schedules, turns=turns,
-                           all_turns=all_turns, reservations_cnt=reservations_cnt, form=form, str=str, getattr=getattr)
+    return render_template('calendar_courses.html', title='Courses', all_turns=all_turns.all(),
+                           schedules=all_turns.with_entities(SchedulesCourse)
+                           .distinct(SchedulesCourse.day).all(),
+                           turns=all_turns.with_entities(SchedulesCourse)
+                           .distinct(SchedulesCourse.from_hour, SchedulesCourse.to_hour).all(),
+                           reservations_cnt=reservations_cnt, form=form, str=str, getattr=getattr)
 
 
 @app.route('/calendar/reservations', methods=['GET', 'POST'])

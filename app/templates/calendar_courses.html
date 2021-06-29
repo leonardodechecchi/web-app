@@ -12,7 +12,7 @@
                 {% for schedule in schedules %}
                     <th>
                         {{ schedule.day.strftime('%A') }}<br>
-                        {{ schedule.day.strftime('%m-%d') }}
+                        {{ schedule.day.strftime('%d-%m') }}
                     </th>
                 {% endfor %}
             </tr>
