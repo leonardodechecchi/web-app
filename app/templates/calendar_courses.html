@@ -4,8 +4,8 @@
 
 <form action="" method="POST" class="">
     {{ form.hidden_tag() }}
+    {% set found = {'found': False} %}
     <table>
-
         <thead>
             <tr>
                 <th></th>
@@ -17,7 +17,6 @@
                 {% endfor %}
             </tr>
         </thead>
-
         <tbody>
             {% for turn in turns %}
             <tr>
@@ -25,71 +24,69 @@
                     {{ turn.from_hour.strftime('%H:%M') }}-{{ turn.to_hour.strftime('%H:%M') }}
                 </td>
                 {% for schedule in schedules %}
-                    {% for allturn in allturns %}
-                        {% if allturn.day == schedule.day and allturn.from_hour == turn.from_hour and allturn.to_hour == turn.to_hour %}
-                            {% for course in courses %}
-                                {% if allturn.course_id == course.id %}
-                                    {% if flag.update({'flag': False}) %} {% endif %}
-                                    <!-- PRINT CELL -->
-                                    <td class="hover-bg ts-item">
-                                        <h6>{{ course.name }}</h6>
-                                        <span>{{ turn.from_hour.strftime('%H:%M') }}-{{ turn.to_hour.strftime('%H:%M') }}</span>
-                                        <div class="trainer-name">
-                                            {% for your_reservation in your_reservations %}
-                                                {% if your_reservation.schedule_course_id == allturn.id %}
-                                                    {% if flag_reservation.update({'flag': False}) %} {% endif %}
-                                                    You have already reserved a slot
-                                                {% endif %}
-                                            {% endfor %}
-                                            {% if flag_reservation.flag %}
-                                                {% for reservation in reservations %}
-                                                    {% if reservation.schedule_course_id == allturn.id %}
-                                                        {% if flag_slots.update({'flag': False}) %} {% endif %}
-                                                        {{ course.max_members - reservation.count }} slots available
-                                                        {% if course.max_members - reservation.count <= 0 %}
-                                                            {% if flag_checkbox.update({'flag': False}) %} {% endif %}
-                                                        {% endif %}
-                                                    {% endif %}
-                                                {% endfor %}
-                                                {% if flag_slots.flag %}
-                                                    {{ course.max_members }} slots available
-                                                {% endif %}
-                                                {% if flag_slots.update({'flag': True}) %} {% endif %}
-                                            {% endif %}
-                                        </div>
-                                        <!-- PRINT CHECKBOX -->
-                                        {% if flag_checkbox.flag and flag_reservation.flag %}
-                                            <label class="my-checkbox">
-                                                {% set checkbox = getattr(form, str(allturn.id)) %}
-                                                {{ checkbox }}
-                                                <span class="checkmark"></span>
-                                            </label>
+
+                    {% if found.update({'found': False}) %}{% endif %}
+
+                    {% for curr_turn, course in all_turns if not found.get('found') %}
+
+                        {% if curr_turn.day == schedule.day and curr_turn.from_hour == turn.from_hour
+                                                            and curr_turn.to_hour == turn.to_hour %}
+
+                            <td class="hover-bg ts-item">
+                                <h6>{{ course.name }}</h6>
+                                <span>
+                                    {{ turn.from_hour.strftime('%H:%M') }}-{{ turn.to_hour.strftime('%H:%M') }}
+                                </span>
+
+                                {% if current_user.role == 'member' %}
+
+                                    {% set tmp = {'already reserved': False} %}
+                                    {% for res in current_user.reservations %}
+                                        {% if res.schedule_course_id == curr_turn.id %}
+                                            <div class="trainer-name">Reserved</div>
+                                            {% if tmp.update({'already_reserved': True}) %}{% endif %}
                                         {% endif %}
-                                        {% if flag_checkbox.update({'flag': True}) %} {% endif %}
-                                        {% if flag_reservation.update({'flag': True}) %} {% endif %}
-                                    </td>
+                                    {% endfor %}
+
+                                    {% if not tmp.get('already_reserved') %}
+                                        {% set tmp = {'num_res': 0} %}
+                                        {% for course, schedule, count in reservations_cnt
+                                           if schedule.id == curr_turn.id %}
+                                            {% if tmp.update({'num_res': count}) %}{% endif %}
+                                        {% endfor %}
+                                        <div class="trainer-name">
+                                            {{ course.max_members - tmp.get('num_res') }} slots available
+                                        </div>
+                                        <label class="my-checkbox">
+                                            {% set checkbox = getattr(form, str(curr_turn.id)) %}
+                                            {{ checkbox }}
+                                        <span class="checkmark"></span>
+                                        </label>
+                                    {% endif %}
+
                                 {% endif %}
-                            {% endfor %}
+                            </td>
+                            {% if found.update({'found': True}) %}{% endif %}
                         {% endif %}
                     {% endfor %}
-                    {% if flag.flag %}
-                        <td class="hover-bg ts-item">
-                            <!-- EMPTY CELL -->
-                        </td>
+
+                    {% if not found.get('found') %}
+                        <td class="hover-bg ts-item"></td>
                     {% endif %}
-                    {% if flag.update({'flag': True}) %} {% endif %}
+
                 {% endfor %}
             </tr>
             {% endfor %}
         </tbody>
-        
     </table>
 
-    <div class="calendar-submit">
-        <div class="calendar-form">
-            {{ form.submit(class="register-btn") }}
+    {% if current_user.role == 'member' %}
+        <div class="calendar-submit">
+            <div class="calendar-form">
+                {{ form.submit(class="register-btn") }}
+            </div>
         </div>
-    </div>
+    {% endif %}
 
 </form>
 

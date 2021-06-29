@@ -94,7 +94,6 @@ def dashboard():  # TODO add delete course and delete scheduling
     return render_template('dashboard.html', title='Dashboard')
 
 
-# What does the instructor see?
 @app.route('/calendar/gym', methods=['GET', 'POST'])
 @login_required
 def calendar_weightrooms():
@@ -107,7 +106,7 @@ def calendar_weightrooms():
         .distinct(SchedulesWeightRoom.from_hour, SchedulesWeightRoom.to_hour) \
         .filter(SchedulesWeightRoom.day >= datetime(datetime.today().year, datetime.today().month,
                                                     datetime.today().day)) \
-        .order_by(SchedulesWeightRoom.from_hour).limit(7).all()
+        .order_by(SchedulesWeightRoom.from_hour).all()
 
     all_turns = SchedulesWeightRoom.query \
         .join(WeightRooms, SchedulesWeightRoom.weightroom_id == WeightRooms.id) \
@@ -124,17 +123,17 @@ def calendar_weightrooms():
     class F(ReservationForm):
         pass
 
-    for turn, room in all_turns:
+    for turn, weightroom in all_turns:
         setattr(F, str(turn.id), BooleanField())
 
     form = F()
 
     if form.validate_on_submit():
-        for turn, room in all_turns:
+        for turn, weightroom in all_turns:
             if getattr(form, str(turn.id)).data:
 
-                for res, sch in Reservations.query\
-                        .join(SchedulesCourse, Reservations.schedule_course_id == SchedulesCourse.id)\
+                for res, sch in Reservations.query \
+                        .join(SchedulesCourse, Reservations.schedule_course_id == SchedulesCourse.id) \
                         .add_columns(SchedulesCourse).filter(Reservations.user_id == current_user.social_number).all():
 
                     if sch.day == turn.day and sch.from_hour == turn.from_hour and sch.to_hour == turn.to_hour:
@@ -153,60 +152,63 @@ def calendar_weightrooms():
                            reservations_cnt=reservations_cnt, form=form, getattr=getattr, str=str)
 
 
-# What does the instructor see?
 @app.route('/calendar/courses', methods=['GET', 'POST'])
 @login_required
 def calendar_courses():
-    turns = SchedulesCourse.query.distinct(SchedulesCourse.from_hour, SchedulesCourse.to_hour).all()
-    schedules = SchedulesCourse.query.distinct(SchedulesCourse.day).limit(
-        7).all()  # TODO get only the next 7 days relative to today
-    allturns = SchedulesCourse.query.all()
-    courses = Courses.query.all()
-    reservations = Reservations.query.with_entities(Reservations.schedule_course_id,
-                                                    func.count(Reservations.schedule_course_id).label('count')) \
-        .group_by(Reservations.schedule_course_id).all()
-    your_reservations = Reservations.query.filter(Reservations.user_id == current_user.social_number,
-                                                  Reservations.schedule_course_id != None)
-    weightroom_reservations = Reservations.query.filter(Reservations.user_id == current_user.social_number,
-                                                        Reservations.schedule_weightroom_id != None)
+    schedules = SchedulesCourse.query \
+        .distinct(SchedulesCourse.day) \
+        .filter(SchedulesCourse.day >= datetime(datetime.today().year, datetime.today().month,
+                                                datetime.today().day)).limit(7).all()
+
+    turns = SchedulesCourse.query \
+        .distinct(SchedulesCourse.from_hour, SchedulesCourse.to_hour) \
+        .filter(SchedulesCourse.day >= datetime(datetime.today().year, datetime.today().month,
+                                                datetime.today().day)) \
+        .order_by(SchedulesCourse.from_hour).all()
+
+    all_turns = SchedulesCourse.query \
+        .join(Courses, SchedulesCourse.course_id == Courses.id) \
+        .add_columns(Courses) \
+        .filter(SchedulesCourse.day >= datetime(datetime.today().year, datetime.today().month,
+                                                datetime.today().day)).all()
+
+    reservations_cnt = Reservations.query.with_entities(Courses, SchedulesCourse,
+                                                        func.count(Reservations.schedule_course_id).label('count')) \
+        .join(SchedulesCourse, Reservations.schedule_course_id == SchedulesCourse.id) \
+        .join(Courses, SchedulesCourse.course_id == Courses.id) \
+        .group_by(Courses.id, SchedulesCourse.id).all()
 
     class F(ReservationForm):
         pass
 
-    for allturn in allturns:
-        setattr(F, str(allturn.id), BooleanField('Reserve Now'))
+    for turn, course in all_turns:
+        setattr(F, str(turn.id), BooleanField())
+
     form = F()
 
     if form.validate_on_submit():
-        flag_validate = False
-        for allturn in allturns:
-            if getattr(form, str(allturn.id)).data:
-                for weightroom in weightroom_reservations:
-                    exists = SchedulesWeightRoom.query.filter_by(day=allturn.day, from_hour=allturn.from_hour,
-                                                                 to_hour=allturn.to_hour,
-                                                                 id=weightroom.schedule_weightroom_id).first()
-                    if exists:
-                        flag_validate = True
-                if not flag_validate:
-                    reservation = Reservations(user_id=current_user.social_number, schedule_weightroom_id=None,
-                                               schedule_course_id=allturn.id)
-                    db.session.add(reservation)
+        for turn, course in all_turns:
+            if getattr(form, str(turn.id)).data:
+
+                for res, sch in Reservations.query \
+                        .join(SchedulesWeightRoom, Reservations.schedule_weightroom_id == SchedulesWeightRoom.id) \
+                        .add_columns(SchedulesWeightRoom) \
+                        .filter(Reservations.user_id == current_user.social_number).all():
+
+                    if sch.day == turn.day and sch.from_hour == turn.from_hour and sch.to_hour == turn.to_hour:
+                        flash('Some reservations were in conflict with your weightroom reservations'
+                              'so they were not saved', 'danger')
+                        return redirect(url_for('calendar_courses'))
+
+                reservation = Reservations(user_id=current_user.social_number, schedule_weightroom_id=None,
+                                           schedule_course_id=turn.id)
+                db.session.add(reservation)
         db.session.commit()
-        if flag_validate:
-            flash('Some reservations were in conflict with your weightroom reservations so they were not saved',
-                  'danger')
-        else:
-            flash('All reservations were successfully saved', 'success')
+        flash('All reservations were successfully saved', 'success')
         return redirect(url_for('calendar_reservations'))
 
-    flag = {'flag': True}
-    flag_slots = {'flag': True}
-    flag_checkbox = {'flag': True}
-    flag_reservation = {'flag': True}
     return render_template('calendar_courses.html', title='Courses', schedules=schedules, turns=turns,
-                           allturns=allturns, courses=courses, form=form, str=str, getattr=getattr, flag=flag,
-                           reservations=reservations, flag_slots=flag_slots, flag_checkbox=flag_checkbox,
-                           your_reservations=your_reservations, flag_reservation=flag_reservation)
+                           all_turns=all_turns, reservations_cnt=reservations_cnt, form=form, str=str, getattr=getattr)
 
 
 @app.route('/calendar/reservations', methods=['GET', 'POST'])

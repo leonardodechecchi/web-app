@@ -48,19 +48,19 @@
                         <li><a href="{{ url_for('home') }}">Home</a></li>
                         <li><a href="{{ url_for('about') }}">About</a></li>
                         {% if current_user.is_authenticated %}
-                        <li><a href="{{ url_for('calendar_weightrooms') }}">Calendar</a></li>
-                        <li><a href="{{ url_for('logout') }}">Logout</a></li>
+                            <li><a href="{{ url_for('calendar_weightrooms') }}">Calendar</a></li>
+                            <li><a href="{{ url_for('logout') }}">Logout</a></li>
                         {% else %}
-                        <li><a href="{{ url_for('login') }}">Login</a></li>
+                            <li><a href="{{ url_for('login') }}">Login</a></li>
                         {% endif %}
                     </ul>
                 </nav>
-                {% if current_user.is_authenticated and current_user.role == 'instructor' %}
-                <a href="{{ url_for('dashboard') }}" class="primary-btn signup-btn">Dashboard</a>
-                {% elif current_user.is_authenticated and current_user.role == 'member' %}
-                <a href="{{ url_for('profile') }}" class="primary-btn signup-btn">Edit Profile</a>
+                {% if current_user.role == 'instructor' %}
+                    <a href="{{ url_for('dashboard') }}" class="primary-btn signup-btn">Dashboard</a>
+                {% elif current_user.role == 'member' %}
+                    <a href="{{ url_for('profile') }}" class="primary-btn signup-btn">Edit Profile</a>
                 {% else %}
-                <a href="{{ url_for('register') }}" class="primary-btn signup-btn">Register Now</a>
+                    <a href="{{ url_for('register') }}" class="primary-btn signup-btn">Register Now</a>
                 {% endif %}
             </div>
             <div id="mobile-menu-wrap"></div>
