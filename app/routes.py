@@ -137,7 +137,7 @@ def calendar_weightrooms():
         flash('All reservations were successfully saved', 'success')
         return redirect(url_for('calendar_reservations'))
 
-    return render_template('calendar_gym.html', title='Gym', all_turns=all_turns.all(),
+    return render_template('calendar_weightrooms.html', title='Gym', all_turns=all_turns.all(),
                            schedules=all_turns.with_entities(SchedulesWeightRoom)
                            .distinct(SchedulesWeightRoom.day).all(),
                            turns=all_turns.with_entities(SchedulesWeightRoom)
@@ -172,14 +172,15 @@ def calendar_courses():
         for turn, course in all_turns.all():
             if getattr(form, str(turn.id)).data:
 
-                for res, sch in Reservations.query \
+                for reservation, schedule in Reservations.query \
                         .join(SchedulesWeightRoom, Reservations.schedule_weightroom_id == SchedulesWeightRoom.id) \
                         .add_columns(SchedulesWeightRoom) \
                         .filter(Reservations.user_id == current_user.social_number).all():
 
-                    if sch.day == turn.day and sch.from_hour == turn.from_hour and sch.to_hour == turn.to_hour:
-                        flash('Some reservations were in conflict with your weightroom reservations'
-                              'so they were not saved', 'danger')
+                    if schedule.day == turn.day and schedule.from_hour == turn.from_hour \
+                            and schedule.to_hour == turn.to_hour:
+                        flash('Some reservations were in conflict with your weightroom reservations '
+                              ' so they were not saved', 'danger')
                         return redirect(url_for('calendar_courses'))
 
                 reservation = Reservations(user_id=current_user.social_number, schedule_weightroom_id=None,
@@ -189,12 +190,11 @@ def calendar_courses():
         flash('All reservations were successfully saved', 'success')
         return redirect(url_for('calendar_reservations'))
 
-    return render_template('calendar_courses.html', title='Courses', all_turns=all_turns.all(),
+    return render_template('calendar_courses.html', title='Courses', all_turns=all_turns.all(), form=form, str=str,
                            schedules=all_turns.with_entities(SchedulesCourse)
-                           .distinct(SchedulesCourse.day).all(),
+                           .distinct(SchedulesCourse.day).all(), reservations_cnt=reservations_cnt, getattr=getattr,
                            turns=all_turns.with_entities(SchedulesCourse)
-                           .distinct(SchedulesCourse.from_hour, SchedulesCourse.to_hour).all(),
-                           reservations_cnt=reservations_cnt, form=form, str=str, getattr=getattr)
+                           .distinct(SchedulesCourse.from_hour, SchedulesCourse.to_hour).all())
 
 
 @app.route('/calendar/reservations', methods=['GET', 'POST'])
@@ -219,32 +219,36 @@ def calendar_reservations():
         pass
 
     for reservation, schedule, course in res_courses:
-        turns.append(schedule)
-        days.append(schedule.day)
+        if (schedule.from_hour, schedule.to_hour) not in turns:
+            turns.append((schedule.from_hour, schedule.to_hour))
+        if schedule.day not in days:
+            days.append(schedule.day)
         setattr(F, str(schedule.id), BooleanField())
 
     for reservation, schedule in res_weightrooms:
-        turns.append(schedule)
-        days.append(schedule.day)
+        if (schedule.from_hour, schedule.to_hour) not in turns:
+            turns.append((schedule.from_hour, schedule.to_hour))
+        if schedule.day not in days:
+            days.append(schedule.day)
         setattr(F, str(schedule.id), BooleanField())
 
     form = F()
 
     if form.validate_on_submit():
-        for reservation, schedule in res_courses.all():
+        for reservation, schedule, course in res_courses:
             if getattr(form, str(schedule.id)).data:
                 db.session.delete(Reservations.query.filter(Reservations.user_id == current_user.social_number,
-                                                            Reservations.schedule_course_id == schedule.id)).first()
-        for reservation, schedule in res_weightrooms.all():
+                                                            Reservations.schedule_course_id == schedule.id).first())
+        for reservation, schedule in res_weightrooms:
             if getattr(form, str(schedule.id)).data:
                 db.session.delete(Reservations.query.filter(Reservations.user_id == current_user.social_number,
-                                                            Reservations.schedule_weightroom_id == schedule.id)).first()
+                                                            Reservations.schedule_weightroom_id == schedule.id).first())
         db.session.commit()
         flash('All reservations were successfully deleted', 'success')
         return redirect(url_for('calendar_reservations'))
-    return render_template('calendar_reservations.html', title='Reservations', zip=itertools.zip_longest,
-                           turns=turns, days=days.sort(), res_courses=res_courses,
-                           res_weightrooms=res_weightrooms, form=form, str=str, getattr=getattr)
+    return render_template('calendar_reservations.html', title='Reservations', days=sorted(days), turns=sorted(turns),
+                           res_courses=res_courses, res_weightrooms=res_weightrooms, form=form, str=str,
+                           getattr=getattr)
 
 
 @app.route('/calendar/instructor')

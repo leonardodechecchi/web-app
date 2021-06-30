@@ -5,7 +5,6 @@
 <form action="" method="POST" class="">
     {{ form.hidden_tag() }}
     {% set found = {'found': False} %}
-    {% set found = {'found': False} %}
     <table>
         <thead>
             <tr>
@@ -13,59 +12,64 @@
                 {% for day in days %}
                     <th>
                         {{ day.strftime('%A') }}<br>
-                        {{ day.strftime('%m-%d') }}
+                        {{ day.strftime('%d-%m') }}
                     </th>
                 {% endfor %}
             </tr>
         </thead>
         <tbody>
-            {% for turn in turn %}
+            {% for start_turn, end_turn in turns %}
             <tr>
                 <td class="workout-time">
-                    {{ turn.from_hour.strftime('%H:%M') }}-{{ turn.to_hour.strftime('%H:%M') }}
+                    {{ start_turn.strftime('%H:%M') }}-{{ end_turn.strftime('%H:%M') }}
                 </td>
+
                 {% for day in days %}
-                    {% for res, schedule, course in res_courses %}
 
-                        {% if schedule.day == day and schedule.from_hour == turn.from_hour
-                                                  and schedule.to_hour == turn.to_hour %}
-                            {# stampa la cella #}
+                    {% if found.update({'found': False}) %}{% endif %}
+
+                    {% for reservation, schedule in res_weightrooms if not found.get('found') %}
+
+                        {% if schedule.day == day and schedule.from_hour == start_turn
+                                                  and schedule.to_hour == end_turn %}
                             <td class="hover-bg ts-item">
-                                <h1>{{ course.name }}</h1>
+                                <h6>GYM</h6>
                                 <span>
-                                    {{ turn.from_hour.strftime('%H:%M') }}-{{ turn.to_hour.strftime('%H:%M') }}
+                                    {{ schedule.from_hour.strftime('%H:%M') }}-{{ schedule.to_hour.strftime('%H:%M') }}
                                 </span>
+                                <div class="trainer-name"></div>
                                 <label class="my-checkbox">
                                     {% set checkbox = getattr(form, str(schedule.id)) %}
                                     {{ checkbox }}
                                 <span class="checkmark"></span>
+                                </label>
                             </td>
                             {% if found.update({'found': True}) %}{% endif %}
                         {% endif %}
 
                     {% endfor %}
 
-                    {% for res, schedule in res_weightrooms %}
+                    {% for reservation, schedule, course in res_courses if not found.get('found') %}
 
-                        {% if schedule.day == day and schedule.from_hour == turn.from_hour
-                                                  and schedule.to_hour == turn.to_hour %}
-                            {# stampa la cella #}
+                        {% if schedule.day == day and schedule.from_hour == start_turn
+                                                  and schedule.to_hour == end_turn %}
                             <td class="hover-bg ts-item">
-                                <h1>GYM</h1>
+                                <h6>{{ course.name }}</h6>
                                 <span>
-                                    {{ turn.from_hour.strftime('%H:%M') }}-{{ turn.to_hour.strftime('%H:%M') }}
+                                    {{ schedule.from_hour.strftime('%H:%M') }}-{{ schedule.to_hour.strftime('%H:%M') }}
                                 </span>
+                                <div class="trainer-name"></div>
                                 <label class="my-checkbox">
                                     {% set checkbox = getattr(form, str(schedule.id)) %}
                                     {{ checkbox }}
                                 <span class="checkmark"></span>
+                                </label>
                             </td>
                             {% if found.update({'found': True}) %}{% endif %}
                         {% endif %}
 
                     {% endfor %}
 
-                    {# stampa la cella vuota #}
                     {% if not found.get('found') %}
                         <td class="hover-bg ts-item"></td>
                     {% endif %}

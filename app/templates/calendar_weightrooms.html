@@ -25,26 +25,20 @@
                 </td>
                 {% for schedule in schedules %}
 
-                    {# importante #}
                     {% if found.update({'found': False}) %}{% endif %}
 
-                    {# controlla tutti i turni e se lo trova esce #}
                     {% for curr_turn, room in all_turns if not found.get('found') %}
 
-                        {# se è il turno corrispondente #}
                         {% if curr_turn.day == schedule.day and curr_turn.from_hour == turn.from_hour
                                                             and curr_turn.to_hour == turn.to_hour %}
-                            {# stampa la casella #}
                             <td class="hover-bg ts-item">
                                 <h6>GYM</h6>
                                 <span>
                                     {{ turn.from_hour.strftime('%H:%M') }}-{{ turn.to_hour.strftime('%H:%M') }}
                                 </span>
 
-                                {# se loggati come membri stampa tutto altrimenti solo il turno #}
                                 {% if current_user.role == 'member' %}
 
-                                    {# verifica che l'utente non abbia già prenotato #}
                                     {% set tmp = {'already reserved': False} %}
                                     {% for res in current_user.reservations %}
                                         {% if res.schedule_weightroom_id == curr_turn.id %}
@@ -53,8 +47,6 @@
                                         {% endif %}
                                     {% endfor %}
 
-                                        {# se non ha prenotato verrà visualizzato il numero di slot disponibili
-                                           e la checkbox #}
                                         {% if not tmp.get('already_reserved') %}
                                             {% set tmp = {'num_res': 0} %}
                                             {% for room, schedule, count in reservations_cnt
@@ -77,7 +69,6 @@
                         {% endif %}
                     {% endfor %}
 
-                    {# stampa la cella vuota #}
                     {% if not found.get('found') %}
                         <td class="hover-bg ts-item"></td>
                     {% endif %}
