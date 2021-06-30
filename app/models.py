@@ -120,7 +120,7 @@ class SchedulesWeightRoom(db.Model):
     to_hour = db.Column(db.TIME, nullable=False)
 
     # Relationships
-    reservations = db.relationship('Reservations', backref='schedules_weightroom', passive_deletes=True, lazy=True)  # needed?
+    reservations = db.relationship('Reservations', backref='schedules_weightroom', passive_deletes=True, lazy=True)
 
     # ForeignKey
     weightroom_id = db.Column(db.Integer, db.ForeignKey('WeightRooms.id', ondelete='CASCADE'))

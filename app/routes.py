@@ -285,29 +285,34 @@ def course_create():
 @requires_roles('instructor')
 def course_add_event():
     form = AddEventCourse()
-    if form.validate_on_submit():  # TODO check turn length (lunghezza fissa dei turni?)
+    if form.validate_on_submit():
         course = Courses.query.filter_by(name=form.name.data).first()
-        if course:
-            exists = SchedulesCourse.query.filter(SchedulesCourse.from_hour == form.turn_start.data,
-                                                  SchedulesCourse.to_hour == form.turn_end.data,
-                                                  SchedulesCourse.course_id != course.id,
-                                                  SchedulesCourse.day == form.date.data).first()
-            if exists:
-                flash(f'The selected Schedule is already occupied', 'danger')
-            else:
-                schedule = SchedulesCourse.query.filter(SchedulesCourse.from_hour == form.turn_start.data,
-                                                        SchedulesCourse.to_hour == form.turn_end.data,
-                                                        SchedulesCourse.course_id == course.id,
-                                                        SchedulesCourse.day == form.date.data).first()
-                if not schedule:
-                    schedule = SchedulesCourse(from_hour=form.turn_start.data, to_hour=form.turn_end.data,
-                                               course_id=course.id, day=form.date.data)
-                    db.session.add(schedule)
-                    db.session.commit()
-                flash(f'Successfully added an event to {form.name.data} class', 'success')
-                return redirect(url_for('calendar_courses'))
+        start = str(form.turn_start.data).split(":")
+        end = str(form.turn_end.data).split(":")
+        if start[1] != "00" or end[1] != "00" or int(end[0]) - int(start[0]) != 1:
+            flash('Turns have to be exactly 1 hour long and have to start and end at minute 00', 'danger')
         else:
-            flash(f'{form.name.data} does not exist', 'danger')
+            if course:
+                exists = SchedulesCourse.query.filter(SchedulesCourse.from_hour == form.turn_start.data,
+                                                      SchedulesCourse.to_hour == form.turn_end.data,
+                                                      SchedulesCourse.course_id != course.id,
+                                                      SchedulesCourse.day == form.date.data).first()
+                if exists:
+                    flash(f'The selected Schedule is already occupied', 'danger')
+                else:
+                    schedule = SchedulesCourse.query.filter(SchedulesCourse.from_hour == form.turn_start.data,
+                                                            SchedulesCourse.to_hour == form.turn_end.data,
+                                                            SchedulesCourse.course_id == course.id,
+                                                            SchedulesCourse.day == form.date.data).first()
+                    if not schedule:
+                        schedule = SchedulesCourse(from_hour=form.turn_start.data, to_hour=form.turn_end.data,
+                                                   course_id=course.id, day=form.date.data)
+                        db.session.add(schedule)
+                        db.session.commit()
+                    flash(f'Successfully added an event to {form.name.data} class', 'success')
+                    return redirect(url_for('calendar_courses'))
+            else:
+                flash(f'{form.name.data} does not exist', 'danger')
     return render_template('admin/add_event.html', form=form)
 
 
@@ -335,19 +340,24 @@ def weightroom_create():
 @requires_roles('instructor')
 def weightroom_add_event():
     form = AddEventGym()
-    if form.validate_on_submit():  # TODO check turn length (lunghezza fissa dei turni?)
+    if form.validate_on_submit():
         weightroom = WeightRooms.query.first()
-        if not weightroom:
-            return redirect(url_for('admin/create_weightroom'))
-        turn = SchedulesWeightRoom.query.filter(SchedulesWeightRoom.from_hour == form.turn_start.data,
-                                                SchedulesWeightRoom.to_hour == form.turn_end.data,
-                                                SchedulesWeightRoom.weightroom_id == weightroom.id,
-                                                SchedulesWeightRoom.day == form.date.data).first()
-        if not turn:
-            turn = SchedulesWeightRoom(from_hour=form.turn_start.data, to_hour=form.turn_end.data,
-                                       weightroom_id=weightroom.id, day=form.date.data)
-            db.session.add(turn)
-        db.session.commit()
-        flash(f'Successfully added an event to the weightroom', 'success')
-        return redirect(url_for('calendar_weightrooms'))
+        start = str(form.turn_start.data).split(":")
+        end = str(form.turn_end.data).split(":")
+        if start[1] != "00" or end[1] != "00" or int(end[0]) - int(start[0]) != 1:
+            flash('Turns have to be exactly 1 hour long and have to start and end at minute 00', 'danger')
+        else:
+            if not weightroom:
+                return redirect(url_for('admin/create_weightroom'))
+            turn = SchedulesWeightRoom.query.filter(SchedulesWeightRoom.from_hour == form.turn_start.data,
+                                                    SchedulesWeightRoom.to_hour == form.turn_end.data,
+                                                    SchedulesWeightRoom.weightroom_id == weightroom.id,
+                                                    SchedulesWeightRoom.day == form.date.data).first()
+            if not turn:
+                turn = SchedulesWeightRoom(from_hour=form.turn_start.data, to_hour=form.turn_end.data,
+                                           weightroom_id=weightroom.id, day=form.date.data)
+                db.session.add(turn)
+            db.session.commit()
+            flash(f'Successfully added an event to the weightroom', 'success')
+            return redirect(url_for('calendar_weightrooms'))
     return render_template('admin/add_event_weightroom.html', form=form)
