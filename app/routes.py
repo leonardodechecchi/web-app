@@ -201,59 +201,50 @@ def calendar_courses():
 @login_required
 @requires_roles('member')
 def calendar_reservations():
-    reservations = Reservations.query.filter_by(user_id=current_user.social_number)
-    courses = Courses.query.all()
-    weightrooms = WeightRooms.query.all()
-    reservation_courses = []
-    reservation_weightroom = []
-    for reservation in reservations:
-        if reservation.schedule_course_id:
-            reservation_courses.append(reservation.schedule_course_id)
-        if reservation.schedule_weightroom_id:
-            reservation_weightroom.append(reservation.schedule_weightroom_id)
-    allturns_c = SchedulesCourse.query.filter(SchedulesCourse.id.in_(reservation_courses))
-    allturns_w = SchedulesWeightRoom.query.filter(SchedulesWeightRoom.id.in_(reservation_weightroom))
-    days_temp = []
-    turns_temp = []
-    for allturn_c in allturns_c:
-        days_temp.append(allturn_c.day)
-        turns_temp.append((allturn_c.from_hour, allturn_c.to_hour))
-    for allturn_w in allturns_w:
-        days_temp.append(allturn_w.day)
-        turns_temp.append((allturn_w.from_hour, allturn_w.to_hour))
-    days = list(dict.fromkeys(days_temp))
-    turns = list(dict.fromkeys(turns_temp))
-    days.sort()
-    turns.sort()
+    res_courses = Reservations.query\
+        .join(SchedulesCourse, Reservations.schedule_course_id == SchedulesCourse.id)\
+        .join(Courses, SchedulesCourse.course_id == Courses.id)\
+        .add_columns(SchedulesCourse, Courses)\
+        .filter(Reservations.user_id == current_user.social_number).all()
+
+    res_weightrooms = Reservations.query\
+        .join(SchedulesWeightRoom, Reservations.schedule_weightroom_id == SchedulesWeightRoom.id) \
+        .add_columns(SchedulesWeightRoom)\
+        .filter(Reservations.user_id == current_user.social_number).all()
+
+    turns = []
+    days = []
 
     class F(CancelReservationForm):
         pass
 
-    for allturn_c in allturns_c:
-        setattr(F, str(allturn_c.id) + 'c', BooleanField('Cancel Reservation'))
-    for allturn_w in allturns_w:
-        setattr(F, str(allturn_w.id) + 'w', BooleanField('Cancel Reservation'))
+    for reservation, schedule, course in res_courses:
+        turns.append(schedule)
+        days.append(schedule.day)
+        setattr(F, str(schedule.id), BooleanField())
+
+    for reservation, schedule in res_weightrooms:
+        turns.append(schedule)
+        days.append(schedule.day)
+        setattr(F, str(schedule.id), BooleanField())
+
     form = F()
 
     if form.validate_on_submit():
-        for allturn_c in allturns_c:
-            if getattr(form, str(allturn_c.id) + 'c').data:
-                reservation = Reservations.query.filter_by(user_id=current_user.social_number,
-                                                           schedule_course_id=allturn_c.id).first()
-                db.session.delete(reservation)
-        for allturn_w in allturns_w:
-            if getattr(form, str(allturn_w.id) + 'w').data:
-                reservation = Reservations.query.filter_by(user_id=current_user.social_number,
-                                                           schedule_weightroom_id=allturn_w.id).first()
-                db.session.delete(reservation)
+        for reservation, schedule in res_courses.all():
+            if getattr(form, str(schedule.id)).data:
+                db.session.delete(Reservations.query.filter(Reservations.user_id == current_user.social_number,
+                                                            Reservations.schedule_course_id == schedule.id)).first()
+        for reservation, schedule in res_weightrooms.all():
+            if getattr(form, str(schedule.id)).data:
+                db.session.delete(Reservations.query.filter(Reservations.user_id == current_user.social_number,
+                                                            Reservations.schedule_weightroom_id == schedule.id)).first()
         db.session.commit()
         flash('All reservations were successfully deleted', 'success')
         return redirect(url_for('calendar_reservations'))
-
-    flag = {'flag': True}
-    return render_template('calendar_reservations.html', title='Reservations', days=days, turns=turns,
-                           allturns_c=allturns_c, allturns_w=allturns_w, courses=courses, weightrooms=weightrooms,
-                           flag=flag, zip=itertools.zip_longest, form=form, str=str, getattr=getattr)
+    return render_template('calendar_reservations.html', title='Reservations', zip=itertools.zip_longest,
+                           turns=turns, days=days.sort(), res_courses=res_courses,
+                           res_weightrooms=res_weightrooms, form=form, str=str, getattr=getattr)
 
 
 @app.route('/calendar/instructor')

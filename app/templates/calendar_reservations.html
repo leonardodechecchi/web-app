@@ -4,8 +4,9 @@
 
 <form action="" method="POST" class="">
     {{ form.hidden_tag() }}
+    {% set found = {'found': False} %}
+    {% set found = {'found': False} %}
     <table>
-
         <thead>
             <tr>
                 <th></th>
@@ -17,60 +18,60 @@
                 {% endfor %}
             </tr>
         </thead>
-
         <tbody>
-            {% for turn in turns %}
+            {% for turn in turn %}
             <tr>
                 <td class="workout-time">
-                    {{ turn[0].strftime('%H:%M') }}-{{ turn[1].strftime('%H:%M') }}
+                    {{ turn.from_hour.strftime('%H:%M') }}-{{ turn.to_hour.strftime('%H:%M') }}
                 </td>
                 {% for day in days %}
-                    {% for (allturn_c, allturn_w) in zip(allturns_c, allturns_w) %}
-                        {% if allturn_c.day == day and allturn_c.from_hour == turn[0] and allturn_c.to_hour == turn[1] %}
-                            {% for course in courses %}
-                                {% if allturn_c.course_id == course.id %}
-                                    {% if flag.update({'flag': False}) %} {% endif %}
-                                    <!-- PRINT CELL -->
-                                    <td class="hover-bg ts-item">
-                                        <h6>{{ course.name }}</h6>
-                                        <span>{{ turn[0].strftime('%H:%M') }}-{{ turn[1].strftime('%H:%M') }}</span>
-                                        <div class="trainer-name"></div>
-                                        <!-- PRINT CHECKBOX -->
-                                        <label class="my-checkbox">
-                                            {% set checkbox = getattr(form, str(allturn_c.id) + 'c') %}
-                                            {{ checkbox }}
-                                            <span class="checkmark"></span>
-                                        </label>
-                                    </td>
-                                {% endif %}
-                            {% endfor %}
+                    {% for res, schedule, course in res_courses %}
+
+                        {% if schedule.day == day and schedule.from_hour == turn.from_hour
+                                                  and schedule.to_hour == turn.to_hour %}
+                            {# stampa la cella #}
+                            <td class="hover-bg ts-item">
+                                <h1>{{ course.name }}</h1>
+                                <span>
+                                    {{ turn.from_hour.strftime('%H:%M') }}-{{ turn.to_hour.strftime('%H:%M') }}
+                                </span>
+                                <label class="my-checkbox">
+                                    {% set checkbox = getattr(form, str(schedule.id)) %}
+                                    {{ checkbox }}
+                                <span class="checkmark"></span>
+                            </td>
+                            {% if found.update({'found': True}) %}{% endif %}
                         {% endif %}
-                        {% if allturn_w.day == day and allturn_w.from_hour == turn[0] and allturn_w.to_hour == turn[1] %}
-                            {% for weightroom in weightrooms %}
-                                {% if allturn_w.weightroom_id == weightroom.id %}
-                                    {% if flag.update({'flag': False}) %} {% endif %}
-                                    <!-- PRINT CELL -->
-                                    <td class="hover-bg ts-item">
-                                        <h6>GYM</h6>
-                                        <span>{{ turn[0].strftime('%H:%M') }}-{{ turn[1].strftime('%H:%M') }}</span>
-                                        <div class="trainer-name"></div>
-                                        <label class="my-checkbox">
-                                            {% set checkbox = getattr(form, str(allturn_w.id) + 'w') %}
-                                            {{ checkbox }}
-                                            <span class="checkmark"></span>
-                                        </label>
-                                    </td>
-                                {% endif %}
-                            {% endfor %}
-                        {% endif %}
+
                     {% endfor %}
-                    {% if flag.flag %}
-                        <td class="hover-bg ts-item">
-                            <!-- EMPTY CELL -->
-                        </td>
+
+                    {% for res, schedule in res_weightrooms %}
+
+                        {% if schedule.day == day and schedule.from_hour == turn.from_hour
+                                                  and schedule.to_hour == turn.to_hour %}
+                            {# stampa la cella #}
+                            <td class="hover-bg ts-item">
+                                <h1>GYM</h1>
+                                <span>
+                                    {{ turn.from_hour.strftime('%H:%M') }}-{{ turn.to_hour.strftime('%H:%M') }}
+                                </span>
+                                <label class="my-checkbox">
+                                    {% set checkbox = getattr(form, str(schedule.id)) %}
+                                    {{ checkbox }}
+                                <span class="checkmark"></span>
+                            </td>
+                            {% if found.update({'found': True}) %}{% endif %}
+                        {% endif %}
+
+                    {% endfor %}
+
+                    {# stampa la cella vuota #}
+                    {% if not found.get('found') %}
+                        <td class="hover-bg ts-item"></td>
                     {% endif %}
-                    {% if flag.update({'flag': True}) %} {% endif %}
+
                 {% endfor %}
+
             </tr>
             {% endfor %}
         </tbody>
