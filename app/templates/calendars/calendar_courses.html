@@ -1,4 +1,4 @@
-{% extends "calendar.html" %}
+{% extends "calendars/calendar.html" %}
 
 {% block calendar %}
 
@@ -27,12 +27,13 @@
 
                     {% if found.update({'found': False}) %}{% endif %}
 
-                    {% for curr_turn, room in all_turns if not found.get('found') %}
+                    {% for curr_turn, course in all_turns if not found.get('found') %}
 
                         {% if curr_turn.day == schedule.day and curr_turn.from_hour == turn.from_hour
                                                             and curr_turn.to_hour == turn.to_hour %}
+
                             <td class="hover-bg ts-item">
-                                <h6>GYM</h6>
+                                <h6>{{ course.name }}</h6>
                                 <span>
                                     {{ turn.from_hour.strftime('%H:%M') }}-{{ turn.to_hour.strftime('%H:%M') }}
                                 </span>
@@ -41,27 +42,27 @@
 
                                     {% set tmp = {'already reserved': False} %}
                                     {% for res in current_user.reservations %}
-                                        {% if res.schedule_weightroom_id == curr_turn.id %}
+                                        {% if res.schedule_course_id == curr_turn.id %}
                                             <div class="trainer-name">Reserved</div>
                                             {% if tmp.update({'already_reserved': True}) %}{% endif %}
                                         {% endif %}
                                     {% endfor %}
 
-                                        {% if not tmp.get('already_reserved') %}
-                                            {% set tmp = {'num_res': 0} %}
-                                            {% for room, schedule, count in reservations_cnt
-                                               if schedule.id == curr_turn.id  %}
-                                                {% if tmp.update({'num_res': count}) %}{% endif %}
-                                            {% endfor %}
-                                            <div class="trainer-name">
-                                                {{ room.max_members - tmp.get('num_res') }} slots available
-                                            </div>
-                                            <label class="my-checkbox">
-                                                {% set checkbox = getattr(form, str(curr_turn.id)) %}
-                                                {{ checkbox }}
-                                            <span class="checkmark"></span>
-                                            </label>
-                                        {% endif %}
+                                    {% if not tmp.get('already_reserved') %}
+                                        {% set tmp = {'num_res': 0} %}
+                                        {% for course, schedule, count in reservations_cnt
+                                           if schedule.id == curr_turn.id %}
+                                            {% if tmp.update({'num_res': count}) %}{% endif %}
+                                        {% endfor %}
+                                        <div class="trainer-name">
+                                            {{ course.max_members - tmp.get('num_res') }} slots available
+                                        </div>
+                                        <label class="my-checkbox">
+                                            {% set checkbox = getattr(form, str(curr_turn.id)) %}
+                                            {{ checkbox }}
+                                        <span class="checkmark"></span>
+                                        </label>
+                                    {% endif %}
 
                                 {% endif %}
                             </td>
@@ -86,6 +87,7 @@
             </div>
         </div>
     {% endif %}
+
 </form>
 
 {% endblock %}>

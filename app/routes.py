@@ -137,7 +137,7 @@ def calendar_weightrooms():
         flash('All reservations were successfully saved', 'success')
         return redirect(url_for('calendar_reservations'))
 
-    return render_template('calendar_weightrooms.html', title='Gym', all_turns=all_turns.all(),
+    return render_template('calendars/calendar_weightrooms.html', title='Gym', all_turns=all_turns.all(),
                            schedules=all_turns.with_entities(SchedulesWeightRoom)
                            .distinct(SchedulesWeightRoom.day).all(),
                            turns=all_turns.with_entities(SchedulesWeightRoom)
@@ -190,7 +190,7 @@ def calendar_courses():
         flash('All reservations were successfully saved', 'success')
         return redirect(url_for('calendar_reservations'))
 
-    return render_template('calendar_courses.html', title='Courses', all_turns=all_turns.all(), form=form, str=str,
+    return render_template('calendars/calendar_courses.html', title='Courses', all_turns=all_turns.all(), form=form, str=str,
                            schedules=all_turns.with_entities(SchedulesCourse)
                            .distinct(SchedulesCourse.day).all(), reservations_cnt=reservations_cnt, getattr=getattr,
                            turns=all_turns.with_entities(SchedulesCourse)
@@ -246,7 +246,7 @@ def calendar_reservations():
         db.session.commit()
         flash('All reservations were successfully deleted', 'success')
         return redirect(url_for('calendar_reservations'))
-    return render_template('calendar_reservations.html', title='Reservations', days=sorted(days), turns=sorted(turns),
+    return render_template('calendars/calendar_reservations.html', title='Reservations', days=sorted(days), turns=sorted(turns),
                            res_courses=res_courses, res_weightrooms=res_weightrooms, form=form, str=str,
                            getattr=getattr)
 
@@ -261,7 +261,7 @@ def calendar_instructor():
     allturns = SchedulesCourse.query.all()
 
     flag = {'flag': True}
-    return render_template('calendar_instructor.html', title='Instructor', turns=turns, allturns=allturns,
+    return render_template('calendars/calendar_instructor.html', title='Instructor', turns=turns, allturns=allturns,
                            schedules=schedules, courses=courses, flag=flag)
 
 
