@@ -28,14 +28,30 @@
             <div class="col-lg-12">
                 <div class="nav-controls">
                     <ul>
-                        {% if current_user.role == 'instructor' %}
-                        <li><a href="{{ url_for('calendar_weightrooms') }}">GYM</a></li>
-                        <li><a href="{{ url_for('calendar_courses') }}">COURSES</a></li>
-                        <li><a href="{{ url_for('calendar_instructor') }}">YOUR COURSES</a></li>
+                        {% if title == 'Gym' %}
+                            <li><a class= "active" href="{{ url_for('calendar_weightrooms') }}">GYM</a></li>
                         {% else %}
-                        <li><a href="{{ url_for('calendar_weightrooms') }}">GYM</a></li>
-                        <li><a href="{{ url_for('calendar_courses') }}">COURSES</a></li>
-                        <li><a href="{{ url_for('calendar_reservations') }}">RESERVATIONS</a></li>
+                            <li><a href="{{ url_for('calendar_weightrooms') }}">GYM</a></li>
+                        {% endif %}
+
+                        {% if title == 'Courses' %}
+                            <li><a class="active" href="{{ url_for('calendar_courses') }}">COURSES</a></li>
+                        {% else %}
+                            <li><a href="{{ url_for('calendar_courses') }}">COURSES</a></li>
+                        {% endif %}
+
+                        {% if current_user.role == 'instructor' %}
+                            {% if title == 'Instructor'  %}
+                                <li><a class="active" href="{{ url_for('calendar_instructor') }}">MY COURSES</a></li>
+                            {% else %}
+                                <li><a href="{{ url_for('calendar_instructor') }}">MY COURSES</a></li>
+                            {% endif %}
+                        {% else %}
+                            {% if title == 'Reservations' %}
+                                <li><a class="active" href="{{ url_for('calendar_reservations') }}">MY RESERVATIONS</a></li>
+                            {% else %}
+                                <li><a href="{{ url_for('calendar_reservations') }}">MY RESERVATIONS</a></li>
+                            {% endif %}
                         {% endif %}
                     </ul>
                 </div>

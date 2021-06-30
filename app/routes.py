@@ -125,8 +125,8 @@ def calendar_weightrooms():
                         .add_columns(SchedulesCourse).filter(Reservations.user_id == current_user.social_number).all():
 
                     if sch.day == turn.day and sch.from_hour == turn.from_hour and sch.to_hour == turn.to_hour:
-                        flash('Some reservations were in conflict with your courses reservations'
-                              'so they were not saved', 'danger')
+                        flash('Some reservations were in conflict with your courses reservations' +
+                              ' so they were not saved', 'danger')
                         return redirect(url_for('calendar_weightrooms'))
 
                 reservation = Reservations(user_id=current_user.social_number, schedule_weightroom_id=turn.id,
@@ -138,7 +138,7 @@ def calendar_weightrooms():
 
     return render_template('calendars/calendar_weightrooms.html', title='Gym', all_turns=all_turns.all(),
                            schedules=all_turns.with_entities(SchedulesWeightRoom)
-                           .distinct(SchedulesWeightRoom.day).all(),
+                           .distinct(SchedulesWeightRoom.day).limit(7).all(),
                            turns=all_turns.with_entities(SchedulesWeightRoom)
                            .distinct(SchedulesWeightRoom.from_hour, SchedulesWeightRoom.to_hour).all(),
                            reservations_cnt=reservations_cnt, form=form, getattr=getattr, str=str)
@@ -190,9 +190,10 @@ def calendar_courses():
 
     return render_template('calendars/calendar_courses.html', title='Courses', all_turns=all_turns.all(), form=form,
                            schedules=all_turns.with_entities(SchedulesCourse)
-                           .distinct(SchedulesCourse.day).all(), reservations_cnt=reservations_cnt, getattr=getattr,
+                           .distinct(SchedulesCourse.day).limit(7).all(), reservations_cnt=reservations_cnt,
                            turns=all_turns.with_entities(SchedulesCourse)
-                           .distinct(SchedulesCourse.from_hour, SchedulesCourse.to_hour).all(), str=str)
+                           .distinct(SchedulesCourse.from_hour, SchedulesCourse.to_hour).all(), str=str,
+                           getattr=getattr)
 
 
 @app.route('/calendar/reservations', methods=['GET', 'POST'])
@@ -275,11 +276,10 @@ def calendar_instructor():
         flash('All schedules were successfully deleted', 'success')
         return redirect(url_for('calendar_instructor'))
 
-    return render_template('calendars/calendar_instructor.html', title='Instructor',
+    return render_template('calendars/calendar_instructor.html', title='Instructor', str=str, getattr=getattr,
                            turns=schedules.with_entities(SchedulesCourse).distinct(SchedulesCourse.from_hour).all(),
                            schedules=schedules.with_entities(SchedulesCourse)
-                           .distinct(SchedulesCourse.day).limit(7).all(),
-                           all_turns=schedules.all(), form=form, str=str, getattr=getattr)
+                           .distinct(SchedulesCourse.day).limit(7).all(), all_turns=schedules.all(), form=form)
 
 
 @app.route('/course/create', methods=['GET', 'POST'])
