@@ -246,9 +246,9 @@ def calendar_reservations():
         db.session.commit()
         flash('All reservations were successfully deleted', 'success')
         return redirect(url_for('calendar_reservations'))
-    return render_template('calendars/calendar_reservations.html', title='Reservations', days=sorted(days), turns=sorted(turns),
-                           res_courses=res_courses, res_weightrooms=res_weightrooms, form=form, str=str,
-                           getattr=getattr)
+    return render_template('calendars/calendar_reservations.html', title='Reservations', days=sorted(days),
+                           turns=sorted(turns), res_courses=res_courses, res_weightrooms=res_weightrooms, form=form,
+                           str=str, getattr=getattr)
 
 
 @app.route('/calendar/instructor')
