@@ -1,10 +1,10 @@
-import itertools
 from datetime import datetime
 
 from flask import render_template, url_for, redirect, flash
 from flask_login import login_user, current_user, logout_user, login_required
+from flask_wtf import FlaskForm
 from sqlalchemy import func
-from wtforms import BooleanField
+from wtforms import BooleanField, SubmitField
 
 from app import app, db, bcrypt
 from app.forms import RegistrationForm, LoginForm, EditProfileForm, ReservationForm, CreateCourse, AddEventCourse, \
@@ -120,7 +120,6 @@ def calendar_weightrooms():
     if form.validate_on_submit():
         for turn, weightroom in all_turns.all():
             if getattr(form, str(turn.id)).data:
-
                 for res, sch in Reservations.query \
                         .join(SchedulesCourse, Reservations.schedule_course_id == SchedulesCourse.id) \
                         .add_columns(SchedulesCourse).filter(Reservations.user_id == current_user.social_number).all():
@@ -171,7 +170,6 @@ def calendar_courses():
     if form.validate_on_submit():
         for turn, course in all_turns.all():
             if getattr(form, str(turn.id)).data:
-
                 for reservation, schedule in Reservations.query \
                         .join(SchedulesWeightRoom, Reservations.schedule_weightroom_id == SchedulesWeightRoom.id) \
                         .add_columns(SchedulesWeightRoom) \
@@ -190,11 +188,11 @@ def calendar_courses():
         flash('All reservations were successfully saved', 'success')
         return redirect(url_for('calendar_reservations'))
 
-    return render_template('calendars/calendar_courses.html', title='Courses', all_turns=all_turns.all(), form=form, str=str,
+    return render_template('calendars/calendar_courses.html', title='Courses', all_turns=all_turns.all(), form=form,
                            schedules=all_turns.with_entities(SchedulesCourse)
                            .distinct(SchedulesCourse.day).all(), reservations_cnt=reservations_cnt, getattr=getattr,
                            turns=all_turns.with_entities(SchedulesCourse)
-                           .distinct(SchedulesCourse.from_hour, SchedulesCourse.to_hour).all())
+                           .distinct(SchedulesCourse.from_hour, SchedulesCourse.to_hour).all(), str=str)
 
 
 @app.route('/calendar/reservations', methods=['GET', 'POST'])
@@ -251,18 +249,37 @@ def calendar_reservations():
                            str=str, getattr=getattr)
 
 
-@app.route('/calendar/instructor')
+@app.route('/calendar/instructor', methods=['GET', 'POST'])
 @login_required
 @requires_roles('instructor')
 def calendar_instructor():
-    turns = SchedulesCourse.query.distinct(SchedulesCourse.from_hour, SchedulesCourse.to_hour).all()
-    schedules = SchedulesCourse.query.distinct(SchedulesCourse.day).limit(7).all()
-    courses = Courses.query.filter_by(instructor_id=current_user.social_number)
-    allturns = SchedulesCourse.query.all()
+    schedules = Courses.query.select_from(Courses)\
+        .join(SchedulesCourse, Courses.id == SchedulesCourse.course_id)\
+        .add_columns(SchedulesCourse)\
+        .filter(Courses.instructor_id == current_user.social_number)
 
-    flag = {'flag': True}
-    return render_template('calendars/calendar_instructor.html', title='Instructor', turns=turns, allturns=allturns,
-                           schedules=schedules, courses=courses, flag=flag)
+    class Form(FlaskForm):
+        submit = SubmitField('Delete')
+
+    for course, schedule in schedules:
+        setattr(Form, str(schedule.id), BooleanField())
+
+    form = Form()
+
+    if form.validate_on_submit():
+        for course, schedule in schedules:
+            if getattr(form, str(schedule.id)).data:
+                db.session.delete(SchedulesCourse.query.filter_by(day=schedule.day, from_hour=schedule.from_hour,
+                                                                  to_hour=schedule.to_hour).first())
+        db.session.commit()
+        flash('All schedules were successfully deleted', 'success')
+        return redirect(url_for('calendar_instructor'))
+
+    return render_template('calendars/calendar_instructor.html', title='Instructor',
+                           turns=schedules.with_entities(SchedulesCourse).distinct(SchedulesCourse.from_hour).all(),
+                           schedules=schedules.with_entities(SchedulesCourse)
+                           .distinct(SchedulesCourse.day).limit(7).all(),
+                           all_turns=schedules.all(), form=form, str=str, getattr=getattr)
 
 
 @app.route('/course/create', methods=['GET', 'POST'])

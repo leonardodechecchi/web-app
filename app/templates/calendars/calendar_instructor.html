@@ -2,51 +2,68 @@
 
 {% block calendar %}
 
-<table>
-
-    <thead>
-        <tr>
-            <th></th>
-            {% for schedule in schedules %}
-                <th>
-                    {{ schedule.day.strftime('%A') }}<br>
-                    {{ schedule.day.strftime('%m-%d') }}
-                </th>
-            {% endfor %}
-        </tr>
-    </thead>
-
-    <tbody>
-        {% for turn in turns %}
-        <tr>
-            <td class="workout-time">
-                {{ turn.from_hour.strftime("%H:%M") }}-{{ turn.to_hour.strftime("%H:%M") }}
-            </td>
-            {% for schedule in schedules %}
-                {% for allturn in allturns %}
-                    {% if allturn.day == schedule.day and allturn.from_hour == schedule.from_hour and allturn.to_hour == schedule.to_hour %}
-                        {% if flag.update({'flag': False}) %} {% endif %}
-                        <!-- PRINT CELL -->
-                        <td class="hover-bg ts-item">
-                            <h6></h6>
-                            <span>{{ turn.from_hour.strftime("%H:%M") }}-{{ turn.to_hour.strftime("%H:%M") }}</span>
-                            <div class="trainer-name">
-                                20 slots available
-                            </div>
-                        </td>
-                        {% if flag.flag %}
-                        <td class="hover-bg ts-item">
-                            <!-- EMPTY CELL -->
-                        </td>
-                        {% endif %}
-                    {% endif %}
-                    {% if flag.update({'flag': True}) %} {% endif %}
+<form action="" method="POST" class="">
+    {{ form.hidden_tag() }}
+    {% set found = {'found': False} %}
+    <table>
+        <thead>
+            <tr>
+                <th></th>
+                {% for schedule in schedules %}
+                    <th>
+                        {{ schedule.day.strftime('%A') }}<br>
+                        {{ schedule.day.strftime('%m-%d') }}
+                    </th>
                 {% endfor %}
-            {% endfor %}
-        </tr>
-        {% endfor %}
-    </tbody>
+            </tr>
+        </thead>
+        <tbody>
+            {% for turn in turns %}
+            <tr>
+                <td class="workout-time">
+                    {{ turn.from_hour.strftime("%H:%M") }}-{{ turn.to_hour.strftime("%H:%M") }}
+                </td>
+                {% for schedule in schedules %}
 
-</table>
+                    {% if found.update({'found': False}) %}{% endif %}
+
+                    {% for course, schedule_course in all_turns if not found.get('found') %}
+
+                        {% if schedule_course.day == schedule.day and schedule_course.from_hour == turn.from_hour
+                                                                  and schedule_course.to_hour == turn.to_hour %}
+                            <td class="hover-bg ts-item">
+                                <h6>{{ course.name }}</h6>
+                                <span>{{ schedule_course.from_hour.strftime("%H:%M") }}-
+                                    {{ schedule_course.to_hour.strftime("%H:%M") }}
+                                </span>
+                                <div class="trainer-name"></div>
+                                <label class="my-checkbox">
+                                    {% set checkbox = getattr(form, str(schedule_course.id)) %}
+                                    {{ checkbox }}
+                                <span class="checkmark"></span>
+                                </label>
+                            </td>
+                            {% if found.update({'found': True}) %}{% endif %}
+                        {% endif %}
+
+                    {% endfor %}
+
+                    {% if not found.get('found') %}
+                        <td class="hover-bg ts-item"></td>
+                    {% endif %}
+
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="calendar-submit">
+        <div class="calendar-form">
+            {{ form.submit(class="register-btn") }}
+        </div>
+    </div>
+
+</form>
 
 {% endblock %}>
