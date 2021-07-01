@@ -56,7 +56,7 @@
                                             <div class="trainer-name">
                                                 {{ room.max_members - tmp.get('num_res') }} slots available
                                             </div>
-                                            {% if course.max_members - tmp.get('num_res') > 0 %}
+                                            {% if room.max_members - tmp.get('num_res') > 0 %}
                                             <label class="my-checkbox">
                                                 {% set checkbox = getattr(form, str(curr_turn.id)) %}
                                                 {{ checkbox }}
