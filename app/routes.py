@@ -109,8 +109,13 @@ def calendar_weightrooms():
         .join(WeightRooms, SchedulesWeightRoom.weightroom_id == WeightRooms.id) \
         .group_by(WeightRooms.id, SchedulesWeightRoom.id).all()
 
-    class F(ReservationForm):
-        pass
+    if current_user.role == 'instructor':
+        submit_str = 'Delete'
+    if current_user.role == 'member':
+        submit_str = 'Reserve Now'
+
+    class F(FlaskForm):
+        submit = SubmitField(submit_str)
 
     for turn, weightroom in all_turns.all():
         setattr(F, str(turn.id), BooleanField())
@@ -120,21 +125,29 @@ def calendar_weightrooms():
     if form.validate_on_submit():
         for turn, weightroom in all_turns.all():
             if getattr(form, str(turn.id)).data:
-                for res, sch in Reservations.query \
-                        .join(SchedulesCourse, Reservations.schedule_course_id == SchedulesCourse.id) \
-                        .add_columns(SchedulesCourse).filter(Reservations.user_id == current_user.social_number).all():
+                if current_user.role == 'member':
+                    for res, sch in Reservations.query \
+                            .join(SchedulesCourse, Reservations.schedule_course_id == SchedulesCourse.id) \
+                            .add_columns(SchedulesCourse).filter(Reservations.user_id == current_user.social_number).all():
 
-                    if sch.day == turn.day and sch.from_hour == turn.from_hour and sch.to_hour == turn.to_hour:
-                        flash('Some reservations were in conflict with your courses reservations' +
-                              ' so they were not saved', 'danger')
-                        return redirect(url_for('calendar_weightrooms'))
+                        if sch.day == turn.day and sch.from_hour == turn.from_hour and sch.to_hour == turn.to_hour:
+                            flash('Some reservations were in conflict with your courses reservations' +
+                                  ' so they were not saved', 'danger')
+                            return redirect(url_for('calendar_weightrooms'))
 
-                reservation = Reservations(user_id=current_user.social_number, schedule_weightroom_id=turn.id,
-                                           schedule_course_id=None)
-                db.session.add(reservation)
+                    reservation = Reservations(user_id=current_user.social_number, schedule_weightroom_id=turn.id,
+                                               schedule_course_id=None)
+                    db.session.add(reservation)
+                if current_user.role == 'instructor':
+                    db.session.delete(SchedulesWeightRoom.query.filter_by(day=turn.day, from_hour=turn.from_hour,
+                                                                          to_hour=turn.to_hour).first())
         db.session.commit()
-        flash('All reservations were successfully saved', 'success')
-        return redirect(url_for('calendar_reservations'))
+        if current_user.role == 'member':
+            flash('All reservations were successfully saved', 'success')
+            return redirect(url_for('calendar_reservations'))
+        if current_user.role == 'instructor':
+            flash('All schedules were successfully deleted', 'success')
+            return redirect(url_for('calendar_weightrooms'))
 
     return render_template('calendars/calendar_weightrooms.html', title='Gym', all_turns=all_turns.all(),
                            schedules=all_turns.with_entities(SchedulesWeightRoom)
