@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from flask import render_template, url_for, redirect, flash
 from flask_login import login_user, current_user, logout_user, login_required
@@ -101,7 +101,9 @@ def calendar_weightrooms():
         .join(WeightRooms, SchedulesWeightRoom.weightroom_id == WeightRooms.id) \
         .add_columns(WeightRooms) \
         .filter(SchedulesWeightRoom.day >= datetime(datetime.today().year, datetime.today().month,
-                                                    datetime.today().day))
+                                                    datetime.today().day),
+                SchedulesWeightRoom.day <= datetime(datetime.today().year, datetime.today().month,
+                                                    datetime.today().day) + timedelta(days=7))
 
     reservations_cnt = Reservations.query.with_entities(WeightRooms, SchedulesWeightRoom,
                                                         func.count(Reservations.schedule_weightroom_id).label('count'))\
@@ -164,7 +166,9 @@ def calendar_courses():
         .join(Courses, SchedulesCourse.course_id == Courses.id) \
         .add_columns(Courses) \
         .filter(SchedulesCourse.day >= datetime(datetime.today().year, datetime.today().month,
-                                                datetime.today().day))
+                                                datetime.today().day),
+                SchedulesCourse.day <= datetime(datetime.today().year, datetime.today().month,
+                                                datetime.today().day) + timedelta(days=7))
 
     reservations_cnt = Reservations.query.with_entities(Courses, SchedulesCourse,
                                                         func.count(Reservations.schedule_course_id).label('count')) \
@@ -217,12 +221,20 @@ def calendar_reservations():
         .join(SchedulesCourse, Reservations.schedule_course_id == SchedulesCourse.id)\
         .join(Courses, SchedulesCourse.course_id == Courses.id)\
         .add_columns(SchedulesCourse, Courses)\
-        .filter(Reservations.user_id == current_user.social_number).all()
+        .filter(Reservations.user_id == current_user.social_number,
+                SchedulesCourse.day >= datetime(datetime.today().year, datetime.today().month,
+                                                datetime.today().day),
+                SchedulesCourse.day <= datetime(datetime.today().year, datetime.today().month,
+                                                datetime.today().day) + timedelta(days=7)).all()
 
     res_weightrooms = Reservations.query\
         .join(SchedulesWeightRoom, Reservations.schedule_weightroom_id == SchedulesWeightRoom.id) \
         .add_columns(SchedulesWeightRoom)\
-        .filter(Reservations.user_id == current_user.social_number).all()
+        .filter(Reservations.user_id == current_user.social_number,
+                SchedulesWeightRoom.day >= datetime(datetime.today().year, datetime.today().month,
+                                                    datetime.today().day),
+                SchedulesWeightRoom.day <= datetime(datetime.today().year, datetime.today().month,
+                                                    datetime.today().day) + timedelta(days=7)).all()
 
     turns = []
     days = []
