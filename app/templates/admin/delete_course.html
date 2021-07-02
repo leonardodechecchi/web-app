@@ -34,12 +34,14 @@
                     <ul>
                         {% for course in courses %}
                             <li>
-                                <h6>{{ course.name }}</h6>
-                                <label class="my-checkbox">
-                                    {% set checkbox = getattr(form, str(course.id)) %}
-                                    {{ checkbox }}
-                                <span class="checkmark"></span>
-                                </label>
+                                <div class="ts-item">
+                                    <h6>{{ course.name }}</h6>
+                                    <label class="my-checkbox">
+                                        {% set checkbox = getattr(form, str(course.id)) %}
+                                        {{ checkbox }}
+                                    <span class="checkmark"></span>
+                                    </label>
+                                </div>
                             </li>
                         {% endfor %}
                     </ul>
