@@ -31,20 +31,20 @@
             <form action="" method="POST" class="">
                 {{ form.hidden_tag() }}
                 <fieldset>
-                    <ul>
-                        {% for course in courses %}
-                            <li>
-                                <div class="ts-item">
-                                    <h6>{{ course.name }}</h6>
-                                    <label class="my-checkbox">
-                                        {% set checkbox = getattr(form, str(course.id)) %}
-                                        {{ checkbox }}
-                                    <span class="checkmark"></span>
-                                    </label>
-                                </div>
-                            </li>
-                        {% endfor %}
-                    </ul>
+
+                    {% for course in courses %}
+
+                        <div class="ts-item">
+                            <label class="my-checkbox">
+                                {% set checkbox = getattr(form, str(course.id)) %}
+                                {{ checkbox }}
+                                <h6>{{ checkbox.label }}</h6>
+                            <span class="checkmark"></span>
+                            </label>
+                        </div>
+
+                    {% endfor %}
+
                 </fieldset>
 
             <div class="calendar-submit">

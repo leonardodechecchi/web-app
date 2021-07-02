@@ -25,7 +25,7 @@ def calendar_weightrooms():
                                                     datetime.today().day) + timedelta(days=7))
 
     reservations_cnt = Reservations.query.with_entities(WeightRooms, SchedulesWeightRoom,
-                                                        func.count(Reservations.schedule_weightroom_id).label('count')) \
+                                                        func.count(Reservations.schedule_weightroom_id).label('count'))\
         .join(SchedulesWeightRoom, Reservations.schedule_weightroom_id == SchedulesWeightRoom.id) \
         .join(WeightRooms, SchedulesWeightRoom.weightroom_id == WeightRooms.id) \
         .group_by(WeightRooms.id, SchedulesWeightRoom.id).all()
@@ -54,7 +54,7 @@ def calendar_weightrooms():
                         if sch.day == turn.day and sch.from_hour == turn.from_hour and sch.to_hour == turn.to_hour:
                             flash('Some reservations were in conflict with your courses reservations' +
                                   ' so they were not saved', 'danger')
-                            return redirect(url_for('calendar_weightrooms'))
+                            return redirect(url_for('calendars.calendar_weightrooms'))
 
                     reservation = Reservations(user_id=current_user.social_number, schedule_weightroom_id=turn.id,
                                                schedule_course_id=None)

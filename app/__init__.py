@@ -5,6 +5,10 @@ from flask_login import LoginManager
 
 from app.config import DATABASE_URI
 
+# Leonardo De Checchi 882376
+# Simone Bozzolan 878352
+# Gruppo : Poca Fantasia
+
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '5fd9b065b5a8ec13542a15bf09a7d92e'
 app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URI

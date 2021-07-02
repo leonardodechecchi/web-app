@@ -118,7 +118,7 @@ def delete_course():
         submit = SubmitField('Delete Selected Courses')
 
     for course in courses:
-        setattr(F, str(course.id), BooleanField())
+        setattr(F, str(course.id), BooleanField(f'{course.name}'))
 
     form = F()
 
