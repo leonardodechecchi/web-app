@@ -104,3 +104,10 @@ def course_add_event():
                 return redirect(url_for('calendars.calendar_courses'))
 
     return render_template('admin/add_event.html', form=form)
+
+
+@admin.route('/course/delete', methods=['GET', 'POST'])
+@login_required
+@requires_roles('instructor')
+def delete_course():
+    return render_template('admin/delete_course.html')
