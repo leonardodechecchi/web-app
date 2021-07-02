@@ -26,19 +26,18 @@
         <div class="container">
             <div class="register-text">
                     <div class="register-form">
-                        <a href="{{ url_for('course_create') }}" class="primary-btn2 signup-btn">CREATE COURSE</a>
-                        <a href="{{ url_for('weightroom_create') }}" class="primary-btn2 signup-btn">
+                        <a href="{{ url_for('admin.course_create') }}" class="primary-btn2 signup-btn">CREATE COURSE</a>
+                        <a href="{{ url_for('admin.weightroom_create') }}" class="primary-btn2 signup-btn">
                             CREATE WEIGHTROOM</a>
-                        <a href="{{ url_for('course_add_event') }}" class="primary-btn2 signup-btn">
+                        <a href="{{ url_for('admin.course_add_event') }}" class="primary-btn2 signup-btn">
                             ADD COURSE SCHEDULING</a>
-                        <a href="{{ url_for('weightroom_add_event') }}" class="primary-btn2 signup-btn">
+                        <a href="{{ url_for('admin.weightroom_add_event') }}" class="primary-btn2 signup-btn">
                             ADD WEIGHTROOM SCHEDULING</a>
-                        <a href="{{ url_for('weightroom_add_event') }}" class="primary-btn2 signup-btn">
+                        <a href="{{ url_for('admin.weightroom_add_event') }}" class="primary-btn2 signup-btn">
                             DELETE COURSE</a>
                     </div>
             </div>
         </div>
-
 </section>
 
 {% endblock %}

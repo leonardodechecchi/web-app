@@ -1,10 +1,10 @@
 from flask_login import current_user
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, BooleanField, IntegerField, TimeField, DateField
-from wtforms.validators import DataRequired, Length, EqualTo, Email, ValidationError
+from wtforms import StringField, PasswordField, SubmitField, BooleanField
+from wtforms.validators import Length, DataRequired, Email, EqualTo, ValidationError
 
 from app import bcrypt
-from app.models import User, Courses
+from app.models import User
 
 
 class RegistrationForm(FlaskForm):
@@ -57,50 +57,3 @@ class EditProfileForm(RegistrationForm):
         user = User.query.filter_by(social_number=current_user.social_number).first()
         if not bcrypt.check_password_hash(user.password, oldpassword.data):
             raise ValidationError('Wrong password')
-
-
-class ReservationForm(FlaskForm):
-    submit = SubmitField('Reserve Now')
-
-
-class CancelReservationForm(FlaskForm):
-    submit = SubmitField('Cancel Selected Reservations')
-
-
-class CreateCourse(FlaskForm):
-    name = StringField('Courses Name', validators=[DataRequired()])
-    max_members = IntegerField('Max Members Allowed', validators=[DataRequired()])
-    submit = SubmitField('Create')
-
-    def validate_name(self, name):
-        if name:
-            course = Courses.query.filter_by(name=name.data).first()
-            if course:
-                raise ValidationError('That course already exists')
-
-
-class AddEventCourse(FlaskForm):
-    name = StringField('Courses Name', validators=[DataRequired()])
-    date = DateField('Date (yyyy-mm-dd)')
-    turn_start = TimeField('Courses Start (hh:mm)')
-    turn_end = TimeField('Courses End (hh:mm)')
-    submit = SubmitField('Insert')
-
-    def validate_name(self, name):
-        if name:
-            course = Courses.query.filter_by(name=name.data).first()
-            if not course:
-                raise ValidationError('That course does not exist. Please insert an existing course')
-
-
-class CreateWeightRoom(FlaskForm):
-    max_members = IntegerField('Max Members Allowed', validators=[DataRequired()])
-    dimension = IntegerField('Dimension of the room in square meters', validators=[DataRequired()])
-    submit = SubmitField('Create')
-
-
-class AddEventGym(FlaskForm):
-    date = DateField('Date (yyyy-mm-dd)')
-    turn_start = TimeField('Courses Start (hh:mm)')
-    turn_end = TimeField('Courses End (hh:mm)')
-    submit = SubmitField('Insert')

@@ -2,7 +2,6 @@
 
 {% block breadcrumb %}
 
-<!-- Breadcrumb Section Begin -->
 <section class="breadcrumb-section set-bg"
     data-setbg="{{ url_for('static', filename='img/breadcrumb/classes-breadcrumb.jpg') }}">
     <div class=" container">
@@ -11,7 +10,7 @@
                 <div class="breadcrumb-text">
                     <h2>Admin - Courses</h2>
                     <div class="breadcrumb-option">
-                        <a href="{{ url_for('home') }}"><i class="fa fa-home"></i> Home</a>
+                        <a href="{{ url_for('main.home') }}"><i class="fa fa-home"></i> Home</a>
                         <span>Admin - Courses</span>
                     </div>
                 </div>
@@ -19,12 +18,10 @@
         </div>
     </div>
 </section>
-<!-- Breadcrumb Section End -->
 
 {% endblock %}
 {% block content %}
 
-<!-- Register Section Begin -->
 <section class="register-section spad">
     <div class="container">
         <div class="register-text">
@@ -35,7 +32,7 @@
                 {{ form.hidden_tag() }}
                 <fieldset>
 
-                    <!-- Name -->
+                    {# Name #}
                     <div class="register-form">
                         {{ form.name.label }}
                         {% if form.name.errors %}
@@ -50,7 +47,7 @@
                         {% endif %}
                     </div>
 
-                    <!-- Max Members -->
+                    {# Max Members #}
                     <div class="register-form">
                         {{ form.max_members.label }}
                         {% if form.max_members.errors %}

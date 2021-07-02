@@ -2,7 +2,6 @@
 
 {% block breadcrumb %}
 
-<!-- Breadcrumb Section Begin -->
 <section class="breadcrumb-section set-bg"
     data-setbg="{{ url_for('static', filename='img/breadcrumb/classes-breadcrumb.jpg') }}">
     <div class="container">
@@ -11,7 +10,7 @@
                 <div class="breadcrumb-text">
                     <h2>Profile</h2>
                     <div class="breadcrumb-option">
-                        <a href="{{ url_for('home') }}"><i class="fa fa-home"></i>Home</a>
+                        <a href="{{ url_for('main.home') }}"><i class="fa fa-home"></i>Home</a>
                         <span>Profile</span>
                     </div>
                 </div>
@@ -19,12 +18,10 @@
         </div>
     </div>
 </section>
-<!-- Breadcrumb Section End -->
 
 {% endblock %}
 {% block content %}
 
-<!-- Register Section Begin -->
 <section class="register-section spad">
     <div class="container">
         <div class="register-text">
@@ -36,7 +33,7 @@
                 <fieldset>
 
                     <div class="register-form">
-                        <!-- Name -->
+                        {# name #}
                         {{ form.name.label }}
                         {% if form.name.errors %}
                         {{ form.name(class="is-invalid") }}
@@ -49,7 +46,7 @@
                         {{ form.name }}
                         {% endif %}
 
-                        <!-- Surname -->
+                        {# surname #}
                         {{ form.surname.label }}
                         {% if form.surname.errors %}
                         {{ form.surname(class="is-invalid") }}
@@ -62,7 +59,7 @@
                         {{ form.surname }}
                         {% endif %}
 
-                        <!-- Social Number -->
+                        {# social number #}
                         {{ form.social_number.label }}
                         {% if form.social_number.errors %}
                         {{ form.social_number(class="is-invalid") }}
@@ -75,7 +72,7 @@
                         {{ form.social_number }}
                         {% endif %}
 
-                        <!-- Email -->
+                        {# email #}
                         {{ form.email.label }}
                         {% if form.email.errors %}
                         {{ form.email(class="is-invalid") }}
@@ -88,7 +85,7 @@
                         {{ form.email }}
                         {% endif %}
 
-                        <!-- Password -->
+                        {# password #}
                         {{ form.password.label }}
                         {% if form.password.errors %}
                         {{ form.password(class="is-invalid") }}
@@ -101,7 +98,7 @@
                         {{ form.password }}
                         {% endif %}
 
-                        <!-- Confirm Password -->
+                        {# confirm password #}
                         {{ form.confirm_password.label }}
                         {% if form.confirm_password.errors %}
                         {{ form.confirm_password(class="is-invalid") }}
@@ -114,7 +111,7 @@
                         {{ form.confirm_password }}
                         {% endif %}
 
-                        <!-- Old Password -->
+                        {# old password #}
                         {{ form.oldpassword.label }}
                         {% if form.oldpassword.errors %}
                         {{ form.oldpassword(class="is-invalid") }}
@@ -137,6 +134,5 @@
         </div>
     </div>
 </section>
-<!-- Register Section End -->
 
 {% endblock %}

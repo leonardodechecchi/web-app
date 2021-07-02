@@ -10,7 +10,7 @@
                 <div class="breadcrumb-text">
                     <h2>{{ title }} Calendar</h2>
                     <div class="breadcrumb-option">
-                        <a href="{{ url_for('home') }}"><i class="fa fa-home"></i> Home</a>
+                        <a href="{{ url_for('main.home') }}"><i class="fa fa-home"></i> Home</a>
                         <span>{{ title }} Calendar</span>
                     </div>
                 </div>
@@ -29,28 +29,28 @@
                 <div class="nav-controls">
                     <ul>
                         {% if title == 'Gym' %}
-                            <li><a class= "active" href="{{ url_for('calendar_weightrooms') }}">GYM</a></li>
+                            <li><a class= "active" href="{{ url_for('calendars.calendar_weightrooms') }}">GYM</a></li>
                         {% else %}
-                            <li><a href="{{ url_for('calendar_weightrooms') }}">GYM</a></li>
+                            <li><a href="{{ url_for('calendars.calendar_weightrooms') }}">GYM</a></li>
                         {% endif %}
 
                         {% if title == 'Courses' %}
-                            <li><a class="active" href="{{ url_for('calendar_courses') }}">COURSES</a></li>
+                            <li><a class="active" href="{{ url_for('calendars.calendar_courses') }}">COURSES</a></li>
                         {% else %}
-                            <li><a href="{{ url_for('calendar_courses') }}">COURSES</a></li>
+                            <li><a href="{{ url_for('calendars.calendar_courses') }}">COURSES</a></li>
                         {% endif %}
 
                         {% if current_user.role == 'instructor' %}
                             {% if title == 'Instructor'  %}
-                                <li><a class="active" href="{{ url_for('calendar_instructor') }}">MY COURSES</a></li>
+                                <li><a class="active" href="{{ url_for('calendars.calendar_instructor') }}">MY COURSES</a></li>
                             {% else %}
-                                <li><a href="{{ url_for('calendar_instructor') }}">MY COURSES</a></li>
+                                <li><a href="{{ url_for('calendars.calendar_instructor') }}">MY COURSES</a></li>
                             {% endif %}
                         {% else %}
                             {% if title == 'Reservations' %}
-                                <li><a class="active" href="{{ url_for('calendar_reservations') }}">MY RESERVATIONS</a></li>
+                                <li><a class="active" href="{{ url_for('calendars.calendar_reservations') }}">MY RESERVATIONS</a></li>
                             {% else %}
-                                <li><a href="{{ url_for('calendar_reservations') }}">MY RESERVATIONS</a></li>
+                                <li><a href="{{ url_for('calendars.calendar_reservations') }}">MY RESERVATIONS</a></li>
                             {% endif %}
                         {% endif %}
                     </ul>
