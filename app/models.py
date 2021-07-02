@@ -81,7 +81,7 @@ class SchedulesCourse(db.Model):
     to_hour = db.Column(db.TIME, nullable=False)
 
     # Relationships
-    reservations = db.relationship('Reservations', backref='schedules_course', passive_deletes=True, lazy=True)  # needed?
+    reservations = db.relationship('Reservations', backref='schedules_course', passive_deletes=True, lazy=True)
 
     # ForeignKey
     course_id = db.Column(db.Integer, db.ForeignKey('Courses.id', ondelete='CASCADE'))

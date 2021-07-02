@@ -8,10 +8,10 @@
         <div class="row">
             <div class="col-lg-12">
                 <div class="breadcrumb-text">
-                    <h2>Admin - Courses</h2>
+                    <h2>Admin - Delete Courses</h2>
                     <div class="breadcrumb-option">
                         <a href="{{ url_for('main.home') }}"><i class="fa fa-home"></i> Home</a>
-                        <span>Admin - Courses</span>
+                        <span>Admin - Delete Courses</span>
                     </div>
                 </div>
             </div>
@@ -31,11 +31,25 @@
             <form action="" method="POST" class="">
                 {{ form.hidden_tag() }}
                 <fieldset>
-
-
-
+                    <ul>
+                        {% for course in courses %}
+                            <li>
+                                <h6>{{ course.name }}</h6>
+                                <label class="my-checkbox">
+                                    {% set checkbox = getattr(form, str(course.id)) %}
+                                    {{ checkbox }}
+                                <span class="checkmark"></span>
+                                </label>
+                            </li>
+                        {% endfor %}
+                    </ul>
                 </fieldset>
 
+            <div class="calendar-submit">
+                <div class="calendar-form">
+                    {{ form.submit(class="register-btn") }}
+                </div>
+            </div>
             </form>
 
         </div>

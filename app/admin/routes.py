@@ -1,5 +1,7 @@
 from flask import Blueprint, render_template, flash, redirect, url_for
 from flask_login import current_user, login_required
+from flask_wtf import FlaskForm
+from wtforms import SubmitField, BooleanField
 
 from app import db
 from app.admin.forms import CreateWeightRoom, AddEventGym, CreateCourse, AddEventCourse
@@ -110,4 +112,22 @@ def course_add_event():
 @login_required
 @requires_roles('instructor')
 def delete_course():
-    return render_template('admin/delete_course.html')
+    courses = Courses.query.filter_by(instructor_id=current_user.social_number).all()
+
+    class F(FlaskForm):
+        submit = SubmitField('Delete Selected Courses')
+
+    for course in courses:
+        setattr(F, str(course.id), BooleanField())
+
+    form = F()
+
+    if form.validate_on_submit():
+        for course in courses:
+            if getattr(form, str(course.id)).data:
+                db.session.delete(Courses.query.filter_by(id=course.id).first())
+        db.session.commit()
+        flash('All courses were successfully deleted', 'success')
+        return redirect(url_for('admin.dashboard'))
+
+    return render_template('admin/delete_course.html', courses=courses, form=form, getattr=getattr, str=str)

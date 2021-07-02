@@ -65,10 +65,10 @@ def calendar_weightrooms():
         db.session.commit()
         if current_user.role == 'member':
             flash('All reservations were successfully saved', 'success')
-            return redirect(url_for('calendar_reservations'))
+            return redirect(url_for('calendars.calendar_reservations'))
         if current_user.role == 'instructor':
             flash('All schedules were successfully deleted', 'success')
-            return redirect(url_for('calendar_weightrooms'))
+            return redirect(url_for('calendars.calendar_weightrooms'))
 
     return render_template('calendars/calendar_weightrooms.html', title='Gym', all_turns=all_turns.all(),
                            schedules=all_turns.with_entities(SchedulesWeightRoom)
@@ -203,8 +203,8 @@ def calendar_instructor():
         .add_columns(SchedulesCourse) \
         .filter(Courses.instructor_id == current_user.social_number)
 
-    class Form(CalendarForm):
-        pass
+    class Form(FlaskForm):
+        submit = SubmitField('Delete Selected Schedules')
 
     for course, schedule in schedules:
         setattr(Form, str(schedule.id), BooleanField())
