@@ -158,8 +158,8 @@ def calendar_reservations():
     turns = []
     days = []
 
-    class Form(CalendarForm):
-        pass
+    class Form(FlaskForm):
+        submit = SubmitField('Cancel Selected Reservations')
 
     for reservation, schedule, course in res_courses:
         if (schedule.from_hour, schedule.to_hour) not in turns:
