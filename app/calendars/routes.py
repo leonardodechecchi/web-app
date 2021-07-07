@@ -201,7 +201,11 @@ def calendar_instructor():
     schedules = Courses.query.select_from(Courses) \
         .join(SchedulesCourse, Courses.id == SchedulesCourse.course_id) \
         .add_columns(SchedulesCourse) \
-        .filter(Courses.instructor_id == current_user.social_number)
+        .filter(Courses.instructor_id == current_user.social_number,
+                SchedulesCourse.day >= datetime(datetime.today().year, datetime.today().month,
+                                                datetime.today().day),
+                SchedulesCourse.day <= datetime(datetime.today().year, datetime.today().month,
+                                                datetime.today().day) + timedelta(days=7))
 
     class Form(FlaskForm):
         submit = SubmitField('Delete Selected Schedules')
