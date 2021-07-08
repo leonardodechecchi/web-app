@@ -47,23 +47,23 @@
                                         {% endif %}
                                     {% endfor %}
 
-                                        {% if not tmp.get('already_reserved') %}
-                                            {% set tmp = {'num_res': 0} %}
-                                            {% for room, schedule, count in reservations_cnt
-                                               if schedule.id == curr_turn.id  %}
-                                                {% if tmp.update({'num_res': count}) %}{% endif %}
-                                            {% endfor %}
-                                            <div class="trainer-name">
-                                                {{ room.max_members - tmp.get('num_res') }} slots available
-                                            </div>
-                                            {% if room.max_members - tmp.get('num_res') > 0 %}
-                                            <label class="my-checkbox">
-                                                {% set checkbox = getattr(form, str(curr_turn.id)) %}
-                                                {{ checkbox }}
-                                            <span class="checkmark"></span>
-                                            </label>
-                                            {% endif %}
+                                    {% if not tmp.get('already_reserved') %}
+                                        {% set tmp = {'num_res': 0} %}
+                                        {% for room, schedule, count in reservations_cnt
+                                           if schedule.id == curr_turn.id  %}
+                                            {% if tmp.update({'num_res': count}) %}{% endif %}
+                                        {% endfor %}
+                                        <div class="trainer-name">
+                                            {{ room.max_members - tmp.get('num_res') }} slots available
+                                        </div>
+                                        {% if room.max_members - tmp.get('num_res') > 0 %}
+                                        <label class="my-checkbox">
+                                            {% set checkbox = getattr(form, str(curr_turn.id)) %}
+                                            {{ checkbox }}
+                                        <span class="checkmark"></span>
+                                        </label>
                                         {% endif %}
+                                    {% endif %}
 
                                 {% endif %}
 
